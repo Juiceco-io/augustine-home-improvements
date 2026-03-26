@@ -1,0 +1,113 @@
+name: Build & Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          SITE_URL: ${{ vars.SITE_URL || 'https://www.augustinehomeimprovements.com' }}
+          SES_FROM_EMAIL: ${{ secrets.SES_FROM_EMAIL }}
+          CONTACT_RECIPIENT_EMAIL: ${{ secrets.CONTACT_RECIPIENT_EMAIL }}
+          AWS_REGION: ${{ secrets.AWS_REGION }}
+          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
+          ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
+          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET }}
+          NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-build
+          path: |
+            .next/
+            public/
+            package.json
+            next.config.ts
+          retention-days: 1
+
+  # -------------------------------------------------------
+  # Vercel deployment (uncomment if using Vercel)
+  # -------------------------------------------------------
+  # deploy-vercel:
+  #   name: Deploy to Vercel
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   environment: production
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Deploy to Vercel
+  #       run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+  #       env:
+  #         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  #         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+  # -------------------------------------------------------
+  # AWS S3 + CloudFront deployment (static export)
+  # Uncomment and configure for AWS deployment
+  # -------------------------------------------------------
+  # deploy-aws:
+  #   name: Deploy to AWS S3 + CloudFront
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   environment: production
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - name: Configure AWS credentials (OIDC)
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+  #         aws-region: ${{ secrets.AWS_REGION }}
+  #     - name: Download build artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: nextjs-build
+  #     - name: Sync to S3
+  #       run: |
+  #         aws s3 sync ./out s3://${{ secrets.S3_BUCKET_NAME }} \
+  #           --delete \
+  #           --cache-control "max-age=31536000,public,immutable" \
+  #           --exclude "*.html" \
+  #           --exclude "*.xml" \
+  #           --exclude "*.txt"
+  #         aws s3 sync ./out s3://${{ secrets.S3_BUCKET_NAME }} \
+  #           --delete \
+  #           --cache-control "no-cache" \
+  #           --include "*.html" \
+  #           --include "*.xml" \
+  #           --include "*.txt"
+  #     - name: Invalidate CloudFront
+  #       run: |
+  #         aws cloudfront create-invalidation \
+  #           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+  #           --paths "/*"
