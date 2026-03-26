@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized.' }, { status: 401 })
   }
 
-  let { paths } = await req.json().catch(() => ({ paths: null }))
+  const { paths } = await req.json().catch(() => ({ paths: null }))
 
   const pathsToRevalidate = Array.isArray(paths)
     ? paths.filter((path): path is string => typeof path === 'string' && PATHS.includes(path))
