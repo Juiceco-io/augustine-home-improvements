@@ -33,12 +33,14 @@ jobs:
         run: npm run build
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://www.augustinehomeimprovements.com' }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.SITE_URL || 'https://www.augustinehomeimprovements.com' }}
           SES_FROM_EMAIL: ${{ secrets.SES_FROM_EMAIL }}
           CONTACT_RECIPIENT_EMAIL: ${{ secrets.CONTACT_RECIPIENT_EMAIL }}
-          AWS_REGION: ${{ secrets.AWS_REGION }}
-          ADMIN_JWT_SECRET: ${{ secrets.ADMIN_JWT_SECRET }}
-          ADMIN_USERNAME: ${{ secrets.ADMIN_USERNAME }}
-          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN }}
+          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
+          COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
+          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS }}
+          ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
           ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET }}
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
 

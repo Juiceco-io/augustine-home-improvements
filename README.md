@@ -15,7 +15,7 @@ Public marketing website for **Augustine Home Improvements LLC** — a veteran-o
 | Styling | Tailwind CSS v4 |
 | Fonts | DM Sans + Playfair Display (Google Fonts) |
 | Contact Form | Custom → AWS SES |
-| Admin CMS | Custom lightweight admin panel (JWT-authenticated) |
+| Admin CMS | Custom admin panel secured by Amazon Cognito |
 | Deployment | Vercel (preferred) or AWS S3 + CloudFront |
 | CI/CD | GitHub Actions |
 | SEO | next-sitemap, JSON-LD schema, per-page metadata |
@@ -39,7 +39,7 @@ Open [http://localhost:3000](http://localhost:3000).
 
 **Dev mode:** If `SES_FROM_EMAIL` / `CONTACT_RECIPIENT_EMAIL` are not set, the contact form will log submissions to the console instead of sending emails.
 
-**Admin panel:** Access at `/admin/login`. Default credentials in dev mode (no `ADMIN_PASSWORD_HASH` set): username `admin`, password `admin123`.
+**Admin panel:** Access at `/admin/login`. Admin authentication uses Amazon Cognito Hosted UI.
 
 ---
 
@@ -70,37 +70,42 @@ See [`.env.example`](.env.example) for a complete list. Key variables:
 | Variable | Purpose |
 |----------|---------|
 | `SES_FROM_EMAIL` | SES-verified sender address |
-| `CONTACT_RECIPIENT_EMAIL` | Brandon's email for form submissions |
-| `ADMIN_JWT_SECRET` | Admin session signing secret |
-| `ADMIN_PASSWORD_HASH` | bcrypt hash of admin password |
+| `CONTACT_RECIPIENT_EMAIL` | Destination email for form submissions |
+| `COGNITO_DOMAIN` | Cognito Hosted UI domain |
+| `COGNITO_USER_POOL_ID` | Cognito User Pool ID |
+| `COGNITO_APP_CLIENT_ID` | Cognito app client used by the admin panel |
+| `COGNITO_SUPERUSER_EMAILS` | Optional bootstrap allowlist for initial super-user access |
+| `ADMIN_SESSION_SECRET` | App session-signing secret after Cognito login |
 | `ISR_REVALIDATION_SECRET` | Webhook token for cache revalidation |
+| `NEXT_PUBLIC_APP_URL` | Public app URL used for Cognito callback redirects |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | GA4 ID (`G-BG798Y9ZT0`) |
 
 ---
 
-## Admin Panel
+## Admin Panel (Amazon Cognito)
 
-Access `/admin/login` to manage site content.
+Admin access uses **Amazon Cognito Hosted UI** and app-issued signed sessions.
 
-**Initial admin password setup:**
-```bash
-# Install bcryptjs
-npm install bcryptjs
+Recommended Cognito setup:
+- Create a **User Pool** in `us-east-1`
+- Create a Hosted UI domain
+- Create an App Client with callback URL:
+  - local: `http://localhost:3000/api/admin/auth/callback`
+  - prod: `https://www.augustinehomeimprovements.com/api/admin/auth/callback`
+- Create a Cognito group named `super_user`
+- Add the owner as the initial Cognito user and place them in `super_user`
+- Optional fallback: set `COGNITO_SUPERUSER_EMAILS` to allowlist the bootstrap admin email
 
-# Generate password hash
-node -e "const b = require('bcryptjs'); b.hash('YourNewPassword', 12).then(h => { console.log(h); process.exit(); })"
-```
-
-Set the output as `ADMIN_PASSWORD_HASH` in your environment.
+Future user management should happen through the admin UI backed by Cognito admin APIs.
 
 ---
 
 ## Contact Form → SES Setup
 
-1. Verify your sending domain in AWS SES (SES → Verified Identities)
+1. Verify your sending domain/email in **AWS SES (us-east-1)**
 2. Request production access (move out of sandbox)
-3. Set `SES_FROM_EMAIL` and `CONTACT_RECIPIENT_EMAIL` env vars
-4. The `/api/contact` route handles rate limiting (3 req/10 min per IP) and server-side validation
+3. Set `SES_FROM_EMAIL` and `CONTACT_RECIPIENT_EMAIL`
+4. The `/api/contact` route handles validation, anti-spam basics, and SES delivery
 
 ---
 
@@ -145,13 +150,13 @@ Set the output as `ADMIN_PASSWORD_HASH` in your environment.
 | # | Item | Action Required |
 |---|------|----------------|
 | 1 | AWS SES domain verification | Verify `augustinehomeimprovements.com` in SES + request prod access |
-| 2 | Admin password | Generate bcrypt hash, set `ADMIN_PASSWORD_HASH` + `ADMIN_JWT_SECRET` |
-| 3 | Deployment target | Choose Vercel or AWS and configure secrets |
-| 4 | DNS cutover | Lower TTL before launch, point domain to new host |
-| 5 | Real project photos | Upload via admin panel once gallery CMS is activated |
-| 6 | GA4 property | Confirm `G-BG798Y9ZT0` is correct (pre-configured) |
-| 7 | bcryptjs dep | `npm install bcryptjs @types/bcryptjs` if running admin locally |
-| 8 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Set in Vercel/CI env if GA4 is desired |
+| 2 | Cognito setup | Create User Pool, Hosted UI domain, app client, and initial `super_user` |
+| 3 | App session secret | Set `ADMIN_SESSION_SECRET` |
+| 4 | Deployment target | Choose Vercel or AWS and configure secrets |
+| 5 | DNS cutover | Lower TTL before launch, point domain to new host |
+| 6 | Real project photos | Upload via admin panel once gallery CMS is finished |
+| 7 | `NEXT_PUBLIC_APP_URL` | Set to production domain for Cognito callback |
+| 8 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Set in deploy env if GA4 is desired |
 
 ---
 

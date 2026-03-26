@@ -1,49 +1,23 @@
-'use client'
+import Link from 'next/link'
+import { Lock, AlertCircle } from 'lucide-react'
 
-import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import { Lock, AlertCircle, Loader2 } from 'lucide-react'
+const errorMap: Record<string, string> = {
+  missing_code: 'Sign-in did not return a valid authorization code.',
+  auth_failed: 'Sign-in failed or this account is not authorized for admin access.',
+}
 
-export default function AdminLoginPage() {
-  const router = useRouter()
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-
-  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
-
-    const form = e.currentTarget
-    const username = (form.elements.namedItem('username') as HTMLInputElement).value
-    const password = (form.elements.namedItem('password') as HTMLInputElement).value
-
-    try {
-      const res = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}))
-        setError(data.error || 'Invalid credentials')
-        return
-      }
-
-      router.push('/admin/dashboard')
-      router.refresh()
-    } catch {
-      setError('Connection error. Please try again.')
-    } finally {
-      setLoading(false)
-    }
-  }
+export default async function AdminLoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string; next?: string }>
+}) {
+  const params = (await searchParams) || {}
+  const next = params.next || '/admin/dashboard'
+  const error = params.error ? errorMap[params.error] || 'Unable to sign in.' : ''
 
   return (
     <div className="min-h-screen bg-brand-cream flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        {/* Logo */}
+      <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-14 h-14 rounded-xl bg-brand-red flex items-center justify-center mx-auto mb-4">
             <Lock size={24} className="text-white" aria-hidden="true" />
@@ -52,60 +26,29 @@ export default function AdminLoginPage() {
           <p className="text-gray-500 text-sm mt-1">Augustine Home Improvements</p>
         </div>
 
-        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label htmlFor="username" className="form-label">Username</label>
-              <input
-                id="username"
-                name="username"
-                type="text"
-                required
-                autoComplete="username"
-                className="form-input"
-                placeholder="admin"
-              />
-            </div>
-            <div>
-              <label htmlFor="password" className="form-label">Password</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                autoComplete="current-password"
-                className="form-input"
-                placeholder="••••••••"
-              />
-            </div>
+        <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 space-y-5">
+          <div>
+            <h2 className="font-semibold text-brand-charcoal">Secure sign in</h2>
+            <p className="text-sm text-gray-500 mt-2">
+              Admin access uses Amazon Cognito. Only approved super-users can sign in and manage additional users.
+            </p>
+          </div>
 
-            {error && (
-              <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm" role="alert">
-                <AlertCircle size={16} className="flex-shrink-0 mt-0.5" aria-hidden="true" />
-                {error}
-              </div>
-            )}
+          {error && (
+            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm" role="alert">
+              <AlertCircle size={16} className="flex-shrink-0 mt-0.5" aria-hidden="true" />
+              {error}
+            </div>
+          )}
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary w-full disabled:opacity-60"
-            >
-              {loading ? (
-                <>
-                  <Loader2 size={16} className="animate-spin" aria-hidden="true" />
-                  Signing in…
-                </>
-              ) : (
-                'Sign In'
-              )}
-            </button>
-          </form>
+          <Link href={`/api/admin/auth?next=${encodeURIComponent(next)}`} className="btn-primary w-full justify-center">
+            Continue with secure admin login
+          </Link>
+
+          <p className="text-xs text-gray-400">
+            Initial super-user access should be granted through Cognito. Additional admin users can be created after sign-in.
+          </p>
         </div>
-
-        <p className="text-center text-xs text-gray-400 mt-4">
-          Admin access is restricted. If you need help, contact your developer.
-        </p>
       </div>
     </div>
   )

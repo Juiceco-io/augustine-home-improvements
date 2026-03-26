@@ -1,58 +1,37 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createAdminSession, verifyAdminCredentials, getSessionCookieName } from '@/lib/auth'
+import { getSessionCookieName, getCognitoLoginUrl } from '@/lib/auth'
 
 const SESSION_COOKIE = getSessionCookieName()
-const SESSION_MAX_AGE = 30 * 24 * 60 * 60 // 30 days in seconds
+
+export async function GET(req: NextRequest) {
+  const nextPath = req.nextUrl.searchParams.get('next') || '/admin/dashboard'
+  return NextResponse.redirect(getCognitoLoginUrl(nextPath))
+}
 
 export async function POST(req: NextRequest) {
-  // Handle logout via form POST
   const contentType = req.headers.get('content-type') || ''
 
-  let body: { username?: string; password?: string; _action?: string }
+  let action: string | undefined
 
   if (contentType.includes('application/x-www-form-urlencoded')) {
     const text = await req.text()
     const params = new URLSearchParams(text)
-    body = {
-      _action: params.get('_action') || undefined,
-      username: params.get('username') || undefined,
-      password: params.get('password') || undefined,
-    }
+    action = params.get('_action') || undefined
   } else {
-    body = await req.json().catch(() => ({}))
+    const body = await req.json().catch(() => ({})) as { _action?: string }
+    action = body._action
   }
 
-  // Logout
-  if (body._action === 'logout') {
+  if (action === 'logout') {
     const response = NextResponse.redirect(new URL('/admin/login', req.url))
     response.cookies.delete(SESSION_COOKIE)
     return response
   }
 
-  // Login
-  if (!body.username || !body.password) {
-    return NextResponse.json({ error: 'Username and password are required.' }, { status: 400 })
-  }
-
-  const valid = await verifyAdminCredentials(body.username, body.password)
-  if (!valid) {
-    // Artificial delay to slow brute-force
-    await new Promise((r) => setTimeout(r, 500))
-    return NextResponse.json({ error: 'Invalid username or password.' }, { status: 401 })
-  }
-
-  const token = await createAdminSession(body.username)
-
-  const response = NextResponse.json({ success: true })
-  response.cookies.set(SESSION_COOKIE, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: SESSION_MAX_AGE,
-    path: '/',
-  })
-
-  return response
+  return NextResponse.json(
+    { error: 'Use Cognito sign-in flow for admin login.' },
+    { status: 405 }
+  )
 }
 
 export async function DELETE(req: NextRequest) {

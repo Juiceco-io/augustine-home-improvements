@@ -64,7 +64,7 @@ export default async function AdminDashboardPage() {
             <LayoutDashboard size={20} aria-hidden="true" />
             <div>
               <div className="font-semibold">Admin Dashboard</div>
-              <div className="text-xs text-gray-400">Augustine Home Improvements</div>
+              <div className="text-xs text-gray-400">Augustine Home Improvements • Cognito secured</div>
             </div>
           </div>
           <div className="flex items-center gap-4">
@@ -165,7 +165,7 @@ export default async function AdminDashboardPage() {
             Phone displayed on site: <strong>484-467-7925</strong>
           </div>
           <p className="mt-2 text-xs text-gray-500">
-            To change phone number or other contact details, update the site code or contact your developer.
+            Initial super-user access is controlled in Cognito. Future admin user management should be handled through the admin UI backed by Cognito user operations.
           </p>
         </div>
       </main>
