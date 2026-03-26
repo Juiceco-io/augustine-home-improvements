@@ -59,13 +59,17 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
-      // Preserve trailing slash URLs from WordPress
-      {
-        source: '/deck-installation',
-        destination: '/deck-installation/',
-        permanent: true,
-      },
-    ]
+      '/deck-installation',
+      '/kitchen-renovations',
+      '/bathroom-remodeling',
+      '/basement-renovation',
+      '/home-additions',
+      '/home-renovations',
+    ].map((source) => ({
+      source,
+      destination: `${source}/`,
+      permanent: true,
+    }))
   },
 }
 

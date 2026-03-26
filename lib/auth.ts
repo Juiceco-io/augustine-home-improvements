@@ -8,6 +8,7 @@
  */
 
 import { cookies } from 'next/headers'
+import bcrypt from 'bcryptjs'
 
 const SESSION_COOKIE = 'ahi_admin_session'
 const SESSION_DURATION = 30 * 24 * 60 * 60 * 1000 // 30 days
@@ -110,14 +111,10 @@ export async function verifyAdminCredentials(
     return false
   }
 
-  // Simple PBKDF2-based comparison as fallback (no native bcrypt needed)
-  // For production with bcrypt hashes, install bcryptjs and update this function
   try {
-    // Attempt to use Web Crypto PBKDF2 for the stored hash if it's a simple format
-    // This placeholder returns false — set up proper bcrypt in production
-    console.warn('[Auth] Install bcryptjs and use bcrypt.compare() for production password verification.')
-    return false
-  } catch {
+    return await bcrypt.compare(password, passwordHash)
+  } catch (error) {
+    console.error('[Auth] Failed to verify admin credentials:', error)
     return false
   }
 }

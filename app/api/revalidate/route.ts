@@ -29,7 +29,9 @@ export async function POST(req: NextRequest) {
 
   let { paths } = await req.json().catch(() => ({ paths: null }))
 
-  const pathsToRevalidate = Array.isArray(paths) ? paths : PATHS
+  const pathsToRevalidate = Array.isArray(paths)
+    ? paths.filter((path): path is string => typeof path === 'string' && PATHS.includes(path))
+    : PATHS
 
   const revalidated: string[] = []
   const errors: string[] = []

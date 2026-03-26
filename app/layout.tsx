@@ -52,7 +52,7 @@ export const metadata: Metadata = {
     url: SITE_URL,
     images: [
       {
-        url: '/images/og-default.jpg',
+        url: '/images/og-default.svg',
         width: 1200,
         height: 630,
         alt: 'Augustine Home Improvements — Chester County PA',
@@ -92,8 +92,8 @@ export default function RootLayout({
               '@type': 'HomeAndConstructionBusiness',
               name: 'Augustine Home Improvements LLC',
               url: SITE_URL,
-              logo: `${SITE_URL}/images/logo.png`,
-              image: `${SITE_URL}/images/og-default.jpg`,
+              logo: `${SITE_URL}/images/logo.svg`,
+              image: `${SITE_URL}/images/og-default.svg`,
               description:
                 'Veteran-owned home improvement contractor serving Chester County PA and suburban Philadelphia. Specializing in decks, kitchens, bathrooms, basements, and full home renovations.',
               telephone: '+14844677925',
