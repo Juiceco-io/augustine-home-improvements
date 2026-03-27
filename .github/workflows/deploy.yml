@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "deployer_role=${{ vars.DEPLOYER_ROLE_ARN }}" >> $GITHUB_OUTPUT
           echo "state_role=${{ vars.TF_STATE_ROLE_ARN }}" >> $GITHUB_OUTPUT
-          echo 'cloudfront_aliases_json=${{ vars.CLOUDFRONT_ALIASES_JSON || "[]" }}' >> $GITHUB_OUTPUT
+          echo "cloudfront_aliases_json=${{ vars.CLOUDFRONT_ALIASES_JSON || '[]' }}" >> $GITHUB_OUTPUT
 
   terraform-apply:
     name: Terraform Apply

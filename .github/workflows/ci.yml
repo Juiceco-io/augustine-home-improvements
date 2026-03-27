@@ -3,10 +3,13 @@ name: CI
 on:
   push:
     branches:
+      - dev
+      - qa
       - main
-      - static-export-deploy
   pull_request:
     branches:
+      - dev
+      - qa
       - main
 
 jobs:
