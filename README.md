@@ -91,14 +91,13 @@ Summary:
 
 ## Admin Panel (Cognito)
 
-Use Amazon Cognito Hosted UI.
+Cognito is **managed via Terraform** (PR-managed infrastructure, not manual AWS Console setup).
 
-Recommended setup:
-- User Pool in `us-east-1`
-- Hosted UI domain
-- App Client with callback URLs
-- `super_user` group
-- initial admin user in `super_user`
+The User Pool, Hosted UI domain, App Client, and `super_user` group are declared in Terraform
+and applied through PRs. Terraform outputs are set as GitHub environment *variables* (non-sensitive).
+The initial admin super-user can be bootstrapped from `COGNITO_SUPERUSER_EMAILS` (GitHub secret).
+
+See [docs/deployment-model.md](docs/deployment-model.md) for the full vars/secrets reference.
 
 ---
 
@@ -107,13 +106,14 @@ Recommended setup:
 ### Dev (immediate)
 
 See **[infra/dev-checklist.md](infra/dev-checklist.md)** for the full sequence.
+See **[docs/deployment-model.md](docs/deployment-model.md)** for vars/secrets reference.
 
 | # | Item | Action Required |
 |---|------|----------------|
-| 1 | GitHub `dev` environment | Add vars/secrets |
-| 2 | SES | Verify sender / sandbox-compatible setup |
+| 1 | GitHub `dev` environment | Add vars/secrets per deployment-model.md |
+| 2 | SES | Verify sender domain via CLI / Terraform |
 | 3 | Lambda + API Gateway | Deploy contact backend |
-| 4 | Cognito (dev) | User Pool, Hosted UI, App Client |
+| 4 | Cognito (dev) | Apply Terraform — sets up User Pool, App Client, Hosted UI |
 | 5 | ECR | Create dev repo |
 | 6 | Dockerfile | Add if missing |
 | 7 | ECS Fargate | Cluster + service behind ALB |

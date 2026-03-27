@@ -36,25 +36,37 @@ jobs:
         run: npx tsc --noEmit
 
       # ── Build ──────────────────────────────────────────────────────────────
-      # All env values come from the `dev` GitHub environment.
-      # Required vars/secrets are listed in infra/dev-checklist.md.
-      # Build will succeed even if optional AWS secrets are absent —
+      # Deployment model:
+      #   - Cognito is provisioned by Terraform (PR-managed, not AWS Console).
+      #   - Non-sensitive config (URLs, pool IDs, client IDs) → GitHub env *variables* (vars.*)
+      #   - Secrets (session token, superuser emails, IAM roles) → GitHub env *secrets* (secrets.*)
+      #   - See docs/deployment-model.md for the full reference.
+      #
+      # Build will succeed even if optional deploy secrets are absent —
       # those are only needed at deploy time.
       - name: Build
         run: npm run build
         env:
-          # Public URLs
+          # ── Public URLs (non-sensitive → GitHub env variables) ──────────
           SITE_URL: ${{ vars.SITE_URL || 'https://dev.augustinehomeimprovements.com' }}
           NEXT_PUBLIC_APP_URL: ${{ vars.SITE_URL || 'https://dev.augustinehomeimprovements.com' }}
-          # Contact form → API Gateway + Lambda
+
+          # ── Contact form → API Gateway (non-sensitive URL → GitHub env variable) ──
           NEXT_PUBLIC_CONTACT_API_URL: ${{ vars.CONTACT_API_URL || '' }}
-          # Cognito admin auth
-          COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN || '' }}
-          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID || '' }}
-          COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID || '' }}
-          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS || '' }}
+
+          # ── Cognito admin auth ───────────────────────────────────────────
+          # Non-sensitive Cognito identifiers → GitHub env *variables*
+          COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID || '' }}
+          COGNITO_APP_CLIENT_ID: ${{ vars.COGNITO_APP_CLIENT_ID || '' }}
+          COGNITO_DOMAIN: ${{ vars.COGNITO_DOMAIN || '' }}
+          # Secrets → GitHub env *secrets*
           ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET || 'dev-session-secret-change-before-prod' }}
+          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS || '' }}
+
+          # ── ISR revalidation (secret) ────────────────────────────────────
           ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET || 'dev-revalidation-secret' }}
+
+          # ── Analytics (non-sensitive → GitHub env variable) ─────────────
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID || '' }}
 
       - name: Upload standalone artifact
@@ -68,10 +80,10 @@ jobs:
           retention-days: 3
 
   # ── AWS deploy (ECS) ────────────────────────────────────────────────────────
-  # Uncomment once the following AWS resources exist:
+  # Uncomment once the following AWS resources exist (provisioned via Terraform):
   #   - ECR repository
   #   - ECS cluster + service + task definition
-  #   - IAM OIDC role with ECR/ECS permissions (see infra/dev-checklist.md)
+  #   - IAM OIDC role with ECR/ECS permissions (see docs/deployment-model.md)
   # Add a Dockerfile at the repo root (see infra/README.md for reference).
   #
   # deploy-ecs:

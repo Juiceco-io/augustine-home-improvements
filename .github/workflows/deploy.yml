@@ -29,20 +29,35 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
+      # ── Build ──────────────────────────────────────────────────────────────
+      # Deployment model:
+      #   - Cognito is provisioned by Terraform (PR-managed, not AWS Console).
+      #   - Non-sensitive config (URLs, pool IDs, client IDs) → GitHub env *variables* (vars.*)
+      #   - Secrets (session token, superuser emails, IAM roles) → GitHub env *secrets* (secrets.*)
+      #   - See docs/deployment-model.md for the full reference.
       - name: Build
         run: npm run build
         env:
+          # ── Public URLs (non-sensitive → GitHub env variables) ──────────
           SITE_URL: ${{ vars.SITE_URL || 'https://www.augustinehomeimprovements.com' }}
           NEXT_PUBLIC_APP_URL: ${{ vars.SITE_URL || 'https://www.augustinehomeimprovements.com' }}
-          # Contact form posts to API Gateway + Lambda (not the local /api/contact route)
+
+          # ── Contact form → API Gateway (non-sensitive URL → GitHub env variable) ──
           NEXT_PUBLIC_CONTACT_API_URL: ${{ vars.CONTACT_API_URL }}
-          # Cognito — admin panel OAuth
-          COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN }}
-          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
-          COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
-          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS }}
+
+          # ── Cognito admin auth ───────────────────────────────────────────
+          # Non-sensitive Cognito identifiers → GitHub env *variables*
+          COGNITO_USER_POOL_ID: ${{ vars.COGNITO_USER_POOL_ID }}
+          COGNITO_APP_CLIENT_ID: ${{ vars.COGNITO_APP_CLIENT_ID }}
+          COGNITO_DOMAIN: ${{ vars.COGNITO_DOMAIN }}
+          # Secrets → GitHub env *secrets*
           ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
+          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS }}
+
+          # ── ISR revalidation (secret) ────────────────────────────────────
           ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET }}
+
+          # ── Analytics (non-sensitive → GitHub env variable) ─────────────
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
 
       - name: Upload standalone artifact

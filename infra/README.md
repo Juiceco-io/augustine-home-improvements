@@ -4,6 +4,10 @@
 > For the step-by-step guide to bringing up the dev environment, see
 > **[dev-checklist.md](dev-checklist.md)**.
 > This file covers the full reference architecture.
+>
+> **Deployment model:**
+> Infrastructure (including Cognito) is managed via Terraform and deployed through PRs.
+> See **[docs/deployment-model.md](../docs/deployment-model.md)** for the vars/secrets reference.
 
 This directory contains reference infrastructure files for the AWS deployment of
 Augustine Home Improvements.
@@ -73,25 +77,33 @@ CMD ["node", "server.js"]
 - Behind API Gateway route: `POST /contact`
 - Sends email via SES
 
-Set these on the Lambda function:
-- `SES_FROM_EMAIL`
-- `CONTACT_RECIPIENT_EMAIL`
+Set these on the Lambda function (not secrets — plain config):
+- `SES_FROM_EMAIL=noreply@augustinehomeimprovements.com`
+- `CONTACT_RECIPIENT_EMAIL=info@augustinehomeimprovements.com`
 - `AWS_REGION=us-east-1`
-- `ALLOWED_ORIGIN`
+- `ALLOWED_ORIGIN=https://dev.augustinehomeimprovements.com`
 
 ---
 
 ## Admin Panel (Cognito)
 
-The admin panel at `/admin/*` uses Amazon Cognito Hosted UI and requires the
-Next.js server to be running.
+**Cognito is managed via Terraform — not the AWS Console.**
 
-Recommended setup:
-1. Create a **User Pool** in `us-east-1`
-2. Create a Hosted UI domain
-3. Create an App Client with callback URLs for local/dev/prod
-4. Create Cognito group: `super_user`
-5. Add owner as initial user and place in `super_user`
+The User Pool, Hosted UI domain, App Client, and groups are declared in Terraform
+and applied through PRs. Do not configure Cognito manually.
+
+Expected Terraform resources:
+- `aws_cognito_user_pool`
+- `aws_cognito_user_pool_domain`
+- `aws_cognito_user_pool_client` (with callback URLs for local/dev/prod)
+- `aws_cognito_user_group` (`super_user`)
+
+Terraform outputs (`user_pool_id`, `client_id`, `domain`) are set as GitHub
+environment *variables* (not secrets — they are non-sensitive identifiers).
+
+Initial super-user seeding: set `COGNITO_SUPERUSER_EMAILS` as a GitHub secret
+so the first deployment can bootstrap the admin account via CI, without manual
+console access.
 
 ---
 
@@ -105,22 +117,31 @@ Recommended setup:
 
 ---
 
-## GitHub Secrets / Variables Required
+## GitHub Variables & Secrets Required
 
-| Name | Type | Value |
-|------|------|-------|
-| `AWS_ROLE_ARN` | Secret | OIDC role ARN for GitHub Actions |
-| `CLOUDFRONT_DISTRIBUTION_ID` | Secret | CloudFront distribution ID |
-| `COGNITO_DOMAIN` | Secret | Cognito Hosted UI domain |
-| `COGNITO_USER_POOL_ID` | Secret | Cognito User Pool ID |
-| `COGNITO_APP_CLIENT_ID` | Secret | Cognito app client ID |
-| `COGNITO_SUPERUSER_EMAILS` | Secret | Bootstrap allowlist (optional) |
-| `ADMIN_SESSION_SECRET` | Secret | Random 32+ char string |
-| `ISR_REVALIDATION_SECRET` | Secret | Random string |
-| `ECR_REGISTRY` | Secret | ECR registry URL |
-| `ECS_CLUSTER` | Secret | ECS cluster name |
-| `ECS_SERVICE` | Secret | ECS service name |
-| `CONTACT_API_URL` | Variable | API Gateway contact endpoint URL |
-| `SITE_URL` | Variable | public environment URL |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Variable | `G-BG798Y9ZT0` |
-| `AWS_REGION` | Variable | `us-east-1` |
+See **[docs/deployment-model.md](../docs/deployment-model.md)** for the authoritative reference.
+
+### Variables (`vars.*`) — non-sensitive config
+
+| Name | Description |
+|------|-------------|
+| `SITE_URL` | Public environment URL |
+| `CONTACT_API_URL` | API Gateway contact endpoint URL |
+| `COGNITO_USER_POOL_ID` | Cognito User Pool ID (Terraform output) |
+| `COGNITO_APP_CLIENT_ID` | Cognito App Client ID (Terraform output) |
+| `COGNITO_DOMAIN` | Cognito Hosted UI domain URL (Terraform output) |
+| `AWS_REGION` | `us-east-1` |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `G-BG798Y9ZT0` |
+
+### Secrets (`secrets.*`) — sensitive values only
+
+| Name | Description |
+|------|-------------|
+| `ADMIN_SESSION_SECRET` | 32+ char random string — signs session cookies |
+| `COGNITO_SUPERUSER_EMAILS` | Optional bootstrap email list |
+| `ISR_REVALIDATION_SECRET` | Random token for on-demand ISR |
+| `AWS_ROLE_ARN` | OIDC role ARN for GitHub Actions |
+| `ECR_REGISTRY` | ECR registry URL |
+| `ECS_CLUSTER` | ECS cluster name |
+| `ECS_SERVICE` | ECS service name |
+| `CLOUDFRONT_DISTRIBUTION_ID` | CloudFront distribution ID |
