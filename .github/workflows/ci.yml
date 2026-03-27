@@ -1,11 +1,13 @@
 name: CI
 
+# Runs on push to the active delivery branches and on PRs targeting them.
 on:
   push:
     branches:
       - dev
       - qa
       - prod
+      - main
   pull_request:
     branches:
       - dev
@@ -25,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -39,3 +41,9 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          SITE_URL: https://dev.augustinehomeimprovements.com
+          NEXT_PUBLIC_APP_URL: https://dev.augustinehomeimprovements.com
+          NEXT_PUBLIC_CONTACT_API_URL: ''
+          ADMIN_SESSION_SECRET: ci-placeholder-secret-not-for-production
+          ISR_REVALIDATION_SECRET: ci-placeholder-revalidation-secret
