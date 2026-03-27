@@ -1,5 +1,10 @@
 # Infrastructure — AWS-First Architecture
 
+> **Current deploy target: `dev`.**
+> For the step-by-step guide to deploying the dev environment, see
+> **[dev-checklist.md](dev-checklist.md)**.
+> This file covers the full reference architecture (dev and prod).
+
 This directory contains reference infrastructure files for the AWS deployment of
 Augustine Home Improvements.
 

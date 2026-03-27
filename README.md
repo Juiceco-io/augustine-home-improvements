@@ -109,15 +109,22 @@ See [`.env.example`](.env.example) for a complete list.
 
 ## Deployment
 
-### AWS ECS + CloudFront (production)
+### Current Target: `dev` Environment (AWS)
 
-The `main` branch auto-deploys via GitHub Actions (`.github/workflows/deploy.yml`):
+The **`dev` branch** is the active deployment target. Push to `dev` → triggers
+`.github/workflows/deploy-dev.yml` → builds and (once AWS resources exist) deploys to ECS.
 
-1. `npm run build` → produces `.next/standalone/` (Next.js standalone server)
-2. Docker image built from standalone output → pushed to ECR
+**To get dev deployed end-to-end:**  
+See **[infra/dev-checklist.md](infra/dev-checklist.md)** — the step-by-step guide.
+
+The deploy workflow is already wired:
+1. `npm run build` → `.next/standalone/` (standalone Next.js server)
+2. Docker image → pushed to ECR (uncomment deploy job in `deploy-dev.yml` once ECR/ECS exist)
 3. ECS service updated → CloudFront cache invalidated
 
-**Required GitHub secrets / vars** — see [infra/README.md](infra/README.md) for the full list.
+All required GitHub secrets/vars must be set in the `dev` GitHub environment before the deploy step runs. The **build step** works today without AWS resources — it just produces the artifact.
+
+> **prod is not wired yet.** `deploy.yml` on `main` has the ECS deploy job stubbed out.
 
 ### Manual build
 
@@ -183,21 +190,35 @@ Recommended Cognito setup:
 
 ---
 
-## Remaining Blockers Before Launch
+## Remaining Blockers
+
+### Dev (immediate)
+
+See **[infra/dev-checklist.md](infra/dev-checklist.md)** for the full step-by-step guide.
 
 | # | Item | Action Required |
 |---|------|----------------|
-| 1 | SES domain verification | Verify `augustinehomeimprovements.com` in SES + request prod access |
-| 2 | Lambda deploy | Package & deploy `infra/lambda/contact-handler.js` (see infra/README.md) |
-| 3 | API Gateway | Create HTTP API, route POST /contact → Lambda, get endpoint URL |
-| 4 | `CONTACT_API_URL` GitHub var | Set to API Gateway URL so build wires `NEXT_PUBLIC_CONTACT_API_URL` |
-| 5 | Cognito setup | Create User Pool, Hosted UI, App Client, `super_user` group, initial user |
-| 6 | ECR + ECS Fargate | Create ECR repo, ECS cluster/service/task-def; add Dockerfile |
-| 7 | CloudFront distribution | Point to ALB origin (ECS); configure caching behaviors |
-| 8 | OIDC role for CI | Create IAM role with ECR push + ECS deploy + CloudFront invalidation; link GitHub OIDC |
-| 9 | GitHub secrets | Set all secrets/vars listed in infra/README.md |
-| 10 | DNS cutover | Lower TTL before launch, point domain to CloudFront |
-| 11 | Real project photos | Upload via admin panel once gallery CMS is finished |
+| 1 | GitHub `dev` environment | Create in repo Settings → Environments; add secrets/vars |
+| 2 | SES domain verification | Verify `augustinehomeimprovements.com` in SES (sandbox is OK for dev) |
+| 3 | Lambda + API Gateway | Deploy `infra/lambda/contact-handler.js`; set `CONTACT_API_URL` var |
+| 4 | Cognito (dev) | Create User Pool, App Client, Hosted UI; add dev callback URL |
+| 5 | ECR repository | Create `augustine-home-improvements-dev` in ECR |
+| 6 | Dockerfile | Add to repo root (reference in `infra/README.md`) |
+| 7 | ECS Fargate (dev) | Create cluster + task def + service behind ALB |
+| 8 | CloudFront (dev) | Create distribution → ALB; set `CLOUDFRONT_DISTRIBUTION_ID` secret |
+| 9 | OIDC IAM role (dev) | Create `augustine-deploy-role-dev`; set `AWS_ROLE_ARN` secret |
+| 10 | Uncomment deploy job | In `deploy-dev.yml`, uncomment `deploy-ecs` and `invalidate-cdn` jobs |
+
+### Prod (not yet)
+
+| # | Item | Notes |
+|---|------|-------|
+| 1 | Prod AWS resources | Mirror dev setup with prod naming |
+| 2 | GitHub `production` environment | Add prod secrets/vars |
+| 3 | `deploy.yml` on `main` | Uncomment ECS deploy job (already stubbed) |
+| 4 | SES production access | File AWS support request to leave sandbox |
+| 5 | DNS cutover | Lower TTL 48h before, point to prod CloudFront |
+| 6 | Real project photos | Upload via admin panel |
 
 ---
 

@@ -1,11 +1,15 @@
 name: CI
 
+# ── Trigger ──────────────────────────────────────────────────────────────────
+# Runs on push to `dev` (the primary active branch) and on PRs targeting `dev`.
+# `qa` / `prod` / `main` are included for when those environments are wired up.
 on:
   push:
     branches:
       - dev
       - qa
       - prod
+      - main
   pull_request:
     branches:
       - dev
@@ -25,7 +29,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'        # aligned with deploy workflow
           cache: 'npm'
 
       - name: Install dependencies
@@ -37,5 +41,12 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
+      # Build with safe dev-placeholder values so CI passes without real AWS secrets.
       - name: Build
         run: npm run build
+        env:
+          SITE_URL: https://dev.augustinehomeimprovements.com
+          NEXT_PUBLIC_APP_URL: https://dev.augustinehomeimprovements.com
+          NEXT_PUBLIC_CONTACT_API_URL: ''
+          ADMIN_SESSION_SECRET: ci-placeholder-secret-not-for-production
+          ISR_REVALIDATION_SECRET: ci-placeholder-revalidation-secret

@@ -1,0 +1,135 @@
+name: Build & Deploy to AWS (dev)
+
+# ── Trigger ──────────────────────────────────────────────────────────────────
+# Runs on every push to `dev` and on manual dispatch.
+# This is the primary deploy workflow right now — prod is not yet wired.
+on:
+  push:
+    branches: [dev]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-dev
+  cancel-in-progress: true        # cancel superseded dev deploys
+
+# ── Jobs ─────────────────────────────────────────────────────────────────────
+jobs:
+  build:
+    name: Build (standalone)
+    runs-on: ubuntu-latest
+    environment: dev               # pulls secrets/vars from the `dev` GitHub environment
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # ── Build ──────────────────────────────────────────────────────────────
+      # All env values come from the `dev` GitHub environment.
+      # Required vars/secrets are listed in infra/dev-checklist.md.
+      # Build will succeed even if optional AWS secrets are absent —
+      # those are only needed at deploy time.
+      - name: Build
+        run: npm run build
+        env:
+          # Public URLs
+          SITE_URL: ${{ vars.SITE_URL || 'https://dev.augustinehomeimprovements.com' }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.SITE_URL || 'https://dev.augustinehomeimprovements.com' }}
+          # Contact form → API Gateway + Lambda
+          NEXT_PUBLIC_CONTACT_API_URL: ${{ vars.CONTACT_API_URL || '' }}
+          # Cognito admin auth
+          COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN || '' }}
+          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID || '' }}
+          COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID || '' }}
+          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS || '' }}
+          ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET || 'dev-session-secret-change-before-prod' }}
+          ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET || 'dev-revalidation-secret' }}
+          NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID || '' }}
+
+      - name: Upload standalone artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: nextjs-standalone-dev
+          path: |
+            .next/standalone/
+            .next/static/
+            public/
+          retention-days: 3
+
+  # ── AWS deploy (ECS) ────────────────────────────────────────────────────────
+  # Uncomment once the following AWS resources exist:
+  #   - ECR repository
+  #   - ECS cluster + service + task definition
+  #   - IAM OIDC role with ECR/ECS permissions (see infra/dev-checklist.md)
+  # Add a Dockerfile at the repo root (see infra/README.md for reference).
+  #
+  # deploy-ecs:
+  #   name: Deploy to AWS ECS (dev)
+  #   needs: build
+  #   runs-on: ubuntu-latest
+  #   environment: dev
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #
+  #     - name: Configure AWS credentials (OIDC)
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+  #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+  #
+  #     - name: Login to Amazon ECR
+  #       uses: aws-actions/amazon-ecr-login@v2
+  #
+  #     - name: Download build artifact
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: nextjs-standalone-dev
+  #         path: .next/standalone/
+  #
+  #     - name: Build and push Docker image
+  #       run: |
+  #         IMAGE_URI=${{ secrets.ECR_REGISTRY }}/augustine-home-improvements-dev:${{ github.sha }}
+  #         docker build -t "$IMAGE_URI" .
+  #         docker push "$IMAGE_URI"
+  #         echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
+  #
+  #     - name: Deploy to ECS (dev)
+  #       run: |
+  #         aws ecs update-service \
+  #           --cluster ${{ secrets.ECS_CLUSTER }} \
+  #           --service ${{ secrets.ECS_SERVICE }} \
+  #           --force-new-deployment
+  #
+  # ── CloudFront cache invalidation ───────────────────────────────────────────
+  # invalidate-cdn:
+  #   name: Invalidate CloudFront Cache (dev)
+  #   needs: deploy-ecs
+  #   runs-on: ubuntu-latest
+  #   environment: dev
+  #   permissions:
+  #     id-token: write
+  #   steps:
+  #     - name: Configure AWS credentials (OIDC)
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+  #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+  #     - name: Invalidate CloudFront (dev)
+  #       run: |
+  #         aws cloudfront create-invalidation \
+  #           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+  #           --paths "/*"
