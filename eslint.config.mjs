@@ -14,6 +14,13 @@ const config = [
   {
     ignores: ['.next/**', 'node_modules/**', 'public/sitemap.xml', 'next-env.d.ts'],
   },
+  {
+    files: ['infra/**/*.js'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off',
+      '@typescript-eslint/no-unused-vars': 'off',
+    },
+  },
 ]
 
 export default config

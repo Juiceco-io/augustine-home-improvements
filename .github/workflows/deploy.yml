@@ -1,4 +1,4 @@
-name: Build & Deploy
+name: Build & Deploy to AWS
 
 on:
   push:
@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   build:
-    name: Build & Type Check
+    name: Build (standalone)
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -34,8 +34,9 @@ jobs:
         env:
           SITE_URL: ${{ vars.SITE_URL || 'https://www.augustinehomeimprovements.com' }}
           NEXT_PUBLIC_APP_URL: ${{ vars.SITE_URL || 'https://www.augustinehomeimprovements.com' }}
-          SES_FROM_EMAIL: ${{ secrets.SES_FROM_EMAIL }}
-          CONTACT_RECIPIENT_EMAIL: ${{ secrets.CONTACT_RECIPIENT_EMAIL }}
+          # Contact form posts to API Gateway + Lambda (not the local /api/contact route)
+          NEXT_PUBLIC_CONTACT_API_URL: ${{ vars.CONTACT_API_URL }}
+          # Cognito — admin panel OAuth
           COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN }}
           COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID }}
           COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID }}
@@ -44,39 +45,23 @@ jobs:
           ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET }}
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
 
-      - name: Upload build artifact
+      - name: Upload standalone artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nextjs-build
+          name: nextjs-standalone
           path: |
-            .next/
+            .next/standalone/
+            .next/static/
             public/
-            package.json
-            next.config.ts
           retention-days: 1
 
   # -------------------------------------------------------
-  # Vercel deployment (uncomment if using Vercel)
+  # AWS ECS / Container deployment
+  # Build a Docker image from the standalone output and push to ECR.
+  # Requires: Dockerfile, ECR repo, ECS cluster/service/task-def.
   # -------------------------------------------------------
-  # deploy-vercel:
-  #   name: Deploy to Vercel
-  #   needs: build
-  #   runs-on: ubuntu-latest
-  #   environment: production
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Deploy to Vercel
-  #       run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
-  #       env:
-  #         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  #         VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-
-  # -------------------------------------------------------
-  # AWS S3 + CloudFront deployment (static export)
-  # Uncomment and configure for AWS deployment
-  # -------------------------------------------------------
-  # deploy-aws:
-  #   name: Deploy to AWS S3 + CloudFront
+  # deploy-ecs:
+  #   name: Deploy to AWS ECS
   #   needs: build
   #   runs-on: ubuntu-latest
   #   environment: production
@@ -89,25 +74,43 @@ jobs:
   #       uses: aws-actions/configure-aws-credentials@v4
   #       with:
   #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-  #         aws-region: ${{ secrets.AWS_REGION }}
-  #     - name: Download build artifact
+  #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+  #     - name: Login to Amazon ECR
+  #       uses: aws-actions/amazon-ecr-login@v2
+  #     - name: Download artifact
   #       uses: actions/download-artifact@v4
   #       with:
-  #         name: nextjs-build
-  #     - name: Sync to S3
+  #         name: nextjs-standalone
+  #         path: .next/standalone/
+  #     - name: Build and push Docker image
   #       run: |
-  #         aws s3 sync ./out s3://${{ secrets.S3_BUCKET_NAME }} \
-  #           --delete \
-  #           --cache-control "max-age=31536000,public,immutable" \
-  #           --exclude "*.html" \
-  #           --exclude "*.xml" \
-  #           --exclude "*.txt"
-  #         aws s3 sync ./out s3://${{ secrets.S3_BUCKET_NAME }} \
-  #           --delete \
-  #           --cache-control "no-cache" \
-  #           --include "*.html" \
-  #           --include "*.xml" \
-  #           --include "*.txt"
+  #         IMAGE_URI=${{ secrets.ECR_REGISTRY }}/augustine-home-improvements:${{ github.sha }}
+  #         docker build -t $IMAGE_URI .
+  #         docker push $IMAGE_URI
+  #         echo "IMAGE_URI=$IMAGE_URI" >> $GITHUB_ENV
+  #     - name: Deploy to ECS
+  #       run: |
+  #         aws ecs update-service \
+  #           --cluster ${{ secrets.ECS_CLUSTER }} \
+  #           --service ${{ secrets.ECS_SERVICE }} \
+  #           --force-new-deployment
+
+  # -------------------------------------------------------
+  # CloudFront cache invalidation (run after ECS deploy)
+  # -------------------------------------------------------
+  # invalidate-cdn:
+  #   name: Invalidate CloudFront Cache
+  #   needs: deploy-ecs
+  #   runs-on: ubuntu-latest
+  #   environment: production
+  #   permissions:
+  #     id-token: write
+  #   steps:
+  #     - name: Configure AWS credentials (OIDC)
+  #       uses: aws-actions/configure-aws-credentials@v4
+  #       with:
+  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+  #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
   #     - name: Invalidate CloudFront
   #       run: |
   #         aws cloudfront create-invalidation \
