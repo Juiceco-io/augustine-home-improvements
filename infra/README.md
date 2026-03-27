@@ -4,14 +4,11 @@
 > For the step-by-step guide to bringing up the dev environment, see
 > **[dev-checklist.md](dev-checklist.md)**.
 > This file covers the full reference architecture.
-<<<<<<< HEAD
 >
 > **Deployment model:**
 > Infrastructure (including Cognito) is managed via Terraform and deployed through PRs.
 > Terraform outputs are the single source of truth for all infrastructure identifiers.
 > See **[docs/deployment-model.md](../docs/deployment-model.md)** for full details.
-=======
->>>>>>> origin/dev
 
 This directory contains reference infrastructure files for the AWS deployment of
 Augustine Home Improvements.
@@ -41,7 +38,6 @@ static-like performance.
 
 ---
 
-<<<<<<< HEAD
 ## Terraform Layout
 
 ```
@@ -83,8 +79,6 @@ GitHub variable updates required.
 
 ---
 
-=======
->>>>>>> origin/dev
 ## Next.js Standalone Build
 
 `output: 'standalone'` in `next.config.ts` produces a minimal self-contained Node.js
@@ -125,25 +119,16 @@ CMD ["node", "server.js"]
 - Behind API Gateway route: `POST /contact`
 - Sends email via SES
 
-<<<<<<< HEAD
 Set these on the Lambda function (non-sensitive config — not secrets):
 - `SES_FROM_EMAIL=noreply@augustinehomeimprovements.com`
 - `CONTACT_RECIPIENT_EMAIL=info@augustinehomeimprovements.com`
 - `AWS_REGION=us-east-1`
 - `ALLOWED_ORIGIN=https://dXXXXX.cloudfront.net`  ← Terraform output `cloudfront_url`
-=======
-Set these on the Lambda function:
-- `SES_FROM_EMAIL`
-- `CONTACT_RECIPIENT_EMAIL`
-- `AWS_REGION=us-east-1`
-- `ALLOWED_ORIGIN`
->>>>>>> origin/dev
 
 ---
 
 ## Admin Panel (Cognito)
 
-<<<<<<< HEAD
 **Cognito is managed via Terraform — not the AWS Console.**
 
 The User Pool, Hosted UI domain, App Client, and groups are declared in Terraform
@@ -196,46 +181,3 @@ values (e.g. custom domain over CloudFront URL).
 > **The goal:** as Terraform resources are provisioned one by one, GitHub variables
 > can be removed from the environment settings. Eventually only `SITE_URL` (custom
 > domain override) and the 4 secrets above should remain.
-=======
-The admin panel at `/admin/*` uses Amazon Cognito Hosted UI and requires the
-Next.js server to be running.
-
-Recommended setup:
-1. Create a **User Pool** in `us-east-1`
-2. Create a Hosted UI domain
-3. Create an App Client with callback URLs for local/dev/prod
-4. Create Cognito group: `super_user`
-5. Add owner as initial user and place in `super_user`
-
----
-
-## ECS / Fargate Setup
-
-1. Create an ECR repository
-2. Create an ECS cluster (Fargate)
-3. Create a task definition with the Next.js image
-4. Create an ECS service behind an ALB
-5. Configure CloudFront origin to point at the ALB
-
----
-
-## GitHub Secrets / Variables Required
-
-| Name | Type | Value |
-|------|------|-------|
-| `AWS_ROLE_ARN` | Secret | OIDC role ARN for GitHub Actions |
-| `CLOUDFRONT_DISTRIBUTION_ID` | Secret | CloudFront distribution ID |
-| `COGNITO_DOMAIN` | Secret | Cognito Hosted UI domain |
-| `COGNITO_USER_POOL_ID` | Secret | Cognito User Pool ID |
-| `COGNITO_APP_CLIENT_ID` | Secret | Cognito app client ID |
-| `COGNITO_SUPERUSER_EMAILS` | Secret | Bootstrap allowlist (optional) |
-| `ADMIN_SESSION_SECRET` | Secret | Random 32+ char string |
-| `ISR_REVALIDATION_SECRET` | Secret | Random string |
-| `ECR_REGISTRY` | Secret | ECR registry URL |
-| `ECS_CLUSTER` | Secret | ECS cluster name |
-| `ECS_SERVICE` | Secret | ECS service name |
-| `CONTACT_API_URL` | Variable | API Gateway contact endpoint URL |
-| `SITE_URL` | Variable | public environment URL |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Variable | `G-BG798Y9ZT0` |
-| `AWS_REGION` | Variable | `us-east-1` |
->>>>>>> origin/dev

@@ -13,19 +13,11 @@ Public marketing website for **Augustine Home Improvements LLC** — a veteran-o
 |-------|-----------|
 | Framework | Next.js 15 (App Router, standalone) |
 | Styling | Tailwind CSS v4 |
-<<<<<<< HEAD
 | Fonts | DM Sans + Playfair Display (Google Fonts) |
 | Hosting | AWS CloudFront + ECS Fargate (Next.js standalone) |
 | Contact Form Backend | AWS API Gateway + Lambda + SES |
 | Admin Auth | Amazon Cognito Hosted UI |
-| CI/CD | GitHub Actions → ECR + ECS |
-=======
-| Fonts | DM Sans + Playfair Display |
-| Hosting | AWS CloudFront + ECS Fargate (Next.js standalone) |
-| Contact Form Backend | AWS API Gateway + Lambda + SES |
-| Admin Auth | Amazon Cognito Hosted UI |
 | CI/CD | GitHub Actions |
->>>>>>> origin/dev
 | SEO | next-sitemap, JSON-LD schema, per-page metadata |
 
 ---
@@ -34,7 +26,6 @@ Public marketing website for **Augustine Home Improvements LLC** — a veteran-o
 
 ```
 Browser
-<<<<<<< HEAD
   └─► CloudFront (CDN + HTTPS + security headers)
         ├─► ALB → ECS Fargate  ← Next.js standalone container
         │     (public pages cached at edge, admin panel, Cognito OAuth, ISR)
@@ -47,25 +38,12 @@ Browser
 (Cognito OAuth callback sets httpOnly cookies, middleware, ISR revalidation).
 Public pages are CloudFront-cached for static-like performance.
 Contact form is fully decoupled from the Next.js server via API Gateway + Lambda.
-=======
-  └─► CloudFront
-        ├─► ALB → ECS Fargate  ← Next.js standalone container
-        │     (public pages, admin panel, Cognito OAuth, ISR)
-        └─► API Gateway POST /contact
-              └─► Lambda (infra/lambda/contact-handler.js)
-                    └─► SES
-```
-
-**Why not fully static (S3)?** The admin panel requires server-side execution
-(Cognito callback, middleware, ISR). Public pages are CloudFront-cached.
->>>>>>> origin/dev
 
 ---
 
 ## Local Development
 
 ```bash
-<<<<<<< HEAD
 # 1. Install dependencies
 npm install
 
@@ -73,17 +51,12 @@ npm install
 cp .env.example .env.local
 
 # 3. Run dev server
-=======
-npm install
-cp .env.example .env.local
->>>>>>> origin/dev
 npm run dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000).
 
 **Dev mode — contact form:** If `NEXT_PUBLIC_CONTACT_API_URL` is not set, the form
-<<<<<<< HEAD
 falls back to the local Next.js `/api/contact` route. That route uses `SES_FROM_EMAIL`
 and `CONTACT_RECIPIENT_EMAIL`; if those are also missing it logs submissions to the
 console without sending email.
@@ -119,7 +92,6 @@ See [`.env.example`](.env.example) for a complete list.
 
 | Variable | Where set | Purpose |
 |----------|-----------|---------|
-| `OUTPUT_MODE` | Build env | Set to `export` to produce static `out/` for S3+CloudFront |
 | `NEXT_PUBLIC_CONTACT_API_URL` | Build env / var | API Gateway contact endpoint URL |
 | `NEXT_PUBLIC_APP_URL` | Build env / var | Public app URL for Cognito callback redirects |
 | `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Build var | GA4 ID |
@@ -131,17 +103,22 @@ See [`.env.example`](.env.example) for a complete list.
 | `COGNITO_SUPERUSER_EMAILS` | Build secret | Optional bootstrap allowlist |
 | `ADMIN_SESSION_SECRET` | Build secret | Session-signing secret |
 | `ISR_REVALIDATION_SECRET` | Build secret | Cache revalidation token |
-=======
-falls back to the local Next.js `/api/contact` route.
-
-**Admin panel:** `/admin/login` requires Cognito env vars.
->>>>>>> origin/dev
 
 ---
 
 ## Deployment
 
-<<<<<<< HEAD
+### Current Target: `dev`
+
+The immediate goal is to get **dev** live first.
+
+- `dev` branch is the active deployment branch
+- `.github/workflows/deploy-dev.yml` is the dev-specific workflow
+- `infra/dev-checklist.md` is the exact step-by-step guide
+
+This repo is prepared for dev deployment, but AWS resources still need to exist
+before a real deploy can complete.
+
 ### AWS ECS + CloudFront (production)
 
 The `main` branch auto-deploys via GitHub Actions (`.github/workflows/deploy.yml`):
@@ -151,37 +128,20 @@ The `main` branch auto-deploys via GitHub Actions (`.github/workflows/deploy.yml
 3. ECS service updated → CloudFront cache invalidated
 
 **Required GitHub secrets / vars** — see [infra/README.md](infra/README.md) for the full list.
-=======
-### Current Target: `dev`
-
-The immediate goal is to get **dev** live first.
-
-- `dev` branch should be the active deployment branch
-- `.github/workflows/deploy-dev.yml` is the dev-specific workflow
-- `infra/dev-checklist.md` is the exact step-by-step guide
-
-This repo is prepared for dev deployment, but the AWS resources still have to exist
-before a real deploy can complete.
->>>>>>> origin/dev
 
 ### Manual build
 
 ```bash
-<<<<<<< HEAD
 NEXT_PUBLIC_CONTACT_API_URL=https://YOUR_API_GW_URL/contact \
 npm run build
 # → .next/standalone/ is a self-contained Node.js server
-=======
-NEXT_PUBLIC_CONTACT_API_URL=https://YOUR_API_GW_URL/contact npm run build
->>>>>>> origin/dev
 ```
 
 ---
 
-<<<<<<< HEAD
 ## Contact Form Backend (Lambda + SES)
 
-See [infra/README.md](infra/README.md) for full deploy instructions.
+See [infra/README.md](infra/README.md) and [infra/dev-checklist.md](infra/dev-checklist.md) for full deploy instructions.
 
 Quick summary:
 1. Verify `augustinehomeimprovements.com` in SES + request production access
@@ -196,14 +156,14 @@ Quick summary:
 Admin access uses **Amazon Cognito Hosted UI** and app-issued signed sessions.
 
 > ⚠️ The admin panel (`/admin/*`) requires server-side execution (middleware + API routes).
-> It is **not available in static export mode**. For production, deploy the admin panel
-> separately in server mode or as a standalone Next.js container.
+> It is **not available in static export mode**. Deploy as a standalone Next.js container.
 
 Recommended Cognito setup:
 - Create a **User Pool** in `us-east-1`
 - Create a Hosted UI domain
 - Create an App Client with callback URLs:
   - Local: `http://localhost:3000/api/admin/auth/callback`
+  - Dev: `https://dev.augustinehomeimprovements.com/api/admin/auth/callback`
   - Prod: `https://www.augustinehomeimprovements.com/api/admin/auth/callback`
 - Create a Cognito group named `super_user`
 - Add the owner as the initial Cognito user and place in `super_user`
@@ -233,47 +193,6 @@ Recommended Cognito setup:
 
 ---
 
-## Remaining Blockers Before Launch
-
-| # | Item | Action Required |
-|---|------|----------------|
-| 1 | SES domain verification | Verify `augustinehomeimprovements.com` in SES + request prod access |
-| 2 | Lambda deploy | Package & deploy `infra/lambda/contact-handler.js` (see infra/README.md) |
-| 3 | API Gateway | Create HTTP API, route POST /contact → Lambda, get endpoint URL |
-| 4 | `CONTACT_API_URL` GitHub var | Set to API Gateway URL so build wires `NEXT_PUBLIC_CONTACT_API_URL` |
-| 5 | Cognito setup | Create User Pool, Hosted UI, App Client, `super_user` group, initial user |
-| 6 | ECR + ECS Fargate | Create ECR repo, ECS cluster/service/task-def; add Dockerfile |
-| 7 | CloudFront distribution | Point to ALB origin (ECS); configure caching behaviors |
-| 8 | OIDC role for CI | Create IAM role with ECR push + ECS deploy + CloudFront invalidation; link GitHub OIDC |
-| 9 | GitHub secrets | Set all secrets/vars listed in infra/README.md |
-| 10 | DNS cutover | Lower TTL before launch, point domain to CloudFront |
-| 11 | Real project photos | Upload via admin panel once gallery CMS is finished |
-=======
-## Contact Form Backend
-
-See [infra/README.md](infra/README.md) and [infra/dev-checklist.md](infra/dev-checklist.md).
-
-Summary:
-1. Verify SES domain/email in us-east-1
-2. Deploy `infra/lambda/contact-handler.js`
-3. Create API Gateway route `POST /contact`
-4. Set `CONTACT_API_URL` for the frontend build
-
----
-
-## Admin Panel (Cognito)
-
-Use Amazon Cognito Hosted UI.
-
-Recommended setup:
-- User Pool in `us-east-1`
-- Hosted UI domain
-- App Client with callback URLs
-- `super_user` group
-- initial admin user in `super_user`
-
----
-
 ## Remaining Blockers
 
 ### Dev (immediate)
@@ -295,8 +214,18 @@ See **[infra/dev-checklist.md](infra/dev-checklist.md)** for the full sequence.
 
 ### Prod (later)
 
-Not the focus right now.
->>>>>>> origin/dev
+| # | Item | Action Required |
+|---|------|----------------|
+| 1 | SES domain verification | Verify `augustinehomeimprovements.com` in SES + request prod access |
+| 2 | Lambda deploy | Package & deploy `infra/lambda/contact-handler.js` |
+| 3 | API Gateway | Create HTTP API, route POST /contact → Lambda |
+| 4 | Cognito setup | Create User Pool, Hosted UI, App Client, `super_user` group, initial user |
+| 5 | ECR + ECS Fargate | Create ECR repo, ECS cluster/service/task-def; add Dockerfile |
+| 6 | CloudFront distribution | Point to ALB origin (ECS); configure caching behaviors |
+| 7 | OIDC role for CI | Create IAM role with ECR push + ECS deploy + CloudFront invalidation; link GitHub OIDC |
+| 8 | GitHub secrets | Set all secrets/vars listed in infra/README.md |
+| 9 | DNS cutover | Lower TTL before launch, point domain to CloudFront |
+| 10 | Real project photos | Upload via admin panel once gallery CMS is finished |
 
 ---
 
