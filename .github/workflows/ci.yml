@@ -1,8 +1,6 @@
 name: CI
 
-# ── Trigger ──────────────────────────────────────────────────────────────────
-# Runs on push to `dev` (the primary active branch) and on PRs targeting `dev`.
-# `qa` / `prod` / `main` are included for when those environments are wired up.
+# Runs on push to the active delivery branches and on PRs targeting them.
 on:
   push:
     branches:
@@ -29,7 +27,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'        # aligned with deploy workflow
+          node-version: '22'
           cache: 'npm'
 
       - name: Install dependencies
@@ -41,7 +39,6 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      # Build with safe dev-placeholder values so CI passes without real AWS secrets.
       - name: Build
         run: npm run build
         env:
