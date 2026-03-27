@@ -66,8 +66,13 @@ export default function ContactForm({ className }: { className?: string }) {
     setFormState('loading')
     setErrorMsg('')
 
+    // Use external API Gateway endpoint in production (NEXT_PUBLIC_CONTACT_API_URL),
+    // falling back to the local Next.js API route for development.
+    const contactEndpoint =
+      process.env.NEXT_PUBLIC_CONTACT_API_URL || '/api/contact'
+
     try {
-      const res = await fetch('/api/contact', {
+      const res = await fetch(contactEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
