@@ -1,8 +1,6 @@
 name: Build & Deploy to AWS (dev)
 
-# ── Trigger ──────────────────────────────────────────────────────────────────
 # Runs on every push to `dev` and on manual dispatch.
-# This is the primary deploy workflow right now — prod is not yet wired.
 on:
   push:
     branches: [dev]
@@ -10,15 +8,57 @@ on:
 
 concurrency:
   group: deploy-dev
-  cancel-in-progress: true        # cancel superseded dev deploys
+  cancel-in-progress: true
 
-# ── Jobs ─────────────────────────────────────────────────────────────────────
 jobs:
+  tf-outputs:
+    name: Read Terraform Outputs (dev)
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    outputs:
+      cloudfront_url: ${{ steps.tf.outputs.cloudfront_url }}
+      cloudfront_distribution_id: ${{ steps.tf.outputs.cloudfront_distribution_id }}
+      contact_api_url: ${{ steps.tf.outputs.contact_api_url }}
+      cognito_user_pool_id: ${{ steps.tf.outputs.cognito_user_pool_id }}
+      cognito_app_client_id: ${{ steps.tf.outputs.cognito_app_client_id }}
+      cognito_domain: ${{ steps.tf.outputs.cognito_domain }}
+      ecr_repository_url: ${{ steps.tf.outputs.ecr_repository_url }}
+      ecs_cluster_name: ${{ steps.tf.outputs.ecs_cluster_name }}
+      ecs_service_name: ${{ steps.tf.outputs.ecs_service_name }}
+      github_actions_role_arn: ${{ steps.tf.outputs.github_actions_role_arn }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
+        continue-on-error: true
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "~1.6"
+
+      - name: Terraform init
+        run: terraform -chdir=infra/terraform init -input=false -var="environment=dev"
+        continue-on-error: true
+
+      - name: Export Terraform outputs
+        id: tf
+        run: bash infra/scripts/export-tf-outputs.sh
+        continue-on-error: true
+
   build:
     name: Build (standalone)
     runs-on: ubuntu-latest
-    environment: dev               # pulls secrets/vars from the `dev` GitHub environment
-
+    needs: tf-outputs
+    environment: dev
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,23 +75,15 @@ jobs:
       - name: Type check
         run: npx tsc --noEmit
 
-      # ── Build ──────────────────────────────────────────────────────────────
-      # All env values come from the `dev` GitHub environment.
-      # Required vars/secrets are listed in infra/dev-checklist.md.
-      # Build will succeed even if optional AWS secrets are absent —
-      # those are only needed at deploy time.
       - name: Build
         run: npm run build
         env:
-          # Public URLs
-          SITE_URL: ${{ vars.SITE_URL || 'https://dev.augustinehomeimprovements.com' }}
-          NEXT_PUBLIC_APP_URL: ${{ vars.SITE_URL || 'https://dev.augustinehomeimprovements.com' }}
-          # Contact form → API Gateway + Lambda
-          NEXT_PUBLIC_CONTACT_API_URL: ${{ vars.CONTACT_API_URL || '' }}
-          # Cognito admin auth
-          COGNITO_DOMAIN: ${{ secrets.COGNITO_DOMAIN || '' }}
-          COGNITO_USER_POOL_ID: ${{ secrets.COGNITO_USER_POOL_ID || '' }}
-          COGNITO_APP_CLIENT_ID: ${{ secrets.COGNITO_APP_CLIENT_ID || '' }}
+          SITE_URL: ${{ needs.tf-outputs.outputs.cloudfront_url || vars.SITE_URL || '' }}
+          NEXT_PUBLIC_APP_URL: ${{ needs.tf-outputs.outputs.cloudfront_url || vars.SITE_URL || '' }}
+          NEXT_PUBLIC_CONTACT_API_URL: ${{ needs.tf-outputs.outputs.contact_api_url || vars.CONTACT_API_URL || '' }}
+          COGNITO_USER_POOL_ID: ${{ needs.tf-outputs.outputs.cognito_user_pool_id || vars.COGNITO_USER_POOL_ID || '' }}
+          COGNITO_APP_CLIENT_ID: ${{ needs.tf-outputs.outputs.cognito_app_client_id || vars.COGNITO_APP_CLIENT_ID || '' }}
+          COGNITO_DOMAIN: ${{ needs.tf-outputs.outputs.cognito_domain || vars.COGNITO_DOMAIN || '' }}
           COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS || '' }}
           ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET || 'dev-session-secret-change-before-prod' }}
           ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET || 'dev-revalidation-secret' }}
@@ -67,16 +99,9 @@ jobs:
             public/
           retention-days: 3
 
-  # ── AWS deploy (ECS) ────────────────────────────────────────────────────────
-  # Uncomment once the following AWS resources exist:
-  #   - ECR repository
-  #   - ECS cluster + service + task definition
-  #   - IAM OIDC role with ECR/ECS permissions (see infra/dev-checklist.md)
-  # Add a Dockerfile at the repo root (see infra/README.md for reference).
-  #
   # deploy-ecs:
   #   name: Deploy to AWS ECS (dev)
-  #   needs: build
+  #   needs: [tf-outputs, build]
   #   runs-on: ubuntu-latest
   #   environment: dev
   #   permissions:
@@ -84,40 +109,33 @@ jobs:
   #     contents: read
   #   steps:
   #     - uses: actions/checkout@v4
-  #
   #     - name: Configure AWS credentials (OIDC)
   #       uses: aws-actions/configure-aws-credentials@v4
   #       with:
-  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+  #         role-to-assume: ${{ needs.tf-outputs.outputs.github_actions_role_arn || secrets.AWS_ROLE_ARN }}
   #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-  #
   #     - name: Login to Amazon ECR
   #       uses: aws-actions/amazon-ecr-login@v2
-  #
   #     - name: Download build artifact
   #       uses: actions/download-artifact@v4
   #       with:
   #         name: nextjs-standalone-dev
   #         path: .next/standalone/
-  #
   #     - name: Build and push Docker image
   #       run: |
-  #         IMAGE_URI=${{ secrets.ECR_REGISTRY }}/augustine-home-improvements-dev:${{ github.sha }}
+  #         IMAGE_URI="${{ needs.tf-outputs.outputs.ecr_repository_url }}:${{ github.sha }}"
   #         docker build -t "$IMAGE_URI" .
   #         docker push "$IMAGE_URI"
-  #         echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
-  #
   #     - name: Deploy to ECS (dev)
   #       run: |
   #         aws ecs update-service \
-  #           --cluster ${{ secrets.ECS_CLUSTER }} \
-  #           --service ${{ secrets.ECS_SERVICE }} \
+  #           --cluster "${{ needs.tf-outputs.outputs.ecs_cluster_name }}" \
+  #           --service "${{ needs.tf-outputs.outputs.ecs_service_name }}" \
   #           --force-new-deployment
-  #
-  # ── CloudFront cache invalidation ───────────────────────────────────────────
+
   # invalidate-cdn:
   #   name: Invalidate CloudFront Cache (dev)
-  #   needs: deploy-ecs
+  #   needs: [tf-outputs, deploy-ecs]
   #   runs-on: ubuntu-latest
   #   environment: dev
   #   permissions:
@@ -126,10 +144,10 @@ jobs:
   #     - name: Configure AWS credentials (OIDC)
   #       uses: aws-actions/configure-aws-credentials@v4
   #       with:
-  #         role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+  #         role-to-assume: ${{ needs.tf-outputs.outputs.github_actions_role_arn || secrets.AWS_ROLE_ARN }}
   #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
   #     - name: Invalidate CloudFront (dev)
   #       run: |
   #         aws cloudfront create-invalidation \
-  #           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+  #           --distribution-id "${{ needs.tf-outputs.outputs.cloudfront_distribution_id }}" \
   #           --paths "/*"

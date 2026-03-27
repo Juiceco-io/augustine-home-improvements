@@ -4,6 +4,11 @@
 > For the step-by-step guide to bringing up the dev environment, see
 > **[dev-checklist.md](dev-checklist.md)**.
 > This file covers the full reference architecture.
+>
+> **Deployment model:**
+> Infrastructure (including Cognito) is managed via Terraform and deployed through PRs.
+> Terraform outputs are the single source of truth for all infrastructure identifiers.
+> See **[docs/deployment-model.md](../docs/deployment-model.md)** for full details.
 
 This directory contains reference infrastructure files for the AWS deployment of
 Augustine Home Improvements.
@@ -30,6 +35,47 @@ The app has server-side requirements that cannot run in a static S3 bucket:
 
 The public marketing pages are cached by CloudFront at the edge, so users still get
 static-like performance.
+
+---
+
+## Terraform Layout
+
+```
+infra/terraform/
+  providers.tf    — AWS provider, backend config
+  variables.tf    — Input variables (environment, region, etc.)
+  outputs.tf      — All infrastructure identifiers exported as outputs
+  cognito.tf      — TODO: Cognito User Pool, App Client, Hosted UI domain
+  api-gateway.tf  — TODO: HTTP API Gateway + Lambda integration
+  cloudfront.tf   — TODO: CloudFront distribution + origins
+  ecr.tf          — TODO: ECR repository
+  ecs.tf          — TODO: ECS cluster, task definition, service, ALB
+  iam.tf          — TODO: OIDC role for GitHub Actions
+```
+
+`outputs.tf` is the contract between Terraform and the deployment workflows.
+See that file (and the table in `docs/deployment-model.md`) for the full list
+of required outputs and their current provisioning status.
+
+### Applying Terraform
+
+```bash
+cd infra/terraform
+
+# First time
+terraform init
+
+# Dev environment
+terraform plan -var="environment=dev"
+terraform apply -var="environment=dev"
+
+# Production
+terraform plan -var="environment=production"
+terraform apply -var="environment=production"
+```
+
+After `apply`, the deploy workflows automatically read the outputs — no manual
+GitHub variable updates required.
 
 ---
 
@@ -73,54 +119,65 @@ CMD ["node", "server.js"]
 - Behind API Gateway route: `POST /contact`
 - Sends email via SES
 
-Set these on the Lambda function:
-- `SES_FROM_EMAIL`
-- `CONTACT_RECIPIENT_EMAIL`
+Set these on the Lambda function (non-sensitive config — not secrets):
+- `SES_FROM_EMAIL=noreply@augustinehomeimprovements.com`
+- `CONTACT_RECIPIENT_EMAIL=info@augustinehomeimprovements.com`
 - `AWS_REGION=us-east-1`
-- `ALLOWED_ORIGIN`
+- `ALLOWED_ORIGIN=https://dXXXXX.cloudfront.net`  ← Terraform output `cloudfront_url`
 
 ---
 
 ## Admin Panel (Cognito)
 
-The admin panel at `/admin/*` uses Amazon Cognito Hosted UI and requires the
-Next.js server to be running.
+**Cognito is managed via Terraform — not the AWS Console.**
 
-Recommended setup:
-1. Create a **User Pool** in `us-east-1`
-2. Create a Hosted UI domain
-3. Create an App Client with callback URLs for local/dev/prod
-4. Create Cognito group: `super_user`
-5. Add owner as initial user and place in `super_user`
+The User Pool, Hosted UI domain, App Client, and groups are declared in Terraform
+and applied through PRs. Do not configure Cognito manually.
+
+Expected Terraform resources:
+- `aws_cognito_user_pool`
+- `aws_cognito_user_pool_domain`
+- `aws_cognito_user_pool_client` (with callback URLs for local/dev/prod)
+- `aws_cognito_user_group` (`super_user`)
+
+After `terraform apply`, the `cognito_user_pool_id`, `cognito_app_client_id`, and
+`cognito_domain` outputs are automatically consumed by the deploy workflows.
+No manual GitHub variable update is needed.
+
+Initial super-user seeding: set `COGNITO_SUPERUSER_EMAILS` as a GitHub secret so
+the first deployment can bootstrap the admin account via CI, without manual
+console access.
 
 ---
 
-## ECS / Fargate Setup
+## GitHub Variables & Secrets Required
 
-1. Create an ECR repository
-2. Create an ECS cluster (Fargate)
-3. Create a task definition with the Next.js image
-4. Create an ECS service behind an ALB
-5. Configure CloudFront origin to point at the ALB
+See **[docs/deployment-model.md](../docs/deployment-model.md)** for the authoritative reference.
 
----
+### Secrets (`secrets.*`) — true secrets only (4 total)
 
-## GitHub Secrets / Variables Required
+| Name | Description |
+|------|-------------|
+| `ADMIN_SESSION_SECRET` | 32+ char random string — signs session cookies |
+| `COGNITO_SUPERUSER_EMAILS` | Optional bootstrap email list |
+| `ISR_REVALIDATION_SECRET` | Random token for on-demand ISR |
+| `AWS_ROLE_ARN` | OIDC role ARN — bootstrap only; remove once TF `github_actions_role_arn` output is live |
 
-| Name | Type | Value |
-|------|------|-------|
-| `AWS_ROLE_ARN` | Secret | OIDC role ARN for GitHub Actions |
-| `CLOUDFRONT_DISTRIBUTION_ID` | Secret | CloudFront distribution ID |
-| `COGNITO_DOMAIN` | Secret | Cognito Hosted UI domain |
-| `COGNITO_USER_POOL_ID` | Secret | Cognito User Pool ID |
-| `COGNITO_APP_CLIENT_ID` | Secret | Cognito app client ID |
-| `COGNITO_SUPERUSER_EMAILS` | Secret | Bootstrap allowlist (optional) |
-| `ADMIN_SESSION_SECRET` | Secret | Random 32+ char string |
-| `ISR_REVALIDATION_SECRET` | Secret | Random string |
-| `ECR_REGISTRY` | Secret | ECR registry URL |
-| `ECS_CLUSTER` | Secret | ECS cluster name |
-| `ECS_SERVICE` | Secret | ECS service name |
-| `CONTACT_API_URL` | Variable | API Gateway contact endpoint URL |
-| `SITE_URL` | Variable | public environment URL |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Variable | `G-BG798Y9ZT0` |
-| `AWS_REGION` | Variable | `us-east-1` |
+### Variables (`vars.*`) — fallbacks / overrides only
+
+These are used only before Terraform outputs are populated, or to override TF
+values (e.g. custom domain over CloudFront URL).
+
+| Name | Description |
+|------|-------------|
+| `SITE_URL` | Override with custom domain once DNS is live |
+| `CONTACT_API_URL` | Bootstrap fallback before API GW Terraform is applied |
+| `COGNITO_USER_POOL_ID` | Bootstrap fallback before Cognito Terraform is applied |
+| `COGNITO_APP_CLIENT_ID` | Bootstrap fallback before Cognito Terraform is applied |
+| `COGNITO_DOMAIN` | Bootstrap fallback before Cognito Terraform is applied |
+| `AWS_REGION` | `us-east-1` |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | `G-BG798Y9ZT0` |
+
+> **The goal:** as Terraform resources are provisioned one by one, GitHub variables
+> can be removed from the environment settings. Eventually only `SITE_URL` (custom
+> domain override) and the 4 secrets above should remain.
