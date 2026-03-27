@@ -26,10 +26,18 @@ jobs:
       - id: set-env
         run: echo "environment=prod" >> $GITHUB_OUTPUT
       - id: aws-config
+        env:
+          DEPLOYER_ROLE_ARN: ${{ vars.DEPLOYER_ROLE_ARN }}
+          TF_STATE_ROLE_ARN: ${{ vars.TF_STATE_ROLE_ARN }}
+          CLOUDFRONT_ALIASES_JSON: ${{ vars.CLOUDFRONT_ALIASES_JSON }}
         run: |
-          echo "deployer_role=${{ vars.DEPLOYER_ROLE_ARN }}" >> $GITHUB_OUTPUT
-          echo "state_role=${{ vars.TF_STATE_ROLE_ARN }}" >> $GITHUB_OUTPUT
-          echo "cloudfront_aliases_json=${{ vars.CLOUDFRONT_ALIASES_JSON || '[]' }}" >> $GITHUB_OUTPUT
+          echo "deployer_role=${DEPLOYER_ROLE_ARN}" >> $GITHUB_OUTPUT
+          echo "state_role=${TF_STATE_ROLE_ARN}" >> $GITHUB_OUTPUT
+          if [ -n "${CLOUDFRONT_ALIASES_JSON}" ]; then
+            echo "cloudfront_aliases_json=${CLOUDFRONT_ALIASES_JSON}" >> $GITHUB_OUTPUT
+          else
+            echo 'cloudfront_aliases_json=[]' >> $GITHUB_OUTPUT
+          fi
 
   terraform-apply:
     name: Terraform Apply
