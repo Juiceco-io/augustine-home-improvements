@@ -1,0 +1,31 @@
+# ============================================================
+# terraform.tfvars.example
+# ============================================================
+# Copy to terraform.tfvars (gitignored) and fill in real values,
+# OR pass via -var flags / GitHub Actions environment variables.
+#
+# Usage:
+#   cp terraform.tfvars.example terraform.tfvars
+#   # edit terraform.tfvars with your values
+#   terraform plan -var-file=terraform.tfvars
+# ============================================================
+
+environment = "dev"
+aws_region  = "us-east-1"
+
+github_org  = "Juiceco-io"
+github_repo = "augustine-home-improvements"
+
+ses_from_email          = "noreply@augustinehomeimprovements.com"
+contact_recipient_email = "info@augustinehomeimprovements.com"
+
+# Cognito callback URLs — include localhost for local dev
+cognito_callback_urls = [
+  "https://REPLACE_WITH_CLOUDFRONT_URL/api/admin/auth/callback",
+  "http://localhost:3000/api/admin/auth/callback",
+]
+
+cognito_logout_urls = [
+  "https://REPLACE_WITH_CLOUDFRONT_URL/admin/login",
+  "http://localhost:3000/admin/login",
+]

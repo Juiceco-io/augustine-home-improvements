@@ -1,143 +1,140 @@
-name: Build & Deploy to AWS
+name: Deploy
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
 
-concurrency:
-  group: deploy-production
-  cancel-in-progress: false
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: us-east-1
+  TF_DIR: infrastructure
 
 jobs:
-  tf-outputs:
-    name: Read Terraform Outputs
+  set-environment:
+    name: Set Environment
     runs-on: ubuntu-latest
-    environment: production
-    permissions:
-      id-token: write
-      contents: read
     outputs:
-      cloudfront_url: ${{ steps.tf.outputs.cloudfront_url }}
-      cloudfront_distribution_id: ${{ steps.tf.outputs.cloudfront_distribution_id }}
-      contact_api_url: ${{ steps.tf.outputs.contact_api_url }}
-      cognito_user_pool_id: ${{ steps.tf.outputs.cognito_user_pool_id }}
-      cognito_app_client_id: ${{ steps.tf.outputs.cognito_app_client_id }}
-      cognito_domain: ${{ steps.tf.outputs.cognito_domain }}
-      ecr_repository_url: ${{ steps.tf.outputs.ecr_repository_url }}
-      ecs_cluster_name: ${{ steps.tf.outputs.ecs_cluster_name }}
-      ecs_service_name: ${{ steps.tf.outputs.ecs_service_name }}
-      github_actions_role_arn: ${{ steps.tf.outputs.github_actions_role_arn }}
+      environment: ${{ steps.set-env.outputs.environment }}
+      deployer_role: ${{ steps.aws-config.outputs.deployer_role }}
+      state_role: ${{ steps.aws-config.outputs.state_role }}
+      cloudfront_aliases_json: ${{ steps.aws-config.outputs.cloudfront_aliases_json }}
+    steps:
+      - id: set-env
+        run: echo "environment=prod" >> $GITHUB_OUTPUT
+      - id: aws-config
+        run: |
+          echo "deployer_role=${{ vars.DEPLOYER_ROLE_ARN }}" >> $GITHUB_OUTPUT
+          echo "state_role=${{ vars.TF_STATE_ROLE_ARN }}" >> $GITHUB_OUTPUT
+          echo "cloudfront_aliases_json=${{ vars.CLOUDFRONT_ALIASES_JSON || '[]' }}" >> $GITHUB_OUTPUT
+
+  terraform-apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: set-environment
+    environment: production
+    outputs:
+      cloudfront_distribution_id: ${{ steps.tf-output.outputs.cloudfront_distribution_id }}
+      s3_bucket_name: ${{ steps.tf-output.outputs.s3_bucket_name }}
+      cloudfront_domain_name: ${{ steps.tf-output.outputs.cloudfront_domain_name }}
+      contact_api_url: ${{ steps.tf-output.outputs.contact_api_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Configure AWS credentials (OIDC)
+      - name: Configure AWS credentials (Terraform state)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-        continue-on-error: true
+          role-to-assume: ${{ needs.set-environment.outputs.state_role }}
+          aws-region: ${{ env.AWS_REGION }}
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "~1.6"
-      - name: Terraform init
-        run: terraform -chdir=infra/terraform init -input=false
-        continue-on-error: true
-      - name: Export Terraform outputs
-        id: tf
-        run: bash infra/scripts/export-tf-outputs.sh
-        continue-on-error: true
+          terraform_version: "~1.7"
+          terraform_wrapper: false
+      - name: Terraform Init
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          terraform init \
+            -backend-config="key=augustine-home-improvements/production/terraform.tfstate"
+      - name: Terraform Plan
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_contact_from_email: ${{ vars.CONTACT_FROM_EMAIL }}
+          TF_VAR_contact_to_email: ${{ vars.CONTACT_TO_EMAIL }}
+          TF_VAR_contact_email_domain: ${{ vars.CONTACT_EMAIL_DOMAIN }}
+        run: |
+          terraform plan \
+            -var="environment=production" \
+            -var="deployer_role_arn=${{ needs.set-environment.outputs.deployer_role }}" \
+            -var='cloudfront_aliases=${{ needs.set-environment.outputs.cloudfront_aliases_json }}' \
+            -out=tfplan
+      - name: Terraform Apply
+        working-directory: ${{ env.TF_DIR }}
+        run: terraform apply -auto-approve tfplan
+      - name: Get Terraform Outputs
+        id: tf-output
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          echo "cloudfront_distribution_id=$(terraform output -raw cloudfront_distribution_id)" >> "$GITHUB_OUTPUT"
+          echo "s3_bucket_name=$(terraform output -raw s3_bucket_name)" >> "$GITHUB_OUTPUT"
+          echo "cloudfront_domain_name=$(terraform output -raw cloudfront_domain_name)" >> "$GITHUB_OUTPUT"
+          echo "contact_api_url=$(terraform output -raw contact_api_url)" >> "$GITHUB_OUTPUT"
+          echo "::notice title=CloudFront URL::$(terraform output -raw cloudfront_domain_name)"
 
-  build:
-    name: Build (standalone)
+  build-and-deploy:
+    name: Build & Deploy
     runs-on: ubuntu-latest
-    needs: tf-outputs
+    needs: [set-environment, terraform-apply]
     environment: production
+    env:
+      CF_DISTRIBUTION_ID: ${{ needs.terraform-apply.outputs.cloudfront_distribution_id }}
+      S3_BUCKET: ${{ needs.terraform-apply.outputs.s3_bucket_name }}
+      NEXT_PUBLIC_CONTACT_API_URL: ${{ needs.terraform-apply.outputs.contact_api_url }}
+      NEXT_PUBLIC_APP_URL: https://${{ needs.terraform-apply.outputs.cloudfront_domain_name }}
+      NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID }}
+      NEXT_PUBLIC_APP_VERSION: ${{ github.sha }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
           cache: 'npm'
       - name: Install dependencies
         run: npm ci
-      - name: Type check
-        run: npx tsc --noEmit
-      - name: Build
+      - name: Build static export
         run: npm run build
-        env:
-          SITE_URL: ${{ needs.tf-outputs.outputs.cloudfront_url || vars.SITE_URL || '' }}
-          NEXT_PUBLIC_APP_URL: ${{ needs.tf-outputs.outputs.cloudfront_url || vars.SITE_URL || '' }}
-          NEXT_PUBLIC_CONTACT_API_URL: ${{ needs.tf-outputs.outputs.contact_api_url || vars.CONTACT_API_URL || '' }}
-          COGNITO_USER_POOL_ID: ${{ needs.tf-outputs.outputs.cognito_user_pool_id || vars.COGNITO_USER_POOL_ID || '' }}
-          COGNITO_APP_CLIENT_ID: ${{ needs.tf-outputs.outputs.cognito_app_client_id || vars.COGNITO_APP_CLIENT_ID || '' }}
-          COGNITO_DOMAIN: ${{ needs.tf-outputs.outputs.cognito_domain || vars.COGNITO_DOMAIN || '' }}
-          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS || '' }}
-          ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET }}
-          ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET }}
-          NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID || '' }}
-      - name: Upload standalone artifact
-        uses: actions/upload-artifact@v4
+      - name: Configure AWS credentials (Deploy)
+        uses: aws-actions/configure-aws-credentials@v4
         with:
-          name: nextjs-standalone
-          path: |
-            .next/standalone/
-            .next/static/
-            public/
-          retention-days: 1
-
-  # deploy-ecs:
-  #   name: Deploy to AWS ECS
-  #   needs: [tf-outputs, build]
-  #   runs-on: ubuntu-latest
-  #   environment: production
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Configure AWS credentials (OIDC)
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ needs.tf-outputs.outputs.github_actions_role_arn || secrets.AWS_ROLE_ARN }}
-  #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-  #     - name: Login to Amazon ECR
-  #       uses: aws-actions/amazon-ecr-login@v2
-  #     - name: Download artifact
-  #       uses: actions/download-artifact@v4
-  #       with:
-  #         name: nextjs-standalone
-  #         path: .next/standalone/
-  #     - name: Build and push Docker image
-  #       run: |
-  #         IMAGE_URI="${{ needs.tf-outputs.outputs.ecr_repository_url }}:${{ github.sha }}"
-  #         docker build -t "$IMAGE_URI" .
-  #         docker push "$IMAGE_URI"
-  #     - name: Deploy to ECS
-  #       run: |
-  #         aws ecs update-service \
-  #           --cluster "${{ needs.tf-outputs.outputs.ecs_cluster_name }}" \
-  #           --service "${{ needs.tf-outputs.outputs.ecs_service_name }}" \
-  #           --force-new-deployment
-
-  # invalidate-cdn:
-  #   name: Invalidate CloudFront Cache
-  #   needs: [tf-outputs, deploy-ecs]
-  #   runs-on: ubuntu-latest
-  #   environment: production
-  #   permissions:
-  #     id-token: write
-  #   steps:
-  #     - name: Configure AWS credentials (OIDC)
-  #       uses: aws-actions/configure-aws-credentials@v4
-  #       with:
-  #         role-to-assume: ${{ needs.tf-outputs.outputs.github_actions_role_arn || secrets.AWS_ROLE_ARN }}
-  #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
-  #     - name: Invalidate CloudFront
-  #       run: |
-  #         aws cloudfront create-invalidation \
-  #           --distribution-id "${{ needs.tf-outputs.outputs.cloudfront_distribution_id }}" \
-  #           --paths "/*"
+          role-to-assume: ${{ needs.set-environment.outputs.deployer_role }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Sync static assets to S3
+        run: |
+          aws s3 sync ./out s3://${{ env.S3_BUCKET }} \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "*.html" \
+            --exclude "*.json" \
+            --exclude "*.txt" \
+            --exclude "*.xml"
+      - name: Sync HTML and manifests to S3
+        run: |
+          aws s3 sync ./out s3://${{ env.S3_BUCKET }} \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --include "*.html" \
+            --include "*.json" \
+            --include "*.txt" \
+            --include "*.xml"
+      - name: Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ env.CF_DISTRIBUTION_ID }} \
+            --paths "/*"
+      - name: Print deployment URL
+        run: |
+          echo "✅ Deployed to: https://${{ needs.terraform-apply.outputs.cloudfront_domain_name }}"

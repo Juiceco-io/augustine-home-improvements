@@ -1,18 +1,15 @@
 name: CI
 
-# Runs on push to the active delivery branches and on PRs targeting them.
 on:
   push:
     branches:
       - dev
       - qa
-      - prod
       - main
   pull_request:
     branches:
       - dev
       - qa
-      - prod
       - main
 
 jobs:
@@ -27,7 +24,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
           cache: 'npm'
 
       - name: Install dependencies
@@ -39,11 +36,10 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      - name: Build
+      - name: Build static export
         run: npm run build
         env:
-          SITE_URL: https://dev.augustinehomeimprovements.com
-          NEXT_PUBLIC_APP_URL: https://dev.augustinehomeimprovements.com
+          # Contact form API URL is optional at build time; the form gracefully
+          # handles the missing env var (falls back to informational message).
           NEXT_PUBLIC_CONTACT_API_URL: ''
-          ADMIN_SESSION_SECRET: ci-placeholder-secret-not-for-production
-          ISR_REVALIDATION_SECRET: ci-placeholder-revalidation-secret
+          NEXT_PUBLIC_GA_MEASUREMENT_ID: ''
