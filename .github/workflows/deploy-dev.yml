@@ -1,33 +1,30 @@
-name: Build & Deploy to AWS
+name: Build & Deploy to AWS (dev)
 
 # ── Trigger ──────────────────────────────────────────────────────────────────
 on:
   push:
-    branches: [main]
+    branches: [dev]
   workflow_dispatch:
 
 concurrency:
-  group: deploy-production
-  cancel-in-progress: false
+  group: deploy-dev
+  cancel-in-progress: true   # cancel superseded dev deploys
 
 # ── Jobs ─────────────────────────────────────────────────────────────────────
 jobs:
 
   # ── 1. Read infrastructure identifiers from Terraform ─────────────────────
-  # Terraform is the authoritative source of truth for all infrastructure
-  # identifiers (CloudFront URL, API Gateway URL, Cognito IDs, ECR/ECS names).
-  # This job reads those outputs and exports them so downstream jobs do not
-  # need to duplicate values in GitHub environment variables.
+  # Terraform is the single source of truth for all infrastructure identifiers.
+  # This job reads outputs from the dev Terraform workspace and exports them
+  # so downstream jobs don't need duplicated values in GitHub env variables.
   #
-  # Bootstrap phase: if Terraform has not been applied yet, the outputs will be
-  # empty and the build job falls back to GitHub env variables (vars.*).
-  # Once Terraform is applied, the fallbacks are ignored automatically.
-  #
-  # See infra/terraform/outputs.tf for the full list of required outputs.
+  # Bootstrap fallback: if Terraform has not been applied yet (outputs are
+  # empty), GitHub env variables (vars.*) from the `dev` environment are used.
+  # Once Terraform is applied the fallbacks are ignored automatically.
   tf-outputs:
-    name: Read Terraform Outputs
+    name: Read Terraform Outputs (dev)
     runs-on: ubuntu-latest
-    environment: production
+    environment: dev
     permissions:
       id-token: write
       contents: read
@@ -49,8 +46,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Configure AWS credentials (OIDC)
-        # Required to read remote Terraform state from S3.
-        # Falls back gracefully if no backend is configured yet.
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
@@ -63,7 +58,7 @@ jobs:
           terraform_version: "~1.6"
 
       - name: Terraform init
-        run: terraform -chdir=infra/terraform init -input=false
+        run: terraform -chdir=infra/terraform init -input=false -var="environment=dev"
         continue-on-error: true   # allow bootstrap before backend/providers exist
 
       - name: Export Terraform outputs
@@ -76,7 +71,7 @@ jobs:
     name: Build (standalone)
     runs-on: ubuntu-latest
     needs: tf-outputs
-    environment: production
+    environment: dev
 
     steps:
       - name: Checkout
@@ -100,37 +95,28 @@ jobs:
       #   2. GitHub env variable  (vars.*)                   — fallback / override
       #   3. GitHub env secret    (secrets.*)                — true secrets only
       #
-      # The || operator ensures a non-empty Terraform output takes precedence,
-      # while the GitHub var provides a manual override / bootstrap value.
-      #
       # True secrets (ADMIN_SESSION_SECRET, ISR_REVALIDATION_SECRET,
-      # COGNITO_SUPERUSER_EMAILS) are never derivable from Terraform and must
-      # always be set as GitHub env secrets.
+      # COGNITO_SUPERUSER_EMAILS) are never derivable from Terraform.
       - name: Build
         run: npm run build
         env:
           # ── Public site URL ─────────────────────────────────────────────
-          # TF: cloudfront_url   (e.g. https://dXXXXX.cloudfront.net)
-          # Override with vars.SITE_URL once a custom domain is live.
           SITE_URL: >-
             ${{ needs.tf-outputs.outputs.cloudfront_url
              || vars.SITE_URL
-             || 'https://www.augustinehomeimprovements.com' }}
+             || '' }}
           NEXT_PUBLIC_APP_URL: >-
             ${{ needs.tf-outputs.outputs.cloudfront_url
              || vars.SITE_URL
-             || 'https://www.augustinehomeimprovements.com' }}
+             || '' }}
 
           # ── Contact form → API Gateway ───────────────────────────────────
-          # TF: contact_api_url  (e.g. https://abc123.execute-api.us-east-1.amazonaws.com/contact)
           NEXT_PUBLIC_CONTACT_API_URL: >-
             ${{ needs.tf-outputs.outputs.contact_api_url
              || vars.CONTACT_API_URL
              || '' }}
 
-          # ── Cognito admin auth ───────────────────────────────────────────
-          # TF: cognito_user_pool_id, cognito_app_client_id, cognito_domain
-          # These are non-sensitive identifiers, not credentials.
+          # ── Cognito admin auth (non-sensitive identifiers) ───────────────
           COGNITO_USER_POOL_ID: >-
             ${{ needs.tf-outputs.outputs.cognito_user_pool_id
              || vars.COGNITO_USER_POOL_ID
@@ -145,9 +131,9 @@ jobs:
              || '' }}
 
           # ── True secrets — must always come from GitHub env secrets ──────
-          ADMIN_SESSION_SECRET:       ${{ secrets.ADMIN_SESSION_SECRET }}
-          COGNITO_SUPERUSER_EMAILS:   ${{ secrets.COGNITO_SUPERUSER_EMAILS }}
-          ISR_REVALIDATION_SECRET:    ${{ secrets.ISR_REVALIDATION_SECRET }}
+          ADMIN_SESSION_SECRET: ${{ secrets.ADMIN_SESSION_SECRET || 'dev-session-secret-change-before-prod' }}
+          COGNITO_SUPERUSER_EMAILS: ${{ secrets.COGNITO_SUPERUSER_EMAILS || '' }}
+          ISR_REVALIDATION_SECRET: ${{ secrets.ISR_REVALIDATION_SECRET || 'dev-revalidation-secret' }}
 
           # ── Analytics ────────────────────────────────────────────────────
           NEXT_PUBLIC_GA_MEASUREMENT_ID: ${{ vars.NEXT_PUBLIC_GA_MEASUREMENT_ID || '' }}
@@ -155,26 +141,26 @@ jobs:
       - name: Upload standalone artifact
         uses: actions/upload-artifact@v4
         with:
-          name: nextjs-standalone
+          name: nextjs-standalone-dev
           path: |
             .next/standalone/
             .next/static/
             public/
-          retention-days: 1
+          retention-days: 3
 
-  # ── 3. Deploy to ECS ──────────────────────────────────────────────────────
-  # Uncomment once the following Terraform resources exist and outputs are
-  # populated (see infra/terraform/outputs.tf):
+  # ── 3. Deploy to ECS (dev) ────────────────────────────────────────────────
+  # Uncomment once the following Terraform outputs are populated
+  # (see infra/terraform/outputs.tf):
   #   - ecr_repository_url
   #   - ecs_cluster_name / ecs_service_name
   #   - github_actions_role_arn
   # Also requires a Dockerfile at the repo root (see infra/README.md).
   #
   # deploy-ecs:
-  #   name: Deploy to AWS ECS
+  #   name: Deploy to AWS ECS (dev)
   #   needs: [tf-outputs, build]
   #   runs-on: ubuntu-latest
-  #   environment: production
+  #   environment: dev
   #   permissions:
   #     id-token: write
   #     contents: read
@@ -190,34 +176,32 @@ jobs:
   #     - name: Login to Amazon ECR
   #       uses: aws-actions/amazon-ecr-login@v2
   #
-  #     - name: Download artifact
+  #     - name: Download build artifact
   #       uses: actions/download-artifact@v4
   #       with:
-  #         name: nextjs-standalone
+  #         name: nextjs-standalone-dev
   #         path: .next/standalone/
   #
   #     - name: Build and push Docker image
   #       run: |
-  #         IMAGE_URI="${{ needs.tf-outputs.outputs.ecr_repository_url }}:${{ github.sha }}"
+  #         IMAGE_URI="${{ needs.tf-outputs.outputs.ecr_repository_url }}-dev:${{ github.sha }}"
   #         docker build -t "$IMAGE_URI" .
   #         docker push "$IMAGE_URI"
   #         echo "IMAGE_URI=$IMAGE_URI" >> "$GITHUB_ENV"
   #
-  #     - name: Deploy to ECS
+  #     - name: Deploy to ECS (dev)
   #       run: |
   #         aws ecs update-service \
   #           --cluster "${{ needs.tf-outputs.outputs.ecs_cluster_name }}" \
   #           --service "${{ needs.tf-outputs.outputs.ecs_service_name }}" \
   #           --force-new-deployment
 
-  # ── 4. Invalidate CloudFront cache ────────────────────────────────────────
-  # Uncomment after deploy-ecs is enabled.
-  #
+  # ── 4. Invalidate CloudFront cache (dev) ──────────────────────────────────
   # invalidate-cdn:
-  #   name: Invalidate CloudFront Cache
+  #   name: Invalidate CloudFront Cache (dev)
   #   needs: [tf-outputs, deploy-ecs]
   #   runs-on: ubuntu-latest
-  #   environment: production
+  #   environment: dev
   #   permissions:
   #     id-token: write
   #   steps:
@@ -227,7 +211,7 @@ jobs:
   #         role-to-assume: ${{ needs.tf-outputs.outputs.github_actions_role_arn || secrets.AWS_ROLE_ARN }}
   #         aws-region: ${{ vars.AWS_REGION || 'us-east-1' }}
   #
-  #     - name: Invalidate CloudFront
+  #     - name: Invalidate CloudFront (dev)
   #       run: |
   #         aws cloudfront create-invalidation \
   #           --distribution-id "${{ needs.tf-outputs.outputs.cloudfront_distribution_id }}" \
