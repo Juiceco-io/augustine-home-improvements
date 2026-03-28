@@ -4,3 +4,7 @@ out/
 .env
 .env.local
 .DS_Store
+infrastructure/.terraform/
+infrastructure/*.tfstate
+infrastructure/*.tfstate.backup
+infrastructure/.terraform.lock.hcl
