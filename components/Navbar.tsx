@@ -52,9 +52,9 @@ export default function Navbar() {
             <Image
               src="/images/augustine-logo.jpg"
               alt="Augustine Home Improvements"
-              width={180}
-              height={64}
-              className="h-10 md:h-12 w-auto rounded-sm bg-white/95 p-1 shadow-sm"
+              width={48}
+              height={48}
+              className="h-10 md:h-12 w-auto object-contain rounded-sm bg-white/95 p-1 shadow-sm"
               priority
             />
           </div>

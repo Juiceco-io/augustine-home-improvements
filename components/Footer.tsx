@@ -33,9 +33,9 @@ export default function Footer() {
               <Image
                 src="/images/augustine-logo.jpg"
                 alt="Augustine Home Improvements"
-                width={220}
+                width={120}
                 height={120}
-                className="h-auto w-44 rounded-sm bg-white p-2"
+                className="h-24 w-auto object-contain rounded-sm bg-white p-2"
               />
             </div>
             <p className="text-sm text-gray-400 mb-4 leading-relaxed">
