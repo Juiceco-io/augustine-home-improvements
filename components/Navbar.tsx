@@ -48,7 +48,13 @@ export default function Navbar() {
           className="flex items-center gap-3 group"
           aria-label="Augustine Home Improvements — Home"
         >
-          <div className="flex items-center">
+          <div
+            className={`flex items-center transition-all duration-300 ${
+              scrolled
+                ? ""
+                : "bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm"
+            }`}
+          >
             <Image
               src="/images/augustine-logo.png"
               alt="Augustine Home Improvements"
