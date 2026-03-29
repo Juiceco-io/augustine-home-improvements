@@ -3,16 +3,17 @@
 @tailwind utilities;
 
 :root {
-  --brand-red: #8d1e0c;
-  --brand-brick: #671609;
-  --brand-dark: #4d1006;
-  --brand-cream: #fdf6f0;
-  --brand-charcoal: #1a1a1a;
+  --brand-primary: #4b776b;
+  --brand-primary-dark: #365c52;
+  --brand-primary-deep: #26463f;
+  --brand-cream: #f8fbf9;
+  --brand-mist: #eef5f2;
+  --brand-charcoal: #1c2a26;
 }
 
 body {
   background-color: #ffffff;
-  color: #1a1a1a;
+  color: var(--brand-charcoal);
 }
 
 * {
@@ -48,7 +49,7 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: var(--brand-brick);
+  background-color: var(--brand-primary-dark);
   transform: translateY(-1px);
 }
 
@@ -58,10 +59,10 @@ body {
   gap: 0.5rem;
   padding: 0.75rem 1.5rem;
   background-color: transparent;
-  color: var(--brand-red);
+  color: var(--brand-primary);
   font-weight: 600;
   border-radius: 0.5rem;
-  border: 2px solid var(--brand-red);
+  border: 2px solid var(--brand-primary);
   transition: background-color 0.2s ease, color 0.2s ease;
   text-decoration: none;
 }
@@ -96,8 +97,8 @@ body {
 }
 
 .form-input:focus {
-  border-color: var(--brand-red);
-  box-shadow: 0 0 0 3px rgba(141, 30, 12, 0.1);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 3px rgba(75, 119, 107, 0.14);
 }
 
 /* ============================================
@@ -184,8 +185,8 @@ main {
 
 .service-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(141, 30, 12, 0.12);
-  border-color: rgba(141, 30, 12, 0.3);
+  box-shadow: 0 12px 32px rgba(75, 119, 107, 0.12);
+  border-color: rgba(75, 119, 107, 0.28);
 }
 
 /* ============================================
