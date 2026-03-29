@@ -55,8 +55,8 @@ jobs:
               echo 'cloudfront_aliases_json=["www.augustinehomeimprovements.com","augustinehomeimprovements.com"]' >> $GITHUB_OUTPUT
               ;;
           esac
-          # Terraform state bucket is in the dev account for now
-          echo "state_role=arn:aws:iam::518692945749:role/github-actions-terraform-state" >> $GITHUB_OUTPUT
+          # Match company-homepage: Terraform state role lives in the management account
+          echo "state_role=arn:aws:iam::389813258758:role/github-actions-terraform-state" >> $GITHUB_OUTPUT
 
   # ─────────────────────────────────────────────
   # Job 1: Provision infrastructure with Terraform
