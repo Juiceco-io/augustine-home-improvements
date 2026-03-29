@@ -31,11 +31,11 @@ export default function Footer() {
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="mb-4">
               <Image
-                src="/images/augustine-logo.jpg"
+                src="/images/augustine-logo.png"
                 alt="Augustine Home Improvements"
-                width={120}
-                height={120}
-                className="h-24 w-auto object-contain rounded-sm bg-white p-2"
+                width={160}
+                height={149}
+                className="h-20 w-auto object-contain"
               />
             </div>
             <p className="text-sm text-gray-400 mb-4 leading-relaxed">
