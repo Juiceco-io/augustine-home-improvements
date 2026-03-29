@@ -37,11 +37,11 @@ export const metadata: Metadata = {
   ],
   authors: [{ name: "Augustine Home Improvements LLC" }],
   creator: "Augustine Home Improvements LLC",
-  metadataBase: new URL("https://www.augustinehomeimprovements.com"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://www.augustinehomeimprovements.com"),
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://www.augustinehomeimprovements.com",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://www.augustinehomeimprovements.com",
     title: "Augustine Home Improvements — Chester County PA Contractor",
     description:
       "Veteran-owned home improvement contractor serving Chester County PA. Decks, kitchens, bathrooms, basements, and full home renovations.",
@@ -71,7 +71,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://www.augustinehomeimprovements.com",
+    canonical: process.env.NEXT_PUBLIC_APP_URL || "https://www.augustinehomeimprovements.com",
   },
   icons: {
     icon: [{ url: "/images/logo.svg", type: "image/svg+xml" }],
