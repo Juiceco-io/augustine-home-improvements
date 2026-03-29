@@ -105,7 +105,7 @@ export default function ReviewsPage() {
           className="rounded-2xl p-6 sm:p-8 md:p-10 text-center text-white"
           style={{
             background:
-              "linear-gradient(135deg, #4d1006 0%, #671609 45%, #8d1e0c 100%)",
+              "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)",
           }}
         >
           <h2 className="font-serif text-xl sm:text-2xl font-bold mb-3">
