@@ -118,34 +118,34 @@ export default function HomePage() {
           aria-hidden="true"
         />
 
-        <div className="container-xl relative z-10 py-24 pt-40 pb-28">
+        <div className="container-xl relative z-10 pt-28 pb-16 md:pt-40 md:pb-28">
           <div className="max-w-3xl">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-white/15 text-white/90 text-sm font-semibold px-4 py-2 rounded-full mb-6 animate-fade-in-up">
+            <div className="inline-flex items-center gap-2 bg-white/15 text-white/90 text-sm font-semibold px-4 py-2 rounded-full mb-5 animate-fade-in-up">
               <Award size={15} aria-hidden="true" />
               Veteran-Owned &amp; TrexPro Certified
             </div>
 
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-white font-bold leading-tight animate-fade-in-up animate-delay-100">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white font-bold leading-tight animate-fade-in-up animate-delay-100">
               Expert Home Improvements
               <span className="block text-brand-brick mt-2" style={{ color: "#f5a07a" }}>
                 Done Right.
               </span>
             </h1>
 
-            <p className="mt-6 text-white/80 text-xl leading-relaxed max-w-2xl animate-fade-in-up animate-delay-200">
+            <p className="mt-5 text-white/80 text-lg md:text-xl leading-relaxed max-w-2xl animate-fade-in-up animate-delay-200">
               Serving Chester County PA and suburban Philadelphia. Decks,
               kitchens, bathrooms, basements, additions &mdash; one contractor
               you can trust from start to finish.
             </p>
 
-            <div className="mt-10 flex flex-wrap gap-4 animate-fade-in-up animate-delay-300">
-              <Link href="/contact-us/" className="btn-primary text-base py-3.5 px-7">
+            <div className="mt-8 flex flex-col sm:flex-row gap-3 animate-fade-in-up animate-delay-300">
+              <Link href="/contact-us/" className="btn-primary text-base py-3.5 px-7 justify-center sm:justify-start">
                 Get a Free Estimate
               </Link>
               <a
                 href="tel:+14844677925"
-                className="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3.5 px-7 rounded-lg transition-colors text-base"
+                className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3.5 px-7 rounded-lg transition-colors text-base"
               >
                 <Phone size={16} aria-hidden="true" />
                 484-467-7925
@@ -153,7 +153,7 @@ export default function HomePage() {
             </div>
 
             {/* Trust badges */}
-            <div className="mt-10 flex flex-wrap gap-6 animate-fade-in-up animate-delay-400">
+            <div className="mt-8 flex flex-wrap gap-4 sm:gap-6 animate-fade-in-up animate-delay-400">
               {[
                 { icon: Shield, text: "Licensed & Insured" },
                 { icon: Star, text: "5-Star Rated" },
@@ -173,9 +173,9 @@ export default function HomePage() {
       </section>
 
       {/* =================== STATS STRIP =================== */}
-      <section className="bg-white border-b border-gray-100 py-10">
+      <section className="bg-white border-b border-gray-100 py-8 md:py-10">
         <div className="container-xl">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 text-center">
             {stats.map((stat) => (
               <div key={stat.label}>
                 <div className="text-3xl md:text-4xl font-bold text-brand-red mb-1">
@@ -189,7 +189,7 @@ export default function HomePage() {
       </section>
 
       {/* =================== SERVICES =================== */}
-      <section id="services" className="bg-brand-cream py-24">
+      <section id="services" className="bg-brand-cream py-14 md:py-24">
         <div className="container-xl">
           <div className="text-center mb-16">
             <h2 className="section-heading mb-4">Our Services</h2>
@@ -233,9 +233,9 @@ export default function HomePage() {
       </section>
 
       {/* =================== WHY CHOOSE US =================== */}
-      <section className="bg-white py-24">
+      <section className="bg-white py-14 md:py-24">
         <div className="container-xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div>
               <h2 className="section-heading mb-6">
                 Why Chester County Homeowners Choose Augustine
@@ -281,7 +281,7 @@ export default function HomePage() {
             </div>
 
             {/* Contact mini-CTA */}
-            <div className="bg-brand-cream rounded-2xl p-8 lg:p-10">
+            <div className="bg-brand-cream rounded-2xl p-6 sm:p-8 lg:p-10">
               <h3 className="font-serif text-2xl font-bold text-brand-charcoal mb-2">
                 Ready to Start Your Project?
               </h3>
@@ -317,7 +317,7 @@ export default function HomePage() {
       </section>
 
       {/* =================== REVIEWS =================== */}
-      <section className="bg-brand-charcoal py-24">
+      <section className="bg-brand-charcoal py-14 md:py-24">
         <div className="container-xl">
           <div className="text-center mb-12">
             <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
@@ -375,21 +375,21 @@ export default function HomePage() {
 
       {/* =================== CTA STRIP =================== */}
       <section
-        className="py-20 text-center"
+        className="py-14 md:py-20 text-center"
         style={{
           background:
             "linear-gradient(135deg, #8d1e0c 0%, #671609 50%, #4d1006 100%)",
         }}
       >
         <div className="container-xl">
-          <h2 className="font-serif text-3xl md:text-4xl font-bold text-white mb-4">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-4">
             Let&apos;s Build Something Together
           </h2>
-          <p className="text-white/80 text-lg mb-8 max-w-xl mx-auto">
+          <p className="text-white/80 text-base md:text-lg mb-8 max-w-xl mx-auto">
             Free estimates, honest pricing, quality craftsmanship. Serving
             Chester County PA and surrounding areas.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <Link
               href="/contact-us/"
               className="bg-white text-brand-red font-bold py-3.5 px-8 rounded-lg hover:bg-gray-100 transition-colors"
