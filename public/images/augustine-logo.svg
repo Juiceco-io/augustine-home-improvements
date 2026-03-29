@@ -1,7 +1,0 @@
-<svg width="1200" height="900" viewBox="0 0 1200 900" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <rect width="1200" height="900" fill="#F8FBF9"/>
-  <path d="M299 140L600 0L901 140V581H781C781 541 750 509 711 509H698L670 415H530L502 509H489C450 509 419 541 419 581H299V140Z" fill="#4B776B"/>
-  <path d="M564.253 130H635.747L747.667 509H677.343L650.394 415.769H549.606L522.657 509H452.333L564.253 130ZM635.222 362.071L600 240.952L564.778 362.071H635.222Z" fill="#F8FBF9"/>
-  <text x="600" y="720" text-anchor="middle" fill="#4B776B" font-family="Georgia, 'Times New Roman', serif" font-size="120" letter-spacing="6">AUGUSTINE</text>
-  <text x="600" y="820" text-anchor="middle" fill="#4B776B" font-family="Georgia, 'Times New Roman', serif" font-size="76">Home Improvements</text>
-</svg>

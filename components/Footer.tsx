@@ -1,5 +1,4 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Phone, Mail, Facebook, Shield, Award, Star } from "lucide-react";
 
 const services = [
@@ -29,14 +28,14 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand column */}
           <div className="lg:col-span-1">
-            <div className="mb-4">
-              <Image
-                src="/images/augustine-logo.svg"
-                alt="Augustine Home Improvements"
-                width={220}
-                height={120}
-                className="h-auto w-44 rounded-sm bg-white p-2"
-              />
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-9 h-9 rounded-lg bg-brand-red flex items-center justify-center font-serif font-bold text-white text-lg">
+                A
+              </div>
+              <div>
+                <div className="font-serif font-bold text-white">Augustine</div>
+                <div className="text-xs text-gray-400">Home Improvements</div>
+              </div>
             </div>
             <p className="text-sm text-gray-400 mb-4 leading-relaxed">
               Veteran-owned home improvement contractor serving Chester County PA
