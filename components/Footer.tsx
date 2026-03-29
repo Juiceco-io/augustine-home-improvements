@@ -31,7 +31,7 @@ export default function Footer() {
           <div className="lg:col-span-1">
             <div className="mb-4">
               <Image
-                src="/images/augustine-logo.svg"
+                src="/images/augustine-logo.jpg"
                 alt="Augustine Home Improvements"
                 width={220}
                 height={120}
@@ -44,15 +44,15 @@ export default function Footer() {
             </p>
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Shield size={12} className="text-brand-red" aria-hidden="true" />
+                <Shield size={12} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
                 Licensed &amp; Insured
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Star size={12} className="text-brand-red" aria-hidden="true" />
+                <Star size={12} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
                 TrexPro Certified Installer
               </div>
               <div className="flex items-center gap-2 text-xs text-gray-500">
-                <Award size={12} className="text-brand-red" aria-hidden="true" />
+                <Award size={12} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
                 Veteran-Owned &amp; Operated
               </div>
             </div>
@@ -102,7 +102,7 @@ export default function Footer() {
                   href="tel:+14844677925"
                   className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  <Phone size={14} className="text-brand-red flex-shrink-0" aria-hidden="true" />
+                  <Phone size={14} className="text-[color:var(--brand-primary)] flex-shrink-0" aria-hidden="true" />
                   484-467-7925
                 </a>
               </li>
@@ -111,7 +111,7 @@ export default function Footer() {
                   href="mailto:info@augustinehomeimprovements.com"
                   className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  <Mail size={14} className="text-brand-red flex-shrink-0" aria-hidden="true" />
+                  <Mail size={14} className="text-[color:var(--brand-primary)] flex-shrink-0" aria-hidden="true" />
                   info@augustinehomeimprovements.com
                 </a>
               </li>
@@ -122,7 +122,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
                 >
-                  <Facebook size={14} className="text-brand-red flex-shrink-0" aria-hidden="true" />
+                  <Facebook size={14} className="text-[color:var(--brand-primary)] flex-shrink-0" aria-hidden="true" />
                   Facebook
                 </a>
               </li>

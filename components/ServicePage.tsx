@@ -46,7 +46,7 @@ export default function ServicePage({
               className="rounded-2xl p-10 mb-10 text-white"
               style={{
                 background:
-                  "linear-gradient(135deg, #4d1006 0%, #671609 45%, #8d1e0c 100%)",
+                  "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)",
               }}
             >
               <h1 className="font-serif text-3xl md:text-4xl font-bold mb-3">

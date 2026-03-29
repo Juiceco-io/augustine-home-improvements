@@ -9,11 +9,17 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        "brand-red": "#8d1e0c",
-        "brand-brick": "#671609",
-        "brand-dark": "#4d1006",
-        "brand-cream": "#fdf6f0",
-        "brand-charcoal": "#1a1a1a",
+        // Logo-green palette — replaces old brick-red aliases
+        "brand-red": "#4b776b",      // was brick-red, now logo green (primary)
+        "brand-brick": "#365c52",    // was dark brick, now logo green (dark)
+        "brand-dark": "#26463f",     // was darkest brick, now logo green (deep)
+        "brand-cream": "#f7fbf8",    // updated to match CSS --brand-cream
+        "brand-charcoal": "#1c2a26", // updated to match CSS --brand-charcoal
+        // Explicit green aliases for new code
+        "brand-primary": "#4b776b",
+        "brand-primary-dark": "#365c52",
+        "brand-primary-deep": "#26463f",
+        "brand-mist": "#edf5f1",
       },
       fontFamily: {
         serif: ["Georgia", "Times New Roman", "serif"],

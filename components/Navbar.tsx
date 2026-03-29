@@ -50,7 +50,7 @@ export default function Navbar() {
         >
           <div className="flex items-center">
             <Image
-              src="/images/augustine-logo.svg"
+              src="/images/augustine-logo.jpg"
               alt="Augustine Home Improvements"
               width={180}
               height={64}
@@ -70,7 +70,7 @@ export default function Navbar() {
             <button
               className={`flex items-center gap-1 font-semibold text-sm transition-colors py-2 ${
                 scrolled
-                  ? "text-gray-700 hover:text-brand-red"
+                  ? "text-gray-700 hover:text-brand-primary"
                   : "text-white/90 hover:text-white"
               }`}
               aria-expanded={servicesOpen}
@@ -99,7 +99,7 @@ export default function Navbar() {
               href={link.href}
               className={`font-semibold text-sm transition-colors ${
                 scrolled
-                  ? "text-gray-700 hover:text-brand-red"
+                  ? "text-gray-700 hover:text-brand-primary"
                   : "text-white/90 hover:text-white"
               }`}
             >
@@ -125,7 +125,7 @@ export default function Navbar() {
           >
             <Phone
               size={16}
-              className={scrolled ? "text-brand-red" : "text-white"}
+              className={scrolled ? "text-[color:var(--brand-primary)]" : "text-white"}
               aria-hidden="true"
             />
             <span className={scrolled ? "text-brand-charcoal" : "text-white"}>

@@ -105,7 +105,7 @@ export default function HomePage() {
         className="relative min-h-screen flex items-center overflow-hidden"
         style={{
           background:
-            "linear-gradient(135deg, #4d1006 0%, #671609 45%, #8d1e0c 100%)",
+            "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)",
         }}
         aria-label="Hero section"
       >
@@ -128,7 +128,7 @@ export default function HomePage() {
 
             <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl text-white font-bold leading-tight animate-fade-in-up animate-delay-100">
               Expert Home Improvements
-              <span className="block text-brand-brick mt-2" style={{ color: "#f5a07a" }}>
+              <span className="block mt-2" style={{ color: "#a8cfc4" }}>
                 Done Right.
               </span>
             </h1>
@@ -378,7 +378,7 @@ export default function HomePage() {
         className="py-20 text-center"
         style={{
           background:
-            "linear-gradient(135deg, #8d1e0c 0%, #671609 50%, #4d1006 100%)",
+            "linear-gradient(135deg, #4b776b 0%, #365c52 50%, #26463f 100%)",
         }}
       >
         <div className="container-xl">
@@ -392,7 +392,7 @@ export default function HomePage() {
           <div className="flex flex-wrap gap-4 justify-center">
             <Link
               href="/contact-us/"
-              className="bg-white text-brand-red font-bold py-3.5 px-8 rounded-lg hover:bg-gray-100 transition-colors"
+              className="bg-white text-brand-primary font-bold py-3.5 px-8 rounded-lg hover:bg-gray-100 transition-colors"
             >
               Get a Free Estimate
             </Link>
