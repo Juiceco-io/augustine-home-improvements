@@ -48,33 +48,15 @@ export default function Navbar() {
           className="flex items-center gap-3 group"
           aria-label="Augustine Home Improvements — Home"
         >
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center font-serif font-bold text-white text-xl transition-colors bg-brand-red"
-            aria-hidden="true"
-          >
+          <div className="flex items-center">
             <Image
-              src="/images/logo.svg"
-              alt=""
-              width={28}
-              height={28}
-              className="brightness-0 invert"
+              src="/images/augustine-logo.svg"
+              alt="Augustine Home Improvements"
+              width={180}
+              height={64}
+              className="h-12 w-auto rounded-sm bg-white/95 p-1 shadow-sm"
+              priority
             />
-          </div>
-          <div>
-            <div
-              className={`font-serif font-bold text-lg transition-colors ${
-                scrolled ? "text-brand-charcoal" : "text-white"
-              }`}
-            >
-              Augustine
-            </div>
-            <div
-              className={`text-xs font-medium tracking-wide transition-colors ${
-                scrolled ? "text-gray-500" : "text-white/80"
-              }`}
-            >
-              Home Improvements
-            </div>
           </div>
         </Link>
 
@@ -103,7 +85,7 @@ export default function Navbar() {
                 <Link
                   key={s.href}
                   href={s.href}
-                  className="block px-4 py-3 text-sm font-medium text-gray-700 hover:text-brand-red hover:bg-brand-cream transition-colors first:rounded-t-lg last:rounded-b-lg"
+                  className="block px-4 py-3 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream transition-colors first:rounded-t-lg last:rounded-b-lg"
                 >
                   {s.label}
                 </Link>
@@ -187,7 +169,7 @@ export default function Navbar() {
                 key={s.href}
                 href={s.href}
                 onClick={() => setIsOpen(false)}
-                className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-brand-red hover:bg-brand-cream rounded-md transition-colors"
+                className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-md transition-colors"
               >
                 {s.label}
               </Link>
@@ -198,7 +180,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className="px-3 py-2.5 text-sm font-semibold text-gray-800 hover:text-brand-red hover:bg-brand-cream rounded-md transition-colors"
+              className="px-3 py-2.5 text-sm font-semibold text-gray-800 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-md transition-colors"
             >
               {link.label}
             </Link>
