@@ -14,10 +14,10 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-white pt-24 pb-20">
+    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
       <div className="container-xl">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="mb-6">
+        <nav aria-label="Breadcrumb" className="mb-5 md:mb-6">
           <ol className="flex items-center gap-2 text-sm text-gray-500">
             <li>
               <Link href="/" className="hover:text-brand-red transition-colors">
@@ -29,7 +29,7 @@ export default function ContactPage() {
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Left: form */}
           <div className="lg:col-span-3">
             <h1 className="section-heading mb-2">Get a Free Estimate</h1>
@@ -72,7 +72,7 @@ export default function ContactPage() {
                     <div className="font-semibold text-brand-charcoal">Email</div>
                     <a
                       href="mailto:info@augustinehomeimprovements.com"
-                      className="text-gray-600 hover:text-brand-red transition-colors text-sm"
+                      className="text-gray-600 hover:text-brand-red transition-colors text-sm break-all"
                     >
                       info@augustinehomeimprovements.com
                     </a>

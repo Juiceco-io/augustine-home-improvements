@@ -17,10 +17,10 @@ export default function ServicePage({
   breadcrumb,
 }: ServicePageProps) {
   return (
-    <div className="bg-white pt-24 pb-20">
+    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
       <div className="container-xl">
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="mb-6">
+        <nav aria-label="Breadcrumb" className="mb-5 md:mb-6">
           <ol className="flex items-center gap-2 text-sm text-gray-500">
             <li>
               <Link href="/" className="hover:text-brand-red transition-colors">
@@ -38,25 +38,25 @@ export default function ServicePage({
           </ol>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Main content */}
           <div className="lg:col-span-2">
             {/* Hero */}
             <div
-              className="rounded-2xl p-10 mb-10 text-white"
+              className="rounded-2xl p-6 sm:p-8 md:p-10 mb-8 md:mb-10 text-white"
               style={{
                 background:
                   "linear-gradient(135deg, #4d1006 0%, #671609 45%, #8d1e0c 100%)",
               }}
             >
-              <h1 className="font-serif text-3xl md:text-4xl font-bold mb-3">
+              <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl font-bold mb-3">
                 {title}
               </h1>
-              <p className="text-white/80 text-lg">{subtitle}</p>
+              <p className="text-white/80 text-base md:text-lg">{subtitle}</p>
             </div>
 
-            <div className="prose prose-gray max-w-none mb-10">
-              <p className="text-gray-700 leading-relaxed text-lg">{description}</p>
+            <div className="prose prose-gray max-w-none mb-8 md:mb-10">
+              <p className="text-gray-700 leading-relaxed text-base md:text-lg">{description}</p>
             </div>
 
             <h2 className="text-xl font-bold text-brand-charcoal mb-4">
@@ -76,9 +76,9 @@ export default function ServicePage({
             </ul>
           </div>
 
-          {/* Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-            <div className="bg-brand-cream rounded-xl p-6 sticky top-28">
+          {/* Sidebar — shown below content on mobile, sticky on desktop */}
+          <div className="lg:col-span-1 order-first lg:order-none">
+            <div className="bg-brand-cream rounded-xl p-5 sm:p-6 lg:sticky lg:top-28">
               <h2 className="font-bold text-brand-charcoal text-lg mb-3">
                 Get a Free Estimate
               </h2>
