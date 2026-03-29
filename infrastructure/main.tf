@@ -13,12 +13,11 @@ terraform {
   }
 
   backend "s3" {
-    # Bucket and region are shared infra, owned separately.
-    # key is provided via -backend-config in CI to support dev/qa/prod state isolation.
-    bucket         = "augustine-terraform-state"
+    bucket         = "juiceco-terraform-state"
     region         = "us-east-1"
-    dynamodb_table = "augustine-terraform-locks"
+    dynamodb_table = "juiceco-terraform-locks"
     encrypt        = true
+    # key is provided via -backend-config in CI to support dev/qa/prod state isolation
   }
 }
 
