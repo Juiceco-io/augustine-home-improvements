@@ -50,11 +50,11 @@ export default function Navbar() {
         >
           <div className="flex items-center">
             <Image
-              src="/images/augustine-logo.jpg"
+              src="/images/augustine-logo.png"
               alt="Augustine Home Improvements"
-              width={180}
-              height={64}
-              className="h-10 md:h-12 w-auto rounded-sm bg-white/95 p-1 shadow-sm"
+              width={160}
+              height={149}
+              className="h-10 md:h-12 w-auto object-contain"
               priority
             />
           </div>
