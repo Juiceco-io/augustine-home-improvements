@@ -158,7 +158,17 @@ jobs:
           role-to-assume: ${{ env.IAM_ROLE }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Sync static assets to S3
+      - name: Sync HTML and manifests to S3 (no-cache, upload first)
+        run: |
+          aws s3 sync ./out s3://${{ env.S3_BUCKET }} \
+            --cache-control "public, max-age=0, must-revalidate" \
+            --exclude "*" \
+            --include "*.html" \
+            --include "*.json" \
+            --include "*.txt" \
+            --include "*.xml"
+
+      - name: Sync static assets to S3 (immutable cache, then delete stale)
         run: |
           aws s3 sync ./out s3://${{ env.S3_BUCKET }} \
             --delete \
@@ -167,15 +177,6 @@ jobs:
             --exclude "*.json" \
             --exclude "*.txt" \
             --exclude "*.xml"
-
-      - name: Sync HTML and manifests to S3
-        run: |
-          aws s3 sync ./out s3://${{ env.S3_BUCKET }} \
-            --cache-control "public, max-age=0, must-revalidate" \
-            --include "*.html" \
-            --include "*.json" \
-            --include "*.txt" \
-            --include "*.xml"
 
       - name: Invalidate CloudFront cache
         run: |
