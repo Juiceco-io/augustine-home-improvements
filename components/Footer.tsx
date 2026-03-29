@@ -29,13 +29,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {/* Brand column */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="mb-4">
+            <div className="mb-4 inline-block bg-white/95 rounded-lg px-3 py-2.5 shadow-sm">
               <Image
                 src="/images/augustine-logo.png"
                 alt="Augustine Home Improvements"
                 width={160}
                 height={149}
-                className="h-20 w-auto object-contain"
+                className="h-16 w-auto object-contain"
               />
             </div>
             <p className="text-sm text-gray-400 mb-4 leading-relaxed">
