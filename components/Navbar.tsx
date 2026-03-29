@@ -36,8 +36,8 @@ export default function Navbar() {
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
         scrolled
-          ? "navbar-scrolled"
-          : "bg-transparent py-4"
+          ? "navbar-scrolled py-2"
+          : "bg-transparent py-3 md:py-4"
       }`}
       role="banner"
     >
@@ -54,7 +54,7 @@ export default function Navbar() {
               alt="Augustine Home Improvements"
               width={180}
               height={64}
-              className="h-12 w-auto rounded-sm bg-white/95 p-1 shadow-sm"
+              className="h-10 md:h-12 w-auto rounded-sm bg-white/95 p-1 shadow-sm"
               priority
             />
           </div>

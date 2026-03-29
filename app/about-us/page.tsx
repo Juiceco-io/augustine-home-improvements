@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="bg-white pt-24 pb-20">
+    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
       <div className="container-xl">
         <nav aria-label="Breadcrumb" className="mb-6">
           <ol className="flex items-center gap-2 text-sm text-gray-500">
@@ -28,7 +28,7 @@ export default function AboutPage() {
         </nav>
 
         {/* Hero */}
-        <div className="max-w-3xl mb-16">
+        <div className="max-w-3xl mb-10 md:mb-16">
           <h1 className="section-heading mb-4">About Augustine Home Improvements</h1>
           <p className="section-subheading">
             A veteran-owned and operated home improvement company serving Chester
@@ -36,7 +36,7 @@ export default function AboutPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-14 md:mb-20">
           <div className="space-y-6 text-gray-700 leading-relaxed">
             <p>
               Augustine Home Improvements was founded by Brandon Augustine, a
@@ -108,29 +108,29 @@ export default function AboutPage() {
 
         {/* CTA */}
         <div
-          className="rounded-2xl p-10 text-center text-white"
+          className="rounded-2xl p-6 sm:p-8 md:p-10 text-center text-white"
           style={{
             background:
               "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)",
           }}
         >
-          <h2 className="font-serif text-3xl font-bold mb-3">
+          <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-3">
             Ready to Work with Us?
           </h2>
           <p className="text-white/80 mb-6 max-w-xl mx-auto">
             Get a free, no-obligation estimate. We&apos;ll come to your home,
             assess the project, and give you a clear, written quote.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <Link
               href="/contact-us/"
-              className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors"
+              className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center"
             >
               Request a Free Estimate
             </Link>
             <a
               href="tel:+14844677925"
-              className="flex items-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors"
+              className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto"
             >
               <Phone size={15} aria-hidden="true" />
               484-467-7925

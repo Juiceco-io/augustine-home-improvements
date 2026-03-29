@@ -37,7 +37,7 @@ const reviews = [
 
 export default function ReviewsPage() {
   return (
-    <div className="bg-white pt-24 pb-20">
+    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
       <div className="container-xl">
         <nav aria-label="Breadcrumb" className="mb-6">
           <ol className="flex items-center gap-2 text-sm text-gray-500">
@@ -51,7 +51,7 @@ export default function ReviewsPage() {
           </ol>
         </nav>
 
-        <div className="max-w-2xl mb-12">
+        <div className="max-w-2xl mb-8 md:mb-12">
           <h1 className="section-heading mb-4">Customer Reviews</h1>
           <div className="flex items-center gap-2 mb-4">
             {Array.from({ length: 5 }).map((_, i) => (
@@ -70,7 +70,7 @@ export default function ReviewsPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 mb-12 md:mb-16">
           {reviews.map((review) => (
             <div
               key={review.name}
@@ -102,13 +102,13 @@ export default function ReviewsPage() {
         </div>
 
         <div
-          className="rounded-2xl p-10 text-center text-white"
+          className="rounded-2xl p-6 sm:p-8 md:p-10 text-center text-white"
           style={{
             background:
               "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)",
           }}
         >
-          <h2 className="font-serif text-2xl font-bold mb-3">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold mb-3">
             Ready to Be Our Next Happy Customer?
           </h2>
           <p className="text-white/80 mb-6">

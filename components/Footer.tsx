@@ -25,10 +25,10 @@ const serviceArea = [
 export default function Footer() {
   return (
     <footer className="bg-brand-charcoal text-white">
-      <div className="container-xl py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="container-xl py-12 md:py-16">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-10">
           {/* Brand column */}
-          <div className="lg:col-span-1">
+          <div className="sm:col-span-2 lg:col-span-1">
             <div className="mb-4">
               <Image
                 src="/images/augustine-logo.jpg"
@@ -112,7 +112,7 @@ export default function Footer() {
                   className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
                 >
                   <Mail size={14} className="text-[color:var(--brand-primary)] flex-shrink-0" aria-hidden="true" />
-                  info@augustinehomeimprovements.com
+                  <span className="break-all">info@augustinehomeimprovements.com</span>
                 </a>
               </li>
               <li>
