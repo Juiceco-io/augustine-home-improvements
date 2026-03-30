@@ -24,7 +24,6 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  // Track whether we're on mobile for class logic
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -40,13 +39,10 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on resize to desktop
   useEffect(() => {
     if (!isMobile) setIsOpen(false);
   }, [isMobile]);
 
-  // Header is solid when: mobile (always) OR desktop+scrolled
-  // Header is transparent when: desktop AND not scrolled
   const isSolid = isMobile || scrolled;
 
   return (
@@ -57,14 +53,11 @@ export default function Navbar() {
       role="banner"
     >
       <div className="container-xl flex items-center justify-between">
-        {/* Logo */}
         <Link
           href="/"
           className="flex items-center group flex-shrink-0"
           aria-label="Augustine Home Improvements — Home"
         >
-          {/* On desktop over dark hero, wrap in white pill for contrast.
-              On mobile (solid header) and scrolled desktop: plain. */}
           <div
             className={`flex items-center transition-all duration-300 ${
               !isSolid
@@ -83,13 +76,8 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop Nav */}
-        <nav
-          className="hidden lg:flex items-center gap-6"
-          aria-label="Main navigation"
-        >
-          {/* Services dropdown */}
-          <div className="relative nav-dropdown-parent">
+        <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
+          <div className="relative nav-dropdown-parent group">
             <button
               className={`flex items-center gap-1 font-semibold text-sm transition-colors py-2 nav-link-underline ${
                 isSolid
@@ -101,7 +89,7 @@ export default function Navbar() {
               Services
               <ChevronDown
                 size={14}
-                className="transition-transform duration-200 nav-dropdown-parent:hover:rotate-180"
+                className="transition-transform duration-200 group-hover:rotate-180"
                 aria-hidden="true"
               />
             </button>
@@ -132,16 +120,12 @@ export default function Navbar() {
             </Link>
           ))}
 
-          <a
-            href="tel:+14844677925"
-            className="flex items-center gap-2 btn-primary text-sm py-2.5 px-5"
-          >
+          <a href="tel:+14844677925" className="flex items-center gap-2 btn-primary text-sm py-2.5 px-5">
             <Phone size={15} aria-hidden="true" />
             484-467-7925
           </a>
         </nav>
 
-        {/* Mobile: phone + hamburger */}
         <div className="flex lg:hidden items-center gap-1">
           <a
             href="tel:+14844677925"
@@ -163,7 +147,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile menu */}
       <div
         id="mobile-menu"
         className={`lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
@@ -172,11 +155,7 @@ export default function Navbar() {
         aria-hidden={!isOpen}
       >
         <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mx-4" />
-        <nav
-          className="container-xl pt-3 pb-5 flex flex-col gap-0.5"
-          aria-label="Mobile navigation"
-        >
-          {/* Services */}
+        <nav className="container-xl pt-3 pb-5 flex flex-col gap-0.5" aria-label="Mobile navigation">
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-3 pt-1 pb-1.5">
             Services
           </p>
@@ -193,7 +172,6 @@ export default function Navbar() {
 
           <div className="h-px bg-gray-100 mx-1 my-2" />
 
-          {/* Main links */}
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -205,7 +183,6 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {/* CTA */}
           <div className="mt-3">
             <a
               href="tel:+14844677925"

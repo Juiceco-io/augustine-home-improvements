@@ -21,10 +21,6 @@ body {
   box-sizing: border-box;
 }
 
-/* ============================================
-   LAYOUT UTILITIES
-   ============================================ */
-
 .container-xl {
   width: 100%;
   max-width: 1200px;
@@ -38,10 +34,6 @@ body {
   }
 }
 
-/* ============================================
-   BUTTONS
-   ============================================ */
-
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -51,13 +43,23 @@ body {
   color: #ffffff;
   font-weight: 600;
   border-radius: 0.5rem;
-  transition: background-color 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 1px 3px rgba(75, 119, 107, 0.18);
+  transition: background-color 0.2s ease,
+              transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease;
   text-decoration: none;
 }
 
 .btn-primary:hover {
   background-color: var(--brand-primary-dark);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(75, 119, 107, 0.28);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 4px rgba(75, 119, 107, 0.18);
+  transition-duration: 0.1s;
 }
 
 .btn-outline {
@@ -70,18 +72,24 @@ body {
   font-weight: 600;
   border-radius: 0.5rem;
   border: 2px solid var(--brand-primary);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease,
+              color 0.2s ease,
+              transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.2s ease;
   text-decoration: none;
 }
 
 .btn-outline:hover {
   background-color: var(--brand-primary);
   color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 14px rgba(75, 119, 107, 0.18);
 }
 
-/* ============================================
-   FORM ELEMENTS
-   ============================================ */
+.btn-outline:active {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
 
 .form-label {
   display: block;
@@ -99,18 +107,15 @@ body {
   background: #ffffff;
   color: #1a1a1a;
   font-size: 0.9375rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.25s ease, background-color 0.2s ease;
   outline: none;
 }
 
 .form-input:focus {
   border-color: var(--brand-primary);
   box-shadow: 0 0 0 3px rgba(75, 119, 107, 0.14);
+  background-color: #fafffe;
 }
-
-/* ============================================
-   HERO ANIMATIONS
-   ============================================ */
 
 @keyframes fade-in-up {
   from {
@@ -133,10 +138,6 @@ body {
 .animate-delay-300 { animation-delay: 0.3s; }
 .animate-delay-400 { animation-delay: 0.4s; }
 
-/* ============================================
-   PAGE TRANSITIONS
-   ============================================ */
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -151,10 +152,6 @@ body {
 main {
   animation: fadeIn 0.3s ease-out;
 }
-
-/* ============================================
-   SECTION STYLES
-   ============================================ */
 
 .section-heading {
   font-family: Georgia, "Times New Roman", serif;
@@ -176,18 +173,14 @@ main {
   line-height: 1.6;
 }
 
-/* ============================================
-   SERVICE CARDS
-   ============================================ */
-
 .service-card {
   background: #ffffff;
   border: 1px solid #e5e7eb;
   border-radius: 0.75rem;
   padding: 1.25rem;
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.25s ease,
-              border-color 0.25s ease;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+              box-shadow 0.3s ease,
+              border-color 0.3s ease;
 }
 
 @media (min-width: 640px) {
@@ -197,29 +190,16 @@ main {
 }
 
 .service-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 12px 32px rgba(75, 119, 107, 0.12);
-  border-color: rgba(75, 119, 107, 0.28);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(75, 119, 107, 0.13),
+              0 4px 12px rgba(0,0,0,0.05);
+  border-color: rgba(75, 119, 107, 0.32);
 }
 
-/* ============================================
-   NAVBAR
-   ============================================ */
-
-/*
-  Mobile-first: header is always solid white. This prevents the white-strip
-  bug on interior pages where there is no dark hero behind the header.
-
-  Desktop: transparent over dark hero, frosts in on scroll.
-  The Navbar component drives .navbar-solid vs .navbar-hero via JS state.
-*/
-
 .navbar-base {
-  /* Safe-area support for iPhone notch / Dynamic Island */
   padding-top: env(safe-area-inset-top, 0px);
 }
 
-/* Solid white — used on mobile always, and desktop when scrolled */
 .navbar-solid {
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(12px);
@@ -227,7 +207,6 @@ main {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
 }
 
-/* Transparent — desktop only, over dark hero, before scroll */
 .navbar-hero {
   background: transparent;
   backdrop-filter: none;
@@ -235,7 +214,6 @@ main {
   box-shadow: none;
 }
 
-/* Legacy class, kept for backwards compat if referenced elsewhere */
 .navbar-scrolled {
   background: rgba(255, 255, 255, 0.97);
   backdrop-filter: blur(12px);
@@ -243,81 +221,23 @@ main {
   box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
 }
 
-/* ============================================
-   SCROLL REVEAL SYSTEM
-   ============================================ */
-
-/*
-  Principle: elements start hidden, transition to visible when .sr-visible is added
-  by the IntersectionObserver in ScrollReveal.tsx.
-  All transitions are physics-curve (cubic-bezier ease-out) for premium feel.
-*/
-
+/* Scroll reveal system */
 .sr-root {
   transition-property: opacity, transform;
   transition-duration: 0.65s;
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Initial hidden states */
 .sr-fade-up   { opacity: 0; transform: translateY(28px); }
 .sr-fade-in   { opacity: 0; transform: translateY(0); }
 .sr-fade-left { opacity: 0; transform: translateX(-24px); }
 .sr-fade-right{ opacity: 0; transform: translateX(24px); }
 
-/* Revealed state */
 .sr-root.sr-visible {
   opacity: 1 !important;
   transform: none !important;
 }
 
-/* ============================================
-   ENHANCED HOVER STATES
-   ============================================ */
-
-/* Buttons — lift + subtle shadow on hover */
-.btn-primary {
-  box-shadow: 0 1px 3px rgba(75, 119, 107, 0.18);
-  transition: background-color 0.2s ease,
-              transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.2s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(75, 119, 107, 0.28);
-}
-
-.btn-primary:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 4px rgba(75, 119, 107, 0.18);
-  transition-duration: 0.1s;
-}
-
-.btn-outline {
-  transition: background-color 0.2s ease,
-              color 0.2s ease,
-              transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.2s ease;
-}
-
-.btn-outline:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 14px rgba(75, 119, 107, 0.18);
-}
-
-.btn-outline:active {
-  transform: translateY(0);
-  transition-duration: 0.1s;
-}
-
-/* ============================================
-   NAVBAR DROPDOWN ENHANCEMENT
-   ============================================ */
-
-/*
-  Slide-down dropdown — replaces opacity-only fade with a subtle translate.
-*/
 .nav-dropdown {
   transform-origin: top center;
   transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
@@ -335,7 +255,6 @@ main {
   pointer-events: auto;
 }
 
-/* Nav link underline sweep */
 .nav-link-underline {
   position: relative;
 }
@@ -356,10 +275,6 @@ main {
   width: 100%;
 }
 
-/* ============================================
-   STATS STRIP — NUMBER EMPHASIS
-   ============================================ */
-
 .stat-value {
   display: inline-block;
   transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -368,38 +283,6 @@ main {
 .stat-item:hover .stat-value {
   transform: scale(1.08);
 }
-
-/* ============================================
-   SERVICE CARDS — ENHANCED
-   ============================================ */
-
-.service-card {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.3s ease,
-              border-color 0.3s ease;
-}
-
-.service-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 40px rgba(75, 119, 107, 0.13),
-              0 4px 12px rgba(0,0,0,0.05);
-  border-color: rgba(75, 119, 107, 0.32);
-}
-
-/* Icon container scales on card hover */
-.service-card:hover .service-icon {
-  transform: scale(1.1);
-  background-color: rgba(75, 119, 107, 0.18);
-}
-
-.service-icon {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              background-color 0.3s ease;
-}
-
-/* ============================================
-   REVIEW CARDS — HOVER LIFT
-   ============================================ */
 
 .review-card {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -413,10 +296,6 @@ main {
   border-color: rgba(255, 255, 255, 0.2);
 }
 
-/* ============================================
-   GALLERY CARDS — ZOOM ON HOVER
-   ============================================ */
-
 .gallery-card {
   overflow: hidden;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
@@ -427,10 +306,6 @@ main {
   transform: translateY(-3px);
   box-shadow: 0 10px 28px rgba(75, 119, 107, 0.14);
 }
-
-/* ============================================
-   SERVICE PAGE HERO GRADIENT — SUBTLE SHIMMER
-   ============================================ */
 
 @keyframes gradient-shift {
   0%   { background-position: 0% 50%; }
@@ -443,22 +318,6 @@ main {
   animation: gradient-shift 8s ease infinite;
 }
 
-/* ============================================
-   FORM INPUT — ENHANCED FOCUS
-   ============================================ */
-
-.form-input {
-  transition: border-color 0.2s ease, box-shadow 0.25s ease, background-color 0.2s ease;
-}
-
-.form-input:focus {
-  background-color: #fafffe;
-}
-
-/* ============================================
-   CTA STRIP — LINK HOVER POLISH
-   ============================================ */
-
 .cta-link-white {
   transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -467,10 +326,6 @@ main {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
 }
-
-/* ============================================
-   REDUCED MOTION
-   ============================================ */
 
 @media (prefers-reduced-motion: reduce) {
   main,
