@@ -89,9 +89,9 @@ export default function Navbar() {
           aria-label="Main navigation"
         >
           {/* Services dropdown */}
-          <div className="relative group">
+          <div className="relative nav-dropdown-parent">
             <button
-              className={`flex items-center gap-1 font-semibold text-sm transition-colors py-2 ${
+              className={`flex items-center gap-1 font-semibold text-sm transition-colors py-2 nav-link-underline ${
                 isSolid
                   ? "text-gray-700 hover:text-brand-primary"
                   : "text-white/90 hover:text-white"
@@ -101,11 +101,11 @@ export default function Navbar() {
               Services
               <ChevronDown
                 size={14}
-                className="transition-transform duration-200 group-hover:rotate-180"
+                className="transition-transform duration-200 nav-dropdown-parent:hover:rotate-180"
                 aria-hidden="true"
               />
             </button>
-            <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1">
+            <div className="nav-dropdown absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 z-50 py-1">
               {services.map((s) => (
                 <Link
                   key={s.href}
@@ -122,7 +122,7 @@ export default function Navbar() {
             <Link
               key={link.href}
               href={link.href}
-              className={`font-semibold text-sm transition-colors ${
+              className={`font-semibold text-sm transition-colors nav-link-underline ${
                 isSolid
                   ? "text-gray-700 hover:text-brand-primary"
                   : "text-white/90 hover:text-white"
