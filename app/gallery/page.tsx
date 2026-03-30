@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export const metadata: Metadata = {
   title: "Project Gallery | Chester County PA | Augustine Home Improvements",
@@ -26,34 +27,37 @@ export default function GalleryPage() {
           </ol>
         </nav>
 
-        <div className="max-w-3xl mb-10">
-          <h1 className="section-heading mb-4">Project Gallery</h1>
-          <p className="section-subheading">
-            A look at some of our recent work across Chester County PA — decks,
-            kitchens, bathrooms, basements, and more.
-          </p>
-        </div>
+        <ScrollReveal variant="fade-up">
+          <div className="max-w-3xl mb-10">
+            <h1 className="section-heading mb-4">Project Gallery</h1>
+            <p className="section-subheading">
+              A look at some of our recent work across Chester County PA — decks,
+              kitchens, bathrooms, basements, and more.
+            </p>
+          </div>
+        </ScrollReveal>
 
         {/* Placeholder — real photos to be added */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {Array.from({ length: 9 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-video rounded-xl bg-brand-cream border border-gray-200 flex items-center justify-center"
-            >
-              <span className="text-gray-400 text-sm">Photo coming soon</span>
-            </div>
+            <ScrollReveal key={i} variant="fade-up" delay={i * 50}>
+              <div className="gallery-card aspect-video rounded-xl bg-brand-cream border border-gray-200 flex items-center justify-center">
+                <span className="text-gray-400 text-sm">Photo coming soon</span>
+              </div>
+            </ScrollReveal>
           ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <p className="text-gray-500 mb-6">
-            Ready to start your project?
-          </p>
-          <Link href="/contact-us/" className="btn-primary">
-            Get a Free Estimate
-          </Link>
-        </div>
+        <ScrollReveal variant="fade-up" delay={200}>
+          <div className="mt-12 text-center">
+            <p className="text-gray-500 mb-6">
+              Ready to start your project?
+            </p>
+            <Link href="/contact-us/" className="btn-primary">
+              Get a Free Estimate
+            </Link>
+          </div>
+        </ScrollReveal>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Shield, Award, Star, CheckCircle, Phone } from "lucide-react";
+import ScrollReveal from "@/components/ScrollReveal";
 
 export const metadata: Metadata = {
   title: "About Us | Veteran-Owned Chester County Contractor",
@@ -28,47 +29,53 @@ export default function AboutPage() {
         </nav>
 
         {/* Hero */}
-        <div className="max-w-3xl mb-10 md:mb-16">
-          <h1 className="section-heading mb-4">About Augustine Home Improvements</h1>
-          <p className="section-subheading">
-            A veteran-owned and operated home improvement company serving Chester
-            County PA and suburban Philadelphia since 2020.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-14 md:mb-20">
-          <div className="space-y-6 text-gray-700 leading-relaxed">
-            <p>
-              Augustine Home Improvements was founded by Brandon Augustine, a
-              United States veteran who brings the same discipline, attention to
-              detail, and commitment to excellence from his military service to
-              every home improvement project he undertakes.
-            </p>
-            <p>
-              Based in Chester County, Pennsylvania, we specialize in decks,
-              kitchen renovations, bathroom remodeling, basement finishing, home
-              additions, and full-home renovations. We serve homeowners throughout
-              Chester County and the surrounding Philadelphia suburbs.
-            </p>
-            <p>
-              As a TrexPro Certified Installer, Augustine Home Improvements is
-              one of a select group of contractors in the region with factory
-              training and authorization to install Trex composite decking — giving
-              our customers access to extended warranties backed by the manufacturer.
-            </p>
-            <p>
-              We&apos;re fully licensed and insured, and we&apos;re committed to
-              honest pricing, clear communication, and work that stands the test
-              of time. When you hire Augustine Home Improvements, you get Brandon
-              — not a salesman who hands you off to a crew you&apos;ve never met.
+        <ScrollReveal variant="fade-up">
+          <div className="max-w-3xl mb-10 md:mb-16">
+            <h1 className="section-heading mb-4">About Augustine Home Improvements</h1>
+            <p className="section-subheading">
+              A veteran-owned and operated home improvement company serving Chester
+              County PA and suburban Philadelphia since 2020.
             </p>
           </div>
+        </ScrollReveal>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 mb-14 md:mb-20">
+          <ScrollReveal variant="fade-left">
+            <div className="space-y-6 text-gray-700 leading-relaxed">
+              <p>
+                Augustine Home Improvements was founded by Brandon Augustine, a
+                United States veteran who brings the same discipline, attention to
+                detail, and commitment to excellence from his military service to
+                every home improvement project he undertakes.
+              </p>
+              <p>
+                Based in Chester County, Pennsylvania, we specialize in decks,
+                kitchen renovations, bathroom remodeling, basement finishing, home
+                additions, and full-home renovations. We serve homeowners throughout
+                Chester County and the surrounding Philadelphia suburbs.
+              </p>
+              <p>
+                As a TrexPro Certified Installer, Augustine Home Improvements is
+                one of a select group of contractors in the region with factory
+                training and authorization to install Trex composite decking — giving
+                our customers access to extended warranties backed by the manufacturer.
+              </p>
+              <p>
+                We&apos;re fully licensed and insured, and we&apos;re committed to
+                honest pricing, clear communication, and work that stands the test
+                of time. When you hire Augustine Home Improvements, you get Brandon
+                — not a salesman who hands you off to a crew you&apos;ve never met.
+              </p>
+            </div>
+          </ScrollReveal>
 
           {/* Values */}
           <div>
-            <h2 className="text-xl font-bold text-brand-charcoal mb-6">
-              Our Values
-            </h2>
+            <ScrollReveal variant="fade-right">
+              <h2 className="text-xl font-bold text-brand-charcoal mb-6">
+                Our Values
+              </h2>
+            </ScrollReveal>
             <div className="space-y-5">
               {[
                 {
@@ -91,52 +98,56 @@ export default function AboutPage() {
                   title: "Community Focus",
                   desc: "We live and work in Chester County. Our neighbors are our customers.",
                 },
-              ].map(({ icon: Icon, title, desc }) => (
-                <div key={title} className="flex gap-4">
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-red/10 flex items-center justify-center">
-                    <Icon size={18} className="text-brand-red" aria-hidden="true" />
+              ].map(({ icon: Icon, title, desc }, i) => (
+                <ScrollReveal key={title} variant="fade-right" delay={i * 80}>
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-brand-red/10 flex items-center justify-center service-icon">
+                      <Icon size={18} className="text-brand-red" aria-hidden="true" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-brand-charcoal mb-1">{title}</h3>
+                      <p className="text-gray-600 text-sm">{desc}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h3 className="font-bold text-brand-charcoal mb-1">{title}</h3>
-                    <p className="text-gray-600 text-sm">{desc}</p>
-                  </div>
-                </div>
+                </ScrollReveal>
               ))}
             </div>
           </div>
         </div>
 
         {/* CTA */}
-        <div
-          className="rounded-2xl p-6 sm:p-8 md:p-10 text-center text-white"
-          style={{
-            background:
-              "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)",
-          }}
-        >
-          <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-3">
-            Ready to Work with Us?
-          </h2>
-          <p className="text-white/80 mb-6 max-w-xl mx-auto">
-            Get a free, no-obligation estimate. We&apos;ll come to your home,
-            assess the project, and give you a clear, written quote.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <Link
-              href="/contact-us/"
-              className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center"
-            >
-              Request a Free Estimate
-            </Link>
-            <a
-              href="tel:+14844677925"
-              className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto"
-            >
-              <Phone size={15} aria-hidden="true" />
-              484-467-7925
-            </a>
+        <ScrollReveal variant="fade-up">
+          <div
+            className="hero-gradient-animated rounded-2xl p-6 sm:p-8 md:p-10 text-center text-white"
+            style={{
+              background:
+                "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)",
+            }}
+          >
+            <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-3">
+              Ready to Work with Us?
+            </h2>
+            <p className="text-white/80 mb-6 max-w-xl mx-auto">
+              Get a free, no-obligation estimate. We&apos;ll come to your home,
+              assess the project, and give you a clear, written quote.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+              <Link
+                href="/contact-us/"
+                className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center cta-link-white"
+              >
+                Request a Free Estimate
+              </Link>
+              <a
+                href="tel:+14844677925"
+                className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto cta-link-white"
+              >
+                <Phone size={15} aria-hidden="true" />
+                484-467-7925
+              </a>
+            </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </div>
   );
