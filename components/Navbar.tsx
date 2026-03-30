@@ -24,7 +24,15 @@ const navLinks = [
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
+  // Track whether we're on mobile for class logic
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 1024);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -32,12 +40,19 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    if (!isMobile) setIsOpen(false);
+  }, [isMobile]);
+
+  // Header is solid when: mobile (always) OR desktop+scrolled
+  // Header is transparent when: desktop AND not scrolled
+  const isSolid = isMobile || scrolled;
+
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 ${
-        scrolled
-          ? "navbar-scrolled py-2"
-          : "bg-transparent py-3 md:py-4"
+      className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 navbar-base ${
+        isSolid ? "navbar-solid py-3" : "navbar-hero py-4"
       }`}
       role="banner"
     >
@@ -45,14 +60,16 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-3 group"
+          className="flex items-center group flex-shrink-0"
           aria-label="Augustine Home Improvements — Home"
         >
+          {/* On desktop over dark hero, wrap in white pill for contrast.
+              On mobile (solid header) and scrolled desktop: plain. */}
           <div
             className={`flex items-center transition-all duration-300 ${
-              scrolled
-                ? ""
-                : "bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm"
+              !isSolid
+                ? "bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm"
+                : ""
             }`}
           >
             <Image
@@ -60,7 +77,7 @@ export default function Navbar() {
               alt="Augustine Home Improvements"
               width={160}
               height={149}
-              className="h-10 md:h-12 w-auto object-contain"
+              className="h-9 lg:h-11 w-auto object-contain"
               priority
             />
           </div>
@@ -75,23 +92,25 @@ export default function Navbar() {
           <div className="relative group">
             <button
               className={`flex items-center gap-1 font-semibold text-sm transition-colors py-2 ${
-                scrolled
+                isSolid
                   ? "text-gray-700 hover:text-brand-primary"
                   : "text-white/90 hover:text-white"
               }`}
-              aria-expanded={servicesOpen}
               aria-haspopup="true"
-              onClick={() => setServicesOpen(!servicesOpen)}
             >
               Services
-              <ChevronDown size={14} />
+              <ChevronDown
+                size={14}
+                className="transition-transform duration-200 group-hover:rotate-180"
+                aria-hidden="true"
+              />
             </button>
-            <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+            <div className="absolute top-full left-0 mt-2 w-56 bg-white rounded-xl shadow-xl border border-gray-100 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 py-1">
               {services.map((s) => (
                 <Link
                   key={s.href}
                   href={s.href}
-                  className="block px-4 py-3 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream transition-colors first:rounded-t-lg last:rounded-b-lg"
+                  className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream transition-colors"
                 >
                   {s.label}
                 </Link>
@@ -104,7 +123,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               className={`font-semibold text-sm transition-colors ${
-                scrolled
+                isSolid
                   ? "text-gray-700 hover:text-brand-primary"
                   : "text-white/90 hover:text-white"
               }`}
@@ -123,33 +142,23 @@ export default function Navbar() {
         </nav>
 
         {/* Mobile: phone + hamburger */}
-        <div className="flex lg:hidden items-center gap-3">
+        <div className="flex lg:hidden items-center gap-1">
           <a
             href="tel:+14844677925"
-            className="flex items-center gap-1.5 text-sm font-bold"
-            aria-label="Call us"
+            className="flex items-center gap-1.5 text-sm font-semibold py-2 px-2.5 rounded-lg hover:bg-brand-mist transition-colors"
+            aria-label="Call Augustine Home Improvements"
           >
-            <Phone
-              size={16}
-              className={scrolled ? "text-[color:var(--brand-primary)]" : "text-white"}
-              aria-hidden="true"
-            />
-            <span className={scrolled ? "text-brand-charcoal" : "text-white"}>
-              Call
-            </span>
+            <Phone size={16} className="text-brand-primary" aria-hidden="true" />
+            <span className="text-brand-charcoal">Call</span>
           </a>
           <button
-            className={`p-2 rounded-md transition-colors ${
-              scrolled
-                ? "text-gray-700 hover:bg-gray-100"
-                : "text-white hover:bg-white/10"
-            }`}
-            aria-label="Open menu"
+            className="p-2 rounded-lg text-brand-charcoal hover:bg-brand-mist transition-colors"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"
             onClick={() => setIsOpen(!isOpen)}
           >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X size={22} /> : <Menu size={22} />}
           </button>
         </div>
       </div>
@@ -157,44 +166,51 @@ export default function Navbar() {
       {/* Mobile menu */}
       <div
         id="mobile-menu"
-        className={`lg:hidden bg-white border-t border-gray-100 overflow-hidden transition-all duration-300 ${
-          isOpen ? "max-h-screen" : "max-h-0"
+        className={`lg:hidden overflow-hidden transition-[max-height,opacity] duration-300 ease-in-out ${
+          isOpen ? "max-h-[600px] opacity-100" : "max-h-0 opacity-0"
         }`}
         aria-hidden={!isOpen}
       >
+        <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mx-4" />
         <nav
-          className="container-xl py-4 flex flex-col gap-1"
+          className="container-xl pt-3 pb-5 flex flex-col gap-0.5"
           aria-label="Mobile navigation"
         >
-          <div className="pb-2 mb-2 border-b border-gray-100">
-            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-3 mb-2">
-              Services
-            </p>
-            {services.map((s) => (
-              <Link
-                key={s.href}
-                href={s.href}
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-md transition-colors"
-              >
-                {s.label}
-              </Link>
-            ))}
-          </div>
+          {/* Services */}
+          <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-3 pt-1 pb-1.5">
+            Services
+          </p>
+          {services.map((s) => (
+            <Link
+              key={s.href}
+              href={s.href}
+              onClick={() => setIsOpen(false)}
+              className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-lg transition-colors"
+            >
+              {s.label}
+            </Link>
+          ))}
+
+          <div className="h-px bg-gray-100 mx-1 my-2" />
+
+          {/* Main links */}
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setIsOpen(false)}
-              className="px-3 py-2.5 text-sm font-semibold text-gray-800 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-md transition-colors"
+              className="block px-3 py-2.5 text-sm font-semibold text-gray-800 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-lg transition-colors"
             >
               {link.label}
             </Link>
           ))}
-          <div className="mt-3 pt-3 border-t border-gray-100">
+
+          {/* CTA */}
+          <div className="mt-3">
             <a
               href="tel:+14844677925"
-              className="btn-primary w-full justify-center text-sm"
+              className="btn-primary w-full justify-center"
+              onClick={() => setIsOpen(false)}
             >
               <Phone size={15} aria-hidden="true" />
               Call 484-467-7925

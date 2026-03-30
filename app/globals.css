@@ -206,10 +206,41 @@ main {
    NAVBAR
    ============================================ */
 
+/*
+  Mobile-first: header is always solid white. This prevents the white-strip
+  bug on interior pages where there is no dark hero behind the header.
+
+  Desktop: transparent over dark hero, frosts in on scroll.
+  The Navbar component drives .navbar-solid vs .navbar-hero via JS state.
+*/
+
+.navbar-base {
+  /* Safe-area support for iPhone notch / Dynamic Island */
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+/* Solid white — used on mobile always, and desktop when scrolled */
+.navbar-solid {
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
+}
+
+/* Transparent — desktop only, over dark hero, before scroll */
+.navbar-hero {
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+
+/* Legacy class, kept for backwards compat if referenced elsewhere */
 .navbar-scrolled {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  box-shadow: 0 1px 12px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.07);
 }
 
 /* ============================================
