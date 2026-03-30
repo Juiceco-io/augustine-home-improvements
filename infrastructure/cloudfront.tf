@@ -1,3 +1,11 @@
+resource "aws_cloudfront_function" "rewrite_index" {
+  name    = "${var.project}-${var.environment}-rewrite-index"
+  runtime = "cloudfront-js-2.0"
+  comment = "Rewrite directory URIs to index.html for static Next.js export"
+  publish = true
+  code    = file("${path.module}/cloudfront-function.js")
+}
+
 resource "aws_cloudfront_origin_access_control" "site" {
   name                              = "${var.project}-${var.environment}-oac"
   description                       = "OAC for ${var.project} ${var.environment}"
@@ -104,6 +112,11 @@ resource "aws_cloudfront_distribution" "site" {
     compress                   = true
     cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
     response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.rewrite_index.arn
+    }
   }
 
   custom_error_response {
