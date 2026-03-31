@@ -8,3 +8,9 @@ infrastructure/.terraform/
 infrastructure/*.tfstate
 infrastructure/*.tfstate.backup
 infrastructure/.terraform.lock.hcl
+infrastructure/lambda-zips/*.zip
+
+# CMS Admin SPA
+cms/admin/node_modules/
+cms/admin/dist/
+cms/admin/.env.local

@@ -10,8 +10,11 @@ on:
       - main
 
 jobs:
-  ci:
-    name: Lint, Typecheck & Build
+  # ─────────────────────────────────────────────
+  # Public site (Next.js)
+  # ─────────────────────────────────────────────
+  ci-public:
+    name: Public Site — Lint, Typecheck & Build
     runs-on: ubuntu-latest
 
     steps:
@@ -34,4 +37,38 @@ jobs:
         run: npm run typecheck
 
       - name: Build
+        run: npm run build
+
+  # ─────────────────────────────────────────────
+  # Admin SPA (Vite + React)
+  # ─────────────────────────────────────────────
+  ci-admin:
+    name: CMS Admin — Typecheck & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cms/admin
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        env:
+          # Use placeholder values so Vite build succeeds in CI without real secrets
+          VITE_API_URL: https://example.execute-api.us-east-1.amazonaws.com/dev
+          VITE_COGNITO_USER_POOL_ID: us-east-1_placeholder
+          VITE_COGNITO_CLIENT_ID: placeholder
+          VITE_CDN_BASE_URL: https://placeholder.cloudfront.net
         run: npm run build

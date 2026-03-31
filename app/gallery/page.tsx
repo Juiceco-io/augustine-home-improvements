@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ScrollReveal from "@/components/ScrollReveal";
+import GalleryGrid from "./GalleryGrid";
 
 export const metadata: Metadata = {
   title: "Project Gallery | Chester County PA | Augustine Home Improvements",
@@ -37,16 +38,8 @@ export default function GalleryPage() {
           </div>
         </ScrollReveal>
 
-        {/* Placeholder — real photos to be added */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <ScrollReveal key={i} variant="fade-up" delay={i * 50}>
-              <div className="gallery-card aspect-video rounded-xl bg-brand-cream border border-gray-200 flex items-center justify-center">
-                <span className="text-gray-400 text-sm">Photo coming soon</span>
-              </div>
-            </ScrollReveal>
-          ))}
-        </div>
+        {/* CMS-driven gallery grid — falls back to placeholders if no photos yet */}
+        <GalleryGrid />
 
         <ScrollReveal variant="fade-up" delay={200}>
           <div className="mt-12 text-center">
