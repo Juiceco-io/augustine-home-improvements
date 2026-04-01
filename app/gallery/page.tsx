@@ -23,7 +23,7 @@ export default function GalleryPage() {
             </h1>
             <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl">
               Browse a curated look at the decks, kitchens, bathrooms, basements,
-              and full-home renovations that reflect Augustine's standard of
+              and full-home renovations that reflect Augustine&apos;s standard of
               care, detail, and clean execution.
             </p>
           </div>
@@ -44,7 +44,7 @@ export default function GalleryPage() {
                 Ready for your own transformation?
               </p>
               <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight mb-3">
-                Let's talk about what you want to improve next.
+                Let&apos;s talk about what you want to improve next.
               </h2>
               <p className="text-white/80 text-lg leading-relaxed">
                 From decks and additions to kitchens and baths, Augustine Home
