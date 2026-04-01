@@ -622,6 +622,16 @@ resource "aws_api_gateway_stage" "cms" {
 
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.cms_api.arn
+    format = jsonencode({
+      requestId      = "$context.requestId"
+      requestTime    = "$context.requestTime"
+      httpMethod     = "$context.httpMethod"
+      resourcePath   = "$context.resourcePath"
+      status         = "$context.status"
+      responseLength = "$context.responseLength"
+      ip             = "$context.identity.sourceIp"
+      errorMessage   = "$context.error.message"
+    })
   }
 }
 
