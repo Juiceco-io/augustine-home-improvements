@@ -1,64 +1,71 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import ScrollReveal from "@/components/ScrollReveal";
+import { ArrowRight } from "lucide-react";
+import GalleryGrid from "./GalleryGrid";
 
 export const metadata: Metadata = {
-  title: "Project Gallery | Chester County PA | Augustine Home Improvements",
+  title: "Project Gallery | Augustine Home Improvements",
   description:
-    "Browse completed home improvement projects by Augustine Home Improvements in Chester County PA — decks, kitchens, bathrooms, and more.",
-  alternates: {
-    canonical: "https://www.augustinehomeimprovements.com/gallery/",
-  },
+    "Explore decks, kitchens, bathrooms, basements, and renovation work completed by Augustine Home Improvements across Chester County and the surrounding suburbs.",
 };
 
 export default function GalleryPage() {
   return (
-    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
-      <div className="container-xl">
-        <nav aria-label="Breadcrumb" className="mb-6">
-          <ol className="flex items-center gap-2 text-sm text-gray-500">
-            <li>
-              <Link href="/" className="hover:text-brand-red transition-colors">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li className="text-brand-charcoal font-medium">Gallery</li>
-          </ol>
-        </nav>
-
-        <ScrollReveal variant="fade-up">
-          <div className="max-w-3xl mb-10">
-            <h1 className="section-heading mb-4">Project Gallery</h1>
-            <p className="section-subheading">
-              A look at some of our recent work across Chester County PA — decks,
-              kitchens, bathrooms, basements, and more.
+    <>
+      <section className="pt-32 pb-16 md:pt-40 md:pb-20 bg-gradient-to-b from-brand-cream via-white to-white hero-gradient-animated">
+        <div className="container-xl">
+          <div className="max-w-3xl">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-brand-mist text-brand-primary text-sm font-semibold mb-6">
+              Crafted spaces. Lasting quality.
+            </span>
+            <h1 className="font-serif text-4xl md:text-6xl font-bold text-brand-charcoal leading-tight mb-6">
+              See the craftsmanship behind Augustine Home Improvements.
+            </h1>
+            <p className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl">
+              Browse a curated look at the decks, kitchens, bathrooms, basements,
+              and full-home renovations that reflect Augustine&apos;s standard of
+              care, detail, and clean execution.
             </p>
           </div>
-        </ScrollReveal>
-
-        {/* Placeholder — real photos to be added */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <ScrollReveal key={i} variant="fade-up" delay={i * 50}>
-              <div className="gallery-card aspect-video rounded-xl bg-brand-cream border border-gray-200 flex items-center justify-center">
-                <span className="text-gray-400 text-sm">Photo coming soon</span>
-              </div>
-            </ScrollReveal>
-          ))}
         </div>
+      </section>
 
-        <ScrollReveal variant="fade-up" delay={200}>
-          <div className="mt-12 text-center">
-            <p className="text-gray-500 mb-6">
-              Ready to start your project?
-            </p>
-            <Link href="/contact-us/" className="btn-primary">
-              Get a Free Estimate
-            </Link>
+      <section className="py-14 md:py-20 bg-white">
+        <div className="container-xl">
+          <GalleryGrid />
+        </div>
+      </section>
+
+      <section className="py-14 md:py-20 bg-brand-charcoal text-white hero-gradient-animated">
+        <div className="container-xl">
+          <div className="rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm p-6 sm:p-8 md:p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+            <div className="max-w-2xl">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand-mist mb-3">
+                Ready for your own transformation?
+              </p>
+              <h2 className="font-serif text-3xl md:text-4xl font-bold leading-tight mb-3">
+                Let&apos;s talk about what you want to improve next.
+              </h2>
+              <p className="text-white/80 text-lg leading-relaxed">
+                From decks and additions to kitchens and baths, Augustine Home
+                Improvements delivers thoughtful design, durable workmanship, and
+                a smooth remodeling experience from start to finish.
+              </p>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Link href="/contact-us/" className="btn-primary w-full sm:w-auto justify-center">
+                Start Your Project <ArrowRight size={18} />
+              </Link>
+              <a
+                href="tel:+14844677925"
+                className="btn-outline border-white text-white hover:bg-white hover:text-brand-charcoal w-full sm:w-auto justify-center cta-link-white"
+              >
+                Call 484-467-7925
+              </a>
+            </div>
           </div>
-        </ScrollReveal>
-      </div>
-    </div>
+        </div>
+      </section>
+    </>
   );
 }

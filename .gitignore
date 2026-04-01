@@ -8,3 +8,10 @@ infrastructure/.terraform/
 infrastructure/*.tfstate
 infrastructure/*.tfstate.backup
 infrastructure/.terraform.lock.hcl
+infrastructure/lambda-zips/*.zip
+
+# CMS Admin (Next.js — built as part of root Next.js app, no separate build dir)
+# Archived Vite reference (not installed/built in CI)
+cms/admin-vite-archived/node_modules/
+cms/admin-vite-archived/dist/
+cms/admin-vite-archived/.env.local

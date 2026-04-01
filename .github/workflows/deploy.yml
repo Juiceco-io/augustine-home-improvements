@@ -70,6 +70,10 @@ jobs:
       cloudfront_distribution_id: ${{ steps.tf-output.outputs.cloudfront_distribution_id }}
       s3_bucket_name: ${{ steps.tf-output.outputs.s3_bucket_name }}
       cloudfront_domain_name: ${{ steps.tf-output.outputs.cloudfront_domain_name }}
+      cms_cognito_user_pool_id: ${{ steps.tf-output.outputs.cms_cognito_user_pool_id }}
+      cms_cognito_client_id: ${{ steps.tf-output.outputs.cms_cognito_client_id }}
+      cms_api_url: ${{ steps.tf-output.outputs.cms_api_url }}
+      cms_config_url: ${{ steps.tf-output.outputs.cms_config_url }}
 
     steps:
       - name: Checkout
@@ -113,10 +117,19 @@ jobs:
           CF_ID=$(terraform output -raw cloudfront_distribution_id)
           BUCKET=$(terraform output -raw s3_bucket_name)
           CF_DOMAIN=$(terraform output -raw cloudfront_domain_name)
+          POOL_ID=$(terraform output -raw cms_cognito_user_pool_id)
+          CLIENT_ID=$(terraform output -raw cms_cognito_client_id)
+          API_URL=$(terraform output -raw cms_api_url)
+          CONFIG_URL=$(terraform output -raw cms_config_url)
           echo "cloudfront_distribution_id=$CF_ID" >> "$GITHUB_OUTPUT"
           echo "s3_bucket_name=$BUCKET" >> "$GITHUB_OUTPUT"
           echo "cloudfront_domain_name=$CF_DOMAIN" >> "$GITHUB_OUTPUT"
+          echo "cms_cognito_user_pool_id=$POOL_ID" >> "$GITHUB_OUTPUT"
+          echo "cms_cognito_client_id=$CLIENT_ID" >> "$GITHUB_OUTPUT"
+          echo "cms_api_url=$API_URL" >> "$GITHUB_OUTPUT"
+          echo "cms_config_url=$CONFIG_URL" >> "$GITHUB_OUTPUT"
           echo "::notice title=CloudFront URL::$CF_DOMAIN"
+          echo "::notice title=CMS API URL::$API_URL"
 
   # ─────────────────────────────────────────────
   # Job 2: Build Next.js and deploy to S3
@@ -131,6 +144,11 @@ jobs:
       S3_BUCKET: ${{ needs.terraform-apply.outputs.s3_bucket_name }}
       IAM_ROLE: ${{ needs.set-environment.outputs.deployer_role }}
       NEXT_PUBLIC_APP_VERSION: ${{ github.sha }}
+      # Public CMS config — sourced from Terraform outputs, not manually set GitHub env vars
+      NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ needs.terraform-apply.outputs.cms_cognito_user_pool_id }}
+      NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ needs.terraform-apply.outputs.cms_cognito_client_id }}
+      NEXT_PUBLIC_CMS_API_URL: ${{ needs.terraform-apply.outputs.cms_api_url }}
+      NEXT_PUBLIC_CMS_CONFIG_URL: ${{ needs.terraform-apply.outputs.cms_config_url }}
       # NEXT_PUBLIC_CONTACT_API_URL: not wired yet — fake-success UX handles it
 
     steps:

@@ -55,3 +55,60 @@ Terraform lives in `infrastructure/`. Uses the same S3/CloudFront pattern as com
 The contact form uses a fake-success UX until `NEXT_PUBLIC_CONTACT_API_URL` is set. To wire it for real:
 - Add an API Gateway + Lambda in `infrastructure/` (see company-homepage's `contact_form.tf` for the pattern)
 - Set `NEXT_PUBLIC_CONTACT_API_URL` as a GitHub Actions environment variable
+
+## CMS
+
+A minimal AWS-first CMS lives at `/admin` (Next.js route: `app/admin/`). It is:
+- **Client-only** — authentication and API calls happen in-browser (Cognito + API Gateway)
+- **Deployed as part of the same static Next.js export** — no separate build or hosting
+
+### Architecture
+
+| Component | AWS Service |
+|-----------|-------------|
+| Auth | Cognito User Pool + App Client (SPA, no client secret) |
+| Config storage | S3 (`cms-config` bucket) |
+| Media storage | S3 (`cms-media` bucket) |
+| API | API Gateway + Lambda (3 endpoints: `/config`, `/upload`, `/media`) |
+| CDN | CloudFront (serves `site-config.json` + media to the public site) |
+
+All infrastructure is managed by the same Terraform in `infrastructure/`.
+
+### Environment Variables
+
+**All CMS config values are public (not secrets).** They are injected at build time from Terraform outputs automatically in CI/CD — no manual GitHub environment variables required.
+
+| Variable | Terraform Output | Description |
+|----------|-----------------|-------------|
+| `NEXT_PUBLIC_COGNITO_USER_POOL_ID` | `cms_cognito_user_pool_id` | Cognito User Pool ID |
+| `NEXT_PUBLIC_COGNITO_CLIENT_ID` | `cms_cognito_client_id` | Cognito App Client ID (no secret) |
+| `NEXT_PUBLIC_CMS_API_URL` | `cms_api_url` | API Gateway base URL |
+| `NEXT_PUBLIC_CMS_CONFIG_URL` | `cms_config_url` | CDN URL to `site-config.json` |
+
+### Required Secrets / One-time Setup
+
+The CMS has **no runtime secrets**. The only required setup beyond the standard infrastructure prerequisites:
+
+1. **First admin user** — after Terraform applies, create a Cognito user in the AWS Console:
+   ```
+   aws cognito-idp admin-create-user \
+     --user-pool-id <cms_cognito_user_pool_id> \
+     --username <email> \
+     --temporary-password <temp> \
+     --message-action SUPPRESS
+   aws cognito-idp admin-set-user-password \
+     --user-pool-id <cms_cognito_user_pool_id> \
+     --username <email> \
+     --password <permanent> \
+     --permanent
+   ```
+2. **Initial site-config.json** — upload `cms/config/site-config.json` to the `cms-config` S3 bucket at `config/site-config.json`.
+
+### Local Dev (CMS Admin)
+
+```bash
+cp .env.example .env.local
+# Fill in values from: terraform output -json (run from infrastructure/)
+npm run dev
+# Visit http://localhost:3000/admin
+```

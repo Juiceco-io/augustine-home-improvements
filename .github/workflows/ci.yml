@@ -10,8 +10,11 @@ on:
       - main
 
 jobs:
-  ci:
-    name: Lint, Typecheck & Build
+  # ─────────────────────────────────────────────
+  # Public site (Next.js)
+  # ─────────────────────────────────────────────
+  ci-public:
+    name: Public Site — Lint, Typecheck & Build
     runs-on: ubuntu-latest
 
     steps:
@@ -34,4 +37,36 @@ jobs:
         run: npm run typecheck
 
       - name: Build
+        run: npm run build
+
+  # ─────────────────────────────────────────────
+  # Admin (Next.js — app/admin route)
+  # ─────────────────────────────────────────────
+  ci-admin:
+    name: CMS Admin — Typecheck & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Setup Node.js
+        uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        env:
+          # Placeholder values so Next.js build succeeds in CI without real secrets
+          NEXT_PUBLIC_CMS_API_URL: https://example.execute-api.us-east-1.amazonaws.com/dev
+          NEXT_PUBLIC_COGNITO_USER_POOL_ID: us-east-1_placeholder
+          NEXT_PUBLIC_COGNITO_CLIENT_ID: placeholder
+          NEXT_PUBLIC_CMS_CONFIG_URL: https://placeholder.cloudfront.net/config/site-config.json
         run: npm run build
