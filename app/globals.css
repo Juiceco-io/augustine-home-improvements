@@ -342,3 +342,20 @@ main {
     transform: none !important;
   }
 }
+
+/* ============================================================
+   CMS Admin — shared utility classes
+   ============================================================ */
+
+.upload-zone {
+  @apply border-2 border-dashed border-gray-300 rounded-xl p-8 text-center cursor-pointer
+    hover:border-green-500 hover:bg-green-50 transition-colors;
+}
+
+.upload-zone.dragging {
+  @apply border-green-500 bg-green-50;
+}
+
+.gallery-thumb {
+  @apply relative aspect-video rounded-lg overflow-hidden bg-gray-100 border border-gray-200;
+}
