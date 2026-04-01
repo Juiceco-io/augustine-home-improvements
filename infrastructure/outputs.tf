@@ -38,7 +38,7 @@ output "acm_validation_records" {
 # ─────────────────────────────────────────────
 
 output "cms_api_url" {
-  description = "CMS API Gateway invoke URL (set as VITE_API_URL in admin SPA)"
+  description = "CMS API Gateway invoke URL (set as NEXT_PUBLIC_CMS_API_URL in Next.js build)"
   value       = aws_api_gateway_stage.cms.invoke_url
 }
 
@@ -53,12 +53,12 @@ output "cms_config_url" {
 }
 
 output "cms_cognito_user_pool_id" {
-  description = "Cognito User Pool ID (set as VITE_COGNITO_USER_POOL_ID in admin SPA)"
+  description = "Cognito User Pool ID (set as NEXT_PUBLIC_COGNITO_USER_POOL_ID in Next.js build)"
   value       = aws_cognito_user_pool.cms.id
 }
 
 output "cms_cognito_client_id" {
-  description = "Cognito App Client ID (set as VITE_COGNITO_CLIENT_ID in admin SPA)"
+  description = "Cognito App Client ID (set as NEXT_PUBLIC_COGNITO_CLIENT_ID in Next.js build)"
   value       = aws_cognito_user_pool_client.cms_admin.id
 }
 
