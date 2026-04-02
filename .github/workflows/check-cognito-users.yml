@@ -1,0 +1,23 @@
+name: Check Cognito Users (Temp)
+on:
+  workflow_dispatch:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    environment: dev
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::518692945749:role/github-actions-deployer
+          aws-region: us-east-1
+      - name: List Cognito Users
+        run: |
+          echo "=== Cognito User Pool: us-east-1_2ga1APk6n ==="
+          aws cognito-idp list-users \
+            --user-pool-id us-east-1_2ga1APk6n \
+            --query 'Users[*].{Username:Username,Email:Attributes[?Name==`email`].Value|[0],Status:UserStatus}' \
+            --output table 2>&1 || echo "No users or access denied"
