@@ -89,9 +89,25 @@ All infrastructure is managed by the same Terraform in `infrastructure/`.
 
 The CMS has **no runtime secrets**. The only required setup beyond the standard infrastructure prerequisites:
 
-1. **First admin user** — after Terraform applies, run the bootstrap script:
+1. **First admin user** — Terraform creates the Cognito user automatically when the `ADMIN_EMAIL` GitHub Actions variable is set:
+
+   **Recommended (env-seeded, zero extra steps):**
+   - Go to **GitHub → Settings → Environments → dev (or prod)**
+   - Add a variable: `ADMIN_EMAIL = mark@example.com`
+   - Push to `dev` / merge to `main` — Terraform creates the user on next apply
+   - Then set the password once:
+     ```bash
+     POOL_ID=$(cd infrastructure && terraform output -raw cms_cognito_user_pool_id)
+     aws cognito-idp admin-set-user-password \
+       --user-pool-id "$POOL_ID" \
+       --username mark@example.com \
+       --password 'YourPassword123!' \
+       --permanent
+     ```
+
+   **Alternative (manual bootstrap script):**
    ```bash
-   ./scripts/bootstrap-admin.sh --username admin@example.com
+   ./scripts/bootstrap-admin.sh --username mark@example.com
    # Auto-detects the Cognito User Pool from Terraform outputs.
    # Prompts for password interactively (or pass --password for non-interactive use).
    ```

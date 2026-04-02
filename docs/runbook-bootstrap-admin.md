@@ -4,6 +4,54 @@
 
 ---
 
+## Recommended Approach: Env-Seeded User (Terraform Creates the Account)
+
+The cleanest pattern: set `ADMIN_EMAIL` in the GitHub Actions environment and Terraform creates the Cognito user automatically during the next deploy. No separate bootstrap step needed.
+
+### Step 1 — Set the GitHub Actions variable
+
+1. Open the repo on GitHub
+2. Go to **Settings → Environments → dev** (or **prod**)
+3. Under **Environment variables**, add:
+   - Name: `ADMIN_EMAIL`
+   - Value: `mark@augustinehomeimprovements.com` (or whichever address Mark uses)
+4. Save
+
+### Step 2 — Deploy
+
+Push to `dev` (or merge to `main` for prod). The `terraform apply` step will create the user with email-verified status and no welcome email.
+
+The user starts in `FORCE_CHANGE_PASSWORD` state — it exists, but has no usable password yet.
+
+### Step 3 — Set a permanent password
+
+After the deploy workflow completes, run this once (locally or in a one-off CI step):
+
+```bash
+POOL_ID=$(cd infrastructure && terraform output -raw cms_cognito_user_pool_id)
+aws cognito-idp admin-set-user-password \
+  --user-pool-id "$POOL_ID" \
+  --username mark@augustinehomeimprovements.com \
+  --password 'YourPassword123!' \
+  --permanent
+```
+
+Or from the AWS Console: **Cognito → User Pools → [pool] → Users → Reset password**.
+
+That's the whole flow. Mark can now log in at `/admin`.
+
+> **Idempotent:** If `ADMIN_EMAIL` is set and the user already exists, Terraform leaves them untouched (no accidental deletion). The `ignore_changes = [username]` lifecycle prevents destructive replacement if the email is later edited in vars.
+
+> **Password resets:** Use the `admin-set-user-password` command above any time you need to reset the password. No Terraform involved.
+
+> **Local / `TF_VAR_` equivalent:** If running Terraform locally instead of via CI, set:
+> ```bash
+> export TF_VAR_admin_email="mark@example.com"
+> terraform apply
+> ```
+
+---
+
 ## Prerequisites
 
 1. **AWS CLI** installed (`aws --version`)

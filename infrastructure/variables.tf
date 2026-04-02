@@ -27,3 +27,15 @@ variable "cloudfront_aliases" {
   type        = list(string)
   default     = []
 }
+
+variable "admin_email" {
+  description = <<-EOT
+    Email address for the initial CMS admin user.
+    When set, Terraform creates the Cognito user automatically during apply
+    (no welcome email sent). Mark can then set/reset the password via the
+    AWS Console or: aws cognito-idp admin-set-user-password ...
+    Leave empty to skip automatic user creation.
+  EOT
+  type        = string
+  default     = ""
+}
