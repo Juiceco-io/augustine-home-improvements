@@ -89,20 +89,19 @@ All infrastructure is managed by the same Terraform in `infrastructure/`.
 
 The CMS has **no runtime secrets**. The only required setup beyond the standard infrastructure prerequisites:
 
-1. **First admin user** — after Terraform applies, create a Cognito user in the AWS Console:
+1. **First admin user** — after Terraform applies, run the bootstrap script:
+   ```bash
+   ./scripts/bootstrap-admin.sh --username admin@example.com
+   # Auto-detects the Cognito User Pool from Terraform outputs.
+   # Prompts for password interactively (or pass --password for non-interactive use).
    ```
-   aws cognito-idp admin-create-user \
-     --user-pool-id <cms_cognito_user_pool_id> \
-     --username <email> \
-     --temporary-password <temp> \
-     --message-action SUPPRESS
-   aws cognito-idp admin-set-user-password \
-     --user-pool-id <cms_cognito_user_pool_id> \
-     --username <email> \
-     --password <permanent> \
-     --permanent
+   See [`docs/runbook-bootstrap-admin.md`](docs/runbook-bootstrap-admin.md) for full usage, options, and troubleshooting.
+
+2. **Initial site-config.json** — upload `cms/config/site-config.json` to the `cms-config` S3 bucket at `config/site-config.json`:
+   ```bash
+   BUCKET=$(cd infrastructure && terraform output -raw cms_config_bucket)
+   aws s3 cp cms/config/site-config.json s3://$BUCKET/config/site-config.json
    ```
-2. **Initial site-config.json** — upload `cms/config/site-config.json` to the `cms-config` S3 bucket at `config/site-config.json`.
 
 ### Local Dev (CMS Admin)
 
