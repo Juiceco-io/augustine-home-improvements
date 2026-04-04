@@ -88,6 +88,44 @@ output "cms_ses_from_email" {
   value       = var.cognito_from_email
 }
 
+# ─────────────────────────────────────────────
+# SES DNS verification records (domain identity)
+# Add these to your DNS registrar to verify the SES domain.
+# ─────────────────────────────────────────────
+
+output "ses_domain" {
+  description = "The SES domain being verified (for use in CI checks)"
+  value       = aws_ses_domain_identity.cognito_from.domain
+}
+
+output "ses_domain_verification_record" {
+  description = <<-EOT
+    TXT record to add to your DNS registrar to verify the SES domain identity.
+    Name: _amazonses.<domain>
+    Type: TXT
+    Value: <token below>
+  EOT
+  value = {
+    name  = "_amazonses.${aws_ses_domain_identity.cognito_from.domain}"
+    type  = "TXT"
+    value = aws_ses_domain_identity.cognito_from.verification_token
+  }
+}
+
+output "ses_dkim_cname_records" {
+  description = <<-EOT
+    3 CNAME records to add to your DNS registrar to enable DKIM signing for SES.
+    Add all three; names end in ._domainkey.<domain>.
+  EOT
+  value = [
+    for token in aws_ses_domain_dkim.cognito_from.dkim_tokens : {
+      name  = "${token}._domainkey.${aws_ses_domain_identity.cognito_from.domain}"
+      type  = "CNAME"
+      value = "${token}.dkim.amazonses.com"
+    }
+  ]
+}
+
 output "cms_cognito_ses_role_arn" {
   description = "IAM role ARN that Cognito assumes to call SES (for reference/debugging)"
   value       = aws_iam_role.cognito_ses_sender.arn

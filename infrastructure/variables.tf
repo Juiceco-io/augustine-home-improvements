@@ -28,10 +28,21 @@ variable "cloudfront_aliases" {
   default     = []
 }
 
+variable "ses_domain" {
+  description = <<-EOT
+    Domain to register as an SES verified identity for Cognito transactional email.
+    After first apply, add the TXT + DKIM CNAME records output by Terraform to your
+    DNS registrar, then wait for verification before re-running the pipeline.
+    Example: "augustinehomeimprovements.com"
+  EOT
+  type        = string
+  default     = "augustinehomeimprovements.com"
+}
+
 variable "cognito_from_email" {
   description = <<-EOT
     Email address Cognito uses as the From address when sending password-reset
-    codes and verification emails.  Must be verified in SES for the target region.
+    codes and verification emails.  Must be within the verified SES domain.
     Example: "Augustine CMS <noreply@augustinehomeimprovements.com>"
     Defaults to a basic address; override per-environment in tfvars or CI vars.
   EOT
