@@ -2,6 +2,9 @@
 
 **When to use:** After the first `terraform apply` on a new environment — or any time you need to create or reset a CMS admin user without touching the AWS Console.
 
+> **Platform standard:** This runbook documents the Augustine-specific setup. The underlying pattern (env-var-driven Terraform seeding) is the platform standard for all Juiceco Cognito apps.
+> See [`github-infra/docs/cognito-admin-seeding.md`](https://github.com/Juiceco-io/github-infra/blob/main/docs/cognito-admin-seeding.md) for the canonical contract, required Terraform snippets, and CI wiring spec.
+
 ---
 
 ## Recommended Approach: Env-Seeded User (Terraform Creates the Account)
@@ -189,7 +192,10 @@ The `--permanent` flag is the key difference from the default Cognito flow. With
 
 ## Generalizing to Other Cognito-Backed Apps
 
-This script is intentionally generic. To reuse it in a new app:
+The **platform-standard approach** for new apps is env-seeded via Terraform (not the script below).
+See [`github-infra/docs/cognito-admin-seeding.md`](https://github.com/Juiceco-io/github-infra/blob/main/docs/cognito-admin-seeding.md) for the full contract.
+
+If you want to reuse the bootstrap script as a local / fallback tool:
 
 1. Copy `scripts/bootstrap-admin.sh` into the new repo.
 2. Update the Terraform output name in the auto-detection block (line ~90) from `cms_cognito_user_pool_id` to whatever the new app uses — or just always pass `--user-pool-id` explicitly.
