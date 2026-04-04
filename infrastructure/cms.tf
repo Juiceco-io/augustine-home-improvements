@@ -270,6 +270,52 @@ resource "aws_cloudfront_distribution" "cms_cdn" {
 }
 
 # ─────────────────────────────────────────────
+# SES — verified identity for Cognito transactional email
+#
+# Cognito's built-in shared mailer is limited to 50 emails/day and
+# frequently lands in spam.  Wiring Cognito to SES fixes delivery for
+# password-reset codes (forgotPassword flow) and email verification.
+#
+# After first apply you must verify the domain / address in SES:
+#   - Domain verification: add the DNS TXT/DKIM records SES supplies.
+#   - Email-only (simpler for dev): SES sends a verification link to the address.
+# While the SES account is in sandbox, you can only send TO verified addresses;
+# request production access once the domain is verified.
+# ─────────────────────────────────────────────
+
+resource "aws_ses_email_identity" "cognito_from" {
+  email = var.cognito_from_email
+}
+
+# IAM role that allows Cognito to call SES SendEmail on our behalf
+resource "aws_iam_role" "cognito_ses_sender" {
+  name = "${var.project}-${var.environment}-cognito-ses-sender"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect    = "Allow"
+      Principal = { Service = "cognito-idp.amazonaws.com" }
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "cognito_ses_sender" {
+  name = "cognito-ses-send"
+  role = aws_iam_role.cognito_ses_sender.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["ses:SendEmail", "ses:SendRawEmail"]
+      Resource = "*"
+    }]
+  })
+}
+
+# ─────────────────────────────────────────────
 # Cognito User Pool + App Client
 # ─────────────────────────────────────────────
 
@@ -295,12 +341,25 @@ resource "aws_cognito_user_pool" "cms" {
     }
   }
 
+  # Route transactional email (password-reset codes, verification) through SES
+  # instead of Cognito's shared mailer (50/day cap, high spam rate).
+  email_configuration {
+    email_sending_account  = "DEVELOPER"
+    from_email_address     = var.cognito_from_email
+    source_arn             = aws_ses_email_identity.cognito_from.arn
+    reply_to_email_address = var.cognito_from_email
+  }
+
   # Email verification
   verification_message_template {
     default_email_option = "CONFIRM_WITH_CODE"
     email_subject        = "Augustine CMS — verify your email"
     email_message        = "Your verification code is {####}"
   }
+
+  # Password-reset email template
+  email_verification_subject = "Augustine CMS — reset your password"
+  email_verification_message = "Your Augustine CMS password-reset code is {####}. It expires in 1 hour."
 
   # Don't allow self-signup — admin-only user pool
   schema {
@@ -313,6 +372,8 @@ resource "aws_cognito_user_pool" "cms" {
       max_length = 254
     }
   }
+
+  depends_on = [aws_iam_role_policy.cognito_ses_sender]
 }
 
 # ─────────────────────────────────────────────

@@ -28,6 +28,17 @@ variable "cloudfront_aliases" {
   default     = []
 }
 
+variable "cognito_from_email" {
+  description = <<-EOT
+    Email address Cognito uses as the From address when sending password-reset
+    codes and verification emails.  Must be verified in SES for the target region.
+    Example: "Augustine CMS <noreply@augustinehomeimprovements.com>"
+    Defaults to a basic address; override per-environment in tfvars or CI vars.
+  EOT
+  type        = string
+  default     = "noreply@augustinehomeimprovements.com"
+}
+
 variable "admin_email" {
   description = <<-EOT
     Email address for the initial CMS admin user.

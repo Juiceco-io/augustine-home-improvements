@@ -82,3 +82,13 @@ output "cms_admin_email" {
   value       = var.admin_email
   sensitive   = true
 }
+
+output "cms_ses_from_email" {
+  description = "SES identity used as the Cognito From address for transactional email"
+  value       = var.cognito_from_email
+}
+
+output "cms_cognito_ses_role_arn" {
+  description = "IAM role ARN that Cognito assumes to call SES (for reference/debugging)"
+  value       = aws_iam_role.cognito_ses_sender.arn
+}
