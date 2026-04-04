@@ -99,6 +99,11 @@ jobs:
 
       - name: Terraform Plan
         working-directory: ${{ env.TF_DIR }}
+        env:
+          # Optional: set ADMIN_EMAIL in the GitHub Actions environment to
+          # seed the first Cognito admin user automatically on apply.
+          # Leave unset (or set to empty string) to skip user creation.
+          TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
         run: |
           terraform plan \
             -var="environment=${{ needs.set-environment.outputs.environment }}" \
@@ -108,6 +113,8 @@ jobs:
 
       - name: Terraform Apply
         working-directory: ${{ env.TF_DIR }}
+        env:
+          TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
         run: terraform apply -auto-approve tfplan
 
       - name: Get Terraform Outputs
@@ -121,6 +128,7 @@ jobs:
           CLIENT_ID=$(terraform output -raw cms_cognito_client_id)
           API_URL=$(terraform output -raw cms_api_url)
           CONFIG_URL=$(terraform output -raw cms_config_url)
+          ADMIN_SEEDED=$(terraform output -raw cms_admin_user_created)
           echo "cloudfront_distribution_id=$CF_ID" >> "$GITHUB_OUTPUT"
           echo "s3_bucket_name=$BUCKET" >> "$GITHUB_OUTPUT"
           echo "cloudfront_domain_name=$CF_DOMAIN" >> "$GITHUB_OUTPUT"
@@ -130,6 +138,9 @@ jobs:
           echo "cms_config_url=$CONFIG_URL" >> "$GITHUB_OUTPUT"
           echo "::notice title=CloudFront URL::$CF_DOMAIN"
           echo "::notice title=CMS API URL::$API_URL"
+          if [ "$ADMIN_SEEDED" = "true" ]; then
+            echo "::notice title=Admin User::Cognito admin user seeded. Set password with: aws cognito-idp admin-set-user-password --user-pool-id $POOL_ID --username <email> --password '<PASSWORD>' --permanent"
+          fi
 
   # ─────────────────────────────────────────────
   # Job 2: Build Next.js and deploy to S3

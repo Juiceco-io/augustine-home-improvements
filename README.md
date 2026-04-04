@@ -89,20 +89,35 @@ All infrastructure is managed by the same Terraform in `infrastructure/`.
 
 The CMS has **no runtime secrets**. The only required setup beyond the standard infrastructure prerequisites:
 
-1. **First admin user** — after Terraform applies, create a Cognito user in the AWS Console:
+1. **First admin user** — Terraform creates the Cognito user automatically when the `ADMIN_EMAIL` GitHub Actions variable is set:
+
+   **Recommended (env-seeded, zero extra steps):**
+   - Go to **GitHub → Settings → Environments → dev (or prod)**
+   - Add a variable: `ADMIN_EMAIL = mark@example.com`
+   - Push to `dev` / merge to `main` — Terraform creates the user on next apply
+   - Then set the password once:
+     ```bash
+     POOL_ID=$(cd infrastructure && terraform output -raw cms_cognito_user_pool_id)
+     aws cognito-idp admin-set-user-password \
+       --user-pool-id "$POOL_ID" \
+       --username mark@example.com \
+       --password 'YourPassword123!' \
+       --permanent
+     ```
+
+   **Alternative (manual bootstrap script):**
+   ```bash
+   ./scripts/bootstrap-admin.sh --username mark@example.com
+   # Auto-detects the Cognito User Pool from Terraform outputs.
+   # Prompts for password interactively (or pass --password for non-interactive use).
    ```
-   aws cognito-idp admin-create-user \
-     --user-pool-id <cms_cognito_user_pool_id> \
-     --username <email> \
-     --temporary-password <temp> \
-     --message-action SUPPRESS
-   aws cognito-idp admin-set-user-password \
-     --user-pool-id <cms_cognito_user_pool_id> \
-     --username <email> \
-     --password <permanent> \
-     --permanent
+   See [`docs/runbook-bootstrap-admin.md`](docs/runbook-bootstrap-admin.md) for full usage, options, and troubleshooting.
+
+2. **Initial site-config.json** — upload `cms/config/site-config.json` to the `cms-config` S3 bucket at `config/site-config.json`:
+   ```bash
+   BUCKET=$(cd infrastructure && terraform output -raw cms_config_bucket)
+   aws s3 cp cms/config/site-config.json s3://$BUCKET/config/site-config.json
    ```
-2. **Initial site-config.json** — upload `cms/config/site-config.json` to the `cms-config` S3 bucket at `config/site-config.json`.
 
 ### Local Dev (CMS Admin)
 

@@ -315,6 +315,43 @@ resource "aws_cognito_user_pool" "cms" {
   }
 }
 
+# ─────────────────────────────────────────────
+# Cognito Admin User (optional — env-seeded)
+#
+# Set ADMIN_EMAIL in the GitHub Actions environment (or TF_VAR_admin_email
+# locally) and Terraform will create this user automatically on apply.
+# No welcome email is sent (SUPPRESS). Set the password afterward:
+#
+#   aws cognito-idp admin-set-user-password \
+#     --user-pool-id <POOL_ID> \
+#     --username <EMAIL> \
+#     --password '<PASSWORD>' \
+#     --permanent
+# ─────────────────────────────────────────────
+
+resource "aws_cognito_user" "admin" {
+  count = var.admin_email != "" ? 1 : 0
+
+  user_pool_id = aws_cognito_user_pool.cms.id
+  username     = var.admin_email
+
+  attributes = {
+    email          = var.admin_email
+    email_verified = "true"
+  }
+
+  # Suppress the Cognito welcome / temp-password email.
+  # The user exists in FORCE_CHANGE_PASSWORD state until Mark sets a
+  # permanent password via Console or CLI.
+  message_action = "SUPPRESS"
+
+  lifecycle {
+    # Don't recreate the user if the email address is changed in TF vars —
+    # that would delete the existing account. Safer to leave it in place.
+    ignore_changes = [username]
+  }
+}
+
 resource "aws_cognito_user_pool_client" "cms_admin" {
   name         = "cms-admin-spa"
   user_pool_id = aws_cognito_user_pool.cms.id

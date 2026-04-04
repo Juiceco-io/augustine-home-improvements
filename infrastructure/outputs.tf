@@ -71,3 +71,14 @@ output "cms_media_bucket" {
   description = "S3 bucket name for uploaded media"
   value       = aws_s3_bucket.cms_media.bucket
 }
+
+output "cms_admin_user_created" {
+  description = "Whether an admin Cognito user was seeded by Terraform (true when ADMIN_EMAIL / TF_VAR_admin_email was set)"
+  value       = var.admin_email != ""
+}
+
+output "cms_admin_email" {
+  description = "Email address of the seeded admin user (empty if not seeded)"
+  value       = var.admin_email
+  sensitive   = true
+}
