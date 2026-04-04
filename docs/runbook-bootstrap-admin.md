@@ -7,28 +7,44 @@
 
 ---
 
-## Recommended Approach: Env-Seeded User (Terraform Creates the Account)
+## Recommended Approach: Env-Seeded User + Password Bootstrap (Zero CLI Required)
 
-The cleanest pattern: set `ADMIN_EMAIL` in the GitHub Actions environment and Terraform creates the Cognito user automatically during the next deploy. No separate bootstrap step needed.
+> **TL;DR for immediate login:** Set `ADMIN_EMAIL` (variable) and `ADMIN_PASSWORD` (secret) in
+> the GitHub Actions environment, then push/redeploy. Mark can log in the moment the workflow finishes.
 
-### Step 1 — Set the GitHub Actions variable
+### Step 1 — Set the GitHub Actions variable and secret
 
 1. Open the repo on GitHub
 2. Go to **Settings → Environments → dev** (or **prod**)
 3. Under **Environment variables**, add:
    - Name: `ADMIN_EMAIL`
    - Value: `mark@augustinehomeimprovements.com` (or whichever address Mark uses)
-4. Save
+4. Under **Environment secrets**, add:
+   - Name: `ADMIN_PASSWORD`
+   - Value: a strong password (min 12 chars, upper + lower + number + symbol)
+5. Save
+
+> **Password requirements:** ≥ 12 chars, at least one uppercase, lowercase, digit, and special character.
+> Example: `Augustin3!Home#2024`
 
 ### Step 2 — Deploy
 
-Push to `dev` (or merge to `main` for prod). The `terraform apply` step will create the user with email-verified status and no welcome email.
+Push to `dev` (or merge to `main` for prod). The `terraform apply` step will:
+1. Create the Cognito user (email-verified, no welcome email)
+2. Immediately set the permanent password via `admin-set-user-password --permanent`
 
-The user starts in `FORCE_CHANGE_PASSWORD` state — it exists, but has no usable password yet.
+Mark can log in at `/admin` the moment the workflow finishes — no AWS CLI or email required.
 
-### Step 3 — Set a permanent password
+> **⚠️ DEV BOOTSTRAP ONLY:** The `ADMIN_PASSWORD` path is a temporary convenience.
+> For production, use the forgot-password email flow once SES is verified, or rotate
+> credentials through AWS Secrets Manager. Remove `ADMIN_PASSWORD` from the environment
+> once the bootstrap window is over.
 
-After the deploy workflow completes, run this once (locally or in a one-off CI step):
+---
+
+## Alternative: Set Password Manually After Deploy
+
+If you prefer not to set `ADMIN_PASSWORD` in GitHub, you can still set the password after the fact:
 
 ```bash
 POOL_ID=$(cd infrastructure && terraform output -raw cms_cognito_user_pool_id)

@@ -100,10 +100,15 @@ jobs:
       - name: Terraform Plan
         working-directory: ${{ env.TF_DIR }}
         env:
-          # Optional: set ADMIN_EMAIL in the GitHub Actions environment to
-          # seed the first Cognito admin user automatically on apply.
-          # Leave unset (or set to empty string) to skip user creation.
+          # --- Admin user bootstrap ---
+          # ADMIN_EMAIL  : GitHub Actions *variable* (Settings → Environments → Variables)
+          # ADMIN_PASSWORD: GitHub Actions *secret*  (Settings → Environments → Secrets)
+          #
+          # [DEV BOOTSTRAP ONLY] When ADMIN_PASSWORD is set, Terraform will call
+          # admin-set-user-password --permanent after user creation so Mark can log
+          # in immediately. Remove / leave blank for prod. See docs/runbook-bootstrap-admin.md.
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
+          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }}
         run: |
           terraform plan \
             -var="environment=${{ needs.set-environment.outputs.environment }}" \
@@ -115,6 +120,7 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
         env:
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
+          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }}
         run: terraform apply -auto-approve tfplan
 
       - name: Check SES domain verification status
