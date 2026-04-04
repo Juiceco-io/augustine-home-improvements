@@ -46,7 +46,7 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     }
 
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'"
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.augustinehomeimprovements.com; connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com; frame-ancestors 'none'"
       override                = true
     }
   }
