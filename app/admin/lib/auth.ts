@@ -1,13 +1,16 @@
 /**
  * Cognito auth helper using amazon-cognito-identity-js.
  *
- * Handles: sign-in, sign-out, token refresh, session persistence.
+ * Handles: sign-in, sign-out, token refresh, session persistence,
+ *          forgot-password (request code + confirm new password).
  * Tokens: access token in memory, refresh token in localStorage.
  *
  * Usage:
  *   await signIn("brandon@...", "password")
  *   const token = await getAccessToken()   // auto-refreshes if expired
  *   signOut()
+ *   await forgotPasswordRequest("brandon@...")
+ *   await forgotPasswordConfirm("brandon@...", "123456", "NewPass1!")
  */
 
 import {
@@ -96,4 +99,50 @@ export function getAccessToken(): Promise<string | null> {
 export function getCurrentUserEmail(): string | null {
   const user = currentUser ?? userPool.getCurrentUser();
   return user?.getUsername() ?? null;
+}
+
+/**
+ * Step 1: Send a password-reset code to the user's verified email.
+ */
+export function forgotPasswordRequest(email: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const cognitoUser = new CognitoUser({
+      Username: email,
+      Pool: userPool,
+    });
+
+    cognitoUser.forgotPassword({
+      onSuccess() {
+        resolve();
+      },
+      onFailure(err) {
+        reject(new Error(err.message ?? "Failed to send reset code"));
+      },
+    });
+  });
+}
+
+/**
+ * Step 2: Confirm the reset with the code + new password.
+ */
+export function forgotPasswordConfirm(
+  email: string,
+  code: string,
+  newPassword: string
+): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const cognitoUser = new CognitoUser({
+      Username: email,
+      Pool: userPool,
+    });
+
+    cognitoUser.confirmPassword(code, newPassword, {
+      onSuccess() {
+        resolve();
+      },
+      onFailure(err) {
+        reject(new Error(err.message ?? "Failed to reset password"));
+      },
+    });
+  });
 }
