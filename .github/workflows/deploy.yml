@@ -102,13 +102,15 @@ jobs:
         env:
           # --- Admin user bootstrap ---
           # ADMIN_EMAIL  : GitHub Actions *variable* (Settings → Environments → Variables)
+          #                ⚠️ Must be a VARIABLE not a secret — ${{ vars.ADMIN_EMAIL }}
+          #                   If set as a secret, ${{ vars.ADMIN_EMAIL }} returns ""
+          #                   and the Cognito user is never created.
           # ADMIN_PASSWORD: GitHub Actions *secret*  (Settings → Environments → Secrets)
           #
-          # [DEV BOOTSTRAP ONLY] When ADMIN_PASSWORD is set, Terraform will call
-          # admin-set-user-password --permanent after user creation so Mark can log
-          # in immediately. Remove / leave blank for prod. See docs/runbook-bootstrap-admin.md.
+          # [DEV BOOTSTRAP ONLY] Terraform creates the Cognito user when ADMIN_EMAIL is set.
+          # The password is set by an explicit post-apply step (see below) that re-assumes
+          # the deployer role so it has cognito-idp permissions on the dev account.
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
-          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }}
         run: |
           terraform plan \
             -var="environment=${{ needs.set-environment.outputs.environment }}" \
@@ -120,8 +122,59 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
         env:
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
-          TF_VAR_admin_password: ${{ secrets.ADMIN_PASSWORD }}
+          # ADMIN_PASSWORD is only used by the explicit post-apply step below.
+          # No longer passed to Terraform (null_resource local-exec was removed
+          # because it ran under the state-role which has no Cognito permissions).
         run: terraform apply -auto-approve tfplan
+
+      # ── [DEV BOOTSTRAP ONLY] Set permanent Cognito password ───────────────
+      # Runs AFTER Terraform apply under the deployer role (which has
+      # cognito-idp:AdminSetUserPassword on the dev account).  The state role
+      # used during terraform init/apply does NOT have Cognito permissions,
+      # which is why the previous null_resource local-exec silently failed.
+      #
+      # Prerequisites (GitHub Actions dev environment):
+      #   ADMIN_EMAIL    → Settings → Environments → dev → Variables
+      #   ADMIN_PASSWORD → Settings → Environments → dev → Secrets
+      #
+      # Skip when ADMIN_EMAIL is empty or ADMIN_PASSWORD is not set.
+      - name: Bootstrap admin Cognito password
+        # Only run when ADMIN_EMAIL variable is set. ADMIN_PASSWORD secret is
+        # referenced in the env block below; GitHub Actions will substitute an
+        # empty string if the secret is not defined (step is a no-op in that case).
+        if: ${{ vars.ADMIN_EMAIL != '' }}
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          DEPLOYER_ROLE: ${{ needs.set-environment.outputs.deployer_role }}
+          ADMIN_EMAIL: ${{ vars.ADMIN_EMAIL }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+        run: |
+          if [ -z "$ADMIN_PASSWORD" ]; then
+            echo "::warning title=Admin Bootstrap::ADMIN_PASSWORD secret is not set — skipping password bootstrap."
+            exit 0
+          fi
+
+          POOL_ID=$(terraform output -raw cms_cognito_user_pool_id)
+
+          # Re-assume the deployer role so we have Cognito permissions on the
+          # dev account (current creds are the state role in the mgmt account).
+          CREDS=$(aws sts assume-role \
+            --role-arn "$DEPLOYER_ROLE" \
+            --role-session-name "admin-bootstrap" \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+            --output text)
+          export AWS_ACCESS_KEY_ID=$(echo "$CREDS" | awk '{print $1}')
+          export AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | awk '{print $2}')
+          export AWS_SESSION_TOKEN=$(echo "$CREDS" | awk '{print $3}')
+
+          echo "[bootstrap] Setting permanent password for $ADMIN_EMAIL ..."
+          aws cognito-idp admin-set-user-password \
+            --region us-east-1 \
+            --user-pool-id "$POOL_ID" \
+            --username "$ADMIN_EMAIL" \
+            --password "$ADMIN_PASSWORD" \
+            --permanent
+          echo "::notice title=Admin Bootstrap::Permanent password set for $ADMIN_EMAIL — ready to log in."
 
       - name: Check SES domain verification status
         working-directory: ${{ env.TF_DIR }}
