@@ -443,51 +443,6 @@ resource "aws_cognito_user" "admin" {
   }
 }
 
-# ─────────────────────────────────────────────
-# [DEV BOOTSTRAP ONLY] Set permanent password on admin user
-#
-# When admin_password is provided (via GitHub Actions secret), this block calls
-# admin-set-user-password --permanent immediately after user creation so Mark
-# can log into the admin site without any extra AWS CLI steps or email flow.
-#
-# ⚠️  TEMPORARY DEV CONVENIENCE — remove or leave admin_password blank for prod.
-#   The password is passed as an env var to the local-exec shell; it does NOT
-#   appear in TF plan output (sensitive = true in the variable declaration).
-#   GitHub Actions will mask it in CI logs.
-# ─────────────────────────────────────────────
-resource "null_resource" "admin_password_bootstrap" {
-  count = (var.admin_email != "" && var.admin_password != "") ? 1 : 0
-
-  triggers = {
-    # Re-run whenever the email or (hashed) password changes, or the pool changes.
-    user_pool_id = aws_cognito_user_pool.cms.id
-    admin_email  = var.admin_email
-    # Use a hash so the raw password never appears in the state trigger value.
-    password_hash = sha256(var.admin_password)
-  }
-
-  provisioner "local-exec" {
-    # Pass the password via env var so it is never interpolated inline in the
-    # command string (avoids shell escaping issues and keeps it out of logs).
-    environment = {
-      ADMIN_PASSWORD = var.admin_password
-    }
-    command = <<-EOT
-      set -e
-      echo "[bootstrap] Setting permanent password for ${var.admin_email} ..."
-      aws cognito-idp admin-set-user-password \
-        --region "${var.aws_region}" \
-        --user-pool-id "${aws_cognito_user_pool.cms.id}" \
-        --username "${var.admin_email}" \
-        --password "$ADMIN_PASSWORD" \
-        --permanent
-      echo "[bootstrap] ✅ Permanent password set — ${var.admin_email} can now log in immediately."
-    EOT
-  }
-
-  depends_on = [aws_cognito_user.admin]
-}
-
 resource "aws_cognito_user_pool_client" "cms_admin" {
   name         = "cms-admin-spa"
   user_pool_id = aws_cognito_user_pool.cms.id

@@ -60,31 +60,4 @@ variable "admin_email" {
   default     = ""
 }
 
-# ──────────────────────────────────────────────────────────────────────────────
-# DEV BOOTSTRAP ONLY — admin_password
-#
-# Setting this variable causes Terraform to call admin-set-user-password via a
-# null_resource + local-exec provisioner immediately after user creation so Mark
-# can log in without any AWS CLI or forgot-password email step.
-#
-# ⚠️  THIS IS A TEMPORARY DEV CONVENIENCE — NOT FOR PRODUCTION USE:
-#   - The password value flows through TF state and CI logs (masked in Actions
-#     but still sensitive).
-#   - For prod: use proper secrets management (Secrets Manager, SSM) or the
-#     standard forgot-password email flow once SES is verified.
-#   - Remove or leave blank once the bootstrap window is over.
-#
-# Store as a GitHub Actions secret (Settings → Secrets → ADMIN_PASSWORD).
-# Never commit a real password to this file.
-# ──────────────────────────────────────────────────────────────────────────────
-variable "admin_password" {
-  description = <<-EOT
-    [DEV BOOTSTRAP ONLY] If set together with admin_email, Terraform will set
-    this as a permanent password on the Cognito admin user after creation,
-    allowing immediate login with no AWS CLI step required.
-    Store as a GitHub Actions secret (ADMIN_PASSWORD). Leave empty to skip.
-  EOT
-  type        = string
-  default     = ""
-  sensitive   = true
-}
+
