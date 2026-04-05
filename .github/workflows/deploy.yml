@@ -117,6 +117,22 @@ jobs:
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
         run: terraform apply -auto-approve tfplan
 
+      - name: Check SES domain verification status
+        working-directory: ${{ env.TF_DIR }}
+        run: |
+          SES_DOMAIN=$(terraform output -raw ses_domain 2>/dev/null || echo "augustinehomeimprovements.com")
+          STATUS=$(aws sesv2 get-email-identity --email-identity "$SES_DOMAIN" --query 'VerifiedForSendingStatus' --output text 2>/dev/null || echo "UNKNOWN")
+          if [ "$STATUS" = "True" ]; then
+            echo "::notice title=SES::Domain $SES_DOMAIN is verified — Cognito will use SES for transactional email."
+          else
+            echo "::warning title=SES not verified::Domain $SES_DOMAIN is NOT yet verified in SES. Forgot-password emails will NOT work until you:"
+            echo "::warning title=SES not verified::  1. Run: cd infrastructure && terraform output ses_domain_verification_record"
+            echo "::warning title=SES not verified::  2. Run: cd infrastructure && terraform output ses_dkim_cname_records"
+            echo "::warning title=SES not verified::  3. Add the TXT + 3 CNAME records to your DNS registrar"
+            echo "::warning title=SES not verified::  4. Wait ~5-30 min for DNS propagation"
+            echo "::warning title=SES not verified::  5. Re-run this deploy pipeline"
+          fi
+
       - name: Get Terraform Outputs
         id: tf-output
         working-directory: ${{ env.TF_DIR }}

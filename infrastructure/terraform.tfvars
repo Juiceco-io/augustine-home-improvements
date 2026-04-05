@@ -2,8 +2,11 @@ environment = "dev"
 project     = "augustine-home-improvements"
 aws_region  = "us-east-1"
 
-# Cognito sends password-reset codes and verification emails from this address.
-# Must be verified in SES (us-east-1).  For dev, verify the address in the
-# SES console after first apply: SES → Verified identities → Create identity.
-# For prod, verify the full domain and request SES production access.
+# SES domain identity — Terraform will create the SES domain identity and output
+# the DNS TXT + DKIM CNAME records to add to your registrar.  Run:
+#   terraform output ses_domain_verification_record
+#   terraform output ses_dkim_cname_records
+# Add those records, wait for DNS propagation (~5-30 min), then re-run the pipeline.
+# Once the domain is verified, request SES production access from the AWS Console.
+ses_domain         = "augustinehomeimprovements.com"
 cognito_from_email = "noreply@augustinehomeimprovements.com"

@@ -270,24 +270,49 @@ resource "aws_cloudfront_distribution" "cms_cdn" {
 }
 
 # ─────────────────────────────────────────────
-# SES — verified identity for Cognito transactional email
+# SES — verified domain identity for Cognito transactional email
 #
 # Cognito's built-in shared mailer is limited to 50 emails/day and
 # frequently lands in spam.  Wiring Cognito to SES fixes delivery for
 # password-reset codes (forgotPassword flow) and email verification.
 #
-# After first apply you must verify the domain / address in SES:
-#   - Domain verification: add the DNS TXT/DKIM records SES supplies.
-#   - Email-only (simpler for dev): SES sends a verification link to the address.
-# While the SES account is in sandbox, you can only send TO verified addresses;
-# request production access once the domain is verified.
+# ⚠️  ONE-TIME SETUP REQUIRED after first apply:
+#
+#   1. Run: terraform output ses_domain_verification_record
+#      Add the returned TXT record to your DNS registrar:
+#        Name:  _amazonses.augustinehomeimprovements.com
+#        Type:  TXT
+#        Value: <the token from the output>
+#
+#   2. Run: terraform output ses_dkim_cname_records
+#      Add all 3 CNAME records to your DNS registrar.
+#
+#   3. Wait 5–30 min for DNS propagation, then verify in the AWS Console:
+#      SES → Verified identities → augustinehomeimprovements.com → Status: Verified
+#
+#   4. Re-run the deploy pipeline (push a no-op commit or trigger manually).
+#      The Cognito pool will then accept the DEVELOPER email_configuration.
+#
+# Domain verification (DNS records) is preferred over email-address
+# verification: DNS records are permanent; verification links expire in 24h
+# and require access to the noreply@ inbox.
+#
+# While the SES account is in sandbox, outbound email is only sent TO
+# verified addresses. Request production access once the domain is verified:
+#   AWS Console → SES → Account dashboard → Request production access.
 # ─────────────────────────────────────────────
 
-resource "aws_ses_email_identity" "cognito_from" {
-  email = var.cognito_from_email
+resource "aws_ses_domain_identity" "cognito_from" {
+  domain = var.ses_domain
+}
+
+resource "aws_ses_domain_dkim" "cognito_from" {
+  domain = aws_ses_domain_identity.cognito_from.domain
 }
 
 # IAM role that allows Cognito to call SES SendEmail on our behalf
+# Note: source_arn points to the *domain* identity, not the email-address identity.
+# Cognito will accept any From address within the verified domain.
 resource "aws_iam_role" "cognito_ses_sender" {
   name = "${var.project}-${var.environment}-cognito-ses-sender"
 
@@ -343,10 +368,14 @@ resource "aws_cognito_user_pool" "cms" {
 
   # Route transactional email (password-reset codes, verification) through SES
   # instead of Cognito's shared mailer (50/day cap, high spam rate).
+  #
+  # ⚠️  Cognito will REJECT this block (and silently fall back to COGNITO_DEFAULT)
+  # if the SES domain identity is not yet verified.  Complete the one-time DNS
+  # setup documented above, then re-run the pipeline to pick up DEVELOPER mode.
   email_configuration {
     email_sending_account  = "DEVELOPER"
     from_email_address     = var.cognito_from_email
-    source_arn             = aws_ses_email_identity.cognito_from.arn
+    source_arn             = aws_ses_domain_identity.cognito_from.arn
     reply_to_email_address = var.cognito_from_email
   }
 
