@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState, useEffect } from "react";
 import { Phone, ChevronDown, Menu, X } from "lucide-react";
+import NavbarLogo from "./NavbarLogo";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -58,22 +58,7 @@ export default function Navbar() {
           className="flex items-center group flex-shrink-0"
           aria-label="Augustine Home Improvements — Home"
         >
-          <div
-            className={`flex items-center transition-all duration-300 ${
-              !isSolid
-                ? "bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1.5 shadow-sm"
-                : ""
-            }`}
-          >
-            <Image
-              src="/images/augustine-logo.png"
-              alt="Augustine Home Improvements"
-              width={160}
-              height={149}
-              className="h-9 lg:h-11 w-auto object-contain"
-              priority
-            />
-          </div>
+          <NavbarLogo isSolid={isSolid} />
         </Link>
 
         <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
