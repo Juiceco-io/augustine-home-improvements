@@ -23,26 +23,51 @@ const s3 = new S3Client({});
 
 const BUCKET = process.env.CONFIG_BUCKET;
 const KEY = process.env.CONFIG_KEY ?? "config/site-config.json";
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "*";
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-  "Access-Control-Allow-Headers": "Authorization,Content-Type",
-  "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
-};
+// ALLOWED_ORIGINS is a comma-separated list of allowed origins.
+// Falls back to the legacy ALLOWED_ORIGIN single-value env var.
+// If neither is set, defaults to '*' (dev fallback only).
+const ALLOWED_ORIGINS = new Set(
+  (process.env.ALLOWED_ORIGINS ?? process.env.ALLOWED_ORIGIN ?? "*")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+);
 
-function ok(body, status = 200) {
+/**
+ * Return the CORS origin to send back. If the request's Origin is in the
+ * allowlist, reflect it (required for credentialed requests). Otherwise
+ * fall back to the first allowed origin in the set.
+ */
+function resolveOrigin(event) {
+  const requestOrigin =
+    event.headers?.Origin ?? event.headers?.origin ?? "";
+  if (ALLOWED_ORIGINS.has("*") || ALLOWED_ORIGINS.has(requestOrigin)) {
+    return requestOrigin || "*";
+  }
+  return [...ALLOWED_ORIGINS][0] ?? "*";
+}
+
+function corsHeaders(event) {
+  return {
+    "Access-Control-Allow-Origin": resolveOrigin(event),
+    "Access-Control-Allow-Headers": "Authorization,Content-Type",
+    "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
+  };
+}
+
+function ok(event, body, status = 200) {
   return {
     statusCode: status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...corsHeaders(event) },
     body: JSON.stringify(body),
   };
 }
 
-function err(message, status = 400) {
+function err(event, message, status = 400) {
   return {
     statusCode: status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...corsHeaders(event) },
     body: JSON.stringify({ error: message }),
   };
 }
@@ -52,7 +77,7 @@ export async function handler(event) {
 
   // Handle CORS preflight
   if (method === "OPTIONS") {
-    return { statusCode: 204, headers: CORS_HEADERS, body: "" };
+    return { statusCode: 204, headers: corsHeaders(event), body: "" };
   }
 
   if (method === "GET") {
@@ -61,13 +86,13 @@ export async function handler(event) {
         new GetObjectCommand({ Bucket: BUCKET, Key: KEY })
       );
       const body = await res.Body.transformToString();
-      return ok(JSON.parse(body));
+      return ok(event, JSON.parse(body));
     } catch (e) {
       if (e.name === "NoSuchKey") {
-        return err("Config not found — upload initial site-config.json first", 404);
+        return err(event, "Config not found — upload initial site-config.json first", 404);
       }
       console.error("GET config error:", e);
-      return err("Failed to read config", 500);
+      return err(event, "Failed to read config", 500);
     }
   }
 
@@ -76,15 +101,15 @@ export async function handler(event) {
     try {
       incoming = JSON.parse(event.body ?? "{}");
     } catch {
-      return err("Invalid JSON body");
+      return err(event, "Invalid JSON body");
     }
 
     // Basic shape validation — catch obvious mistakes
     if (typeof incoming !== "object" || Array.isArray(incoming)) {
-      return err("Body must be a JSON object");
+      return err(event, "Body must be a JSON object");
     }
     if (!incoming.brand || !incoming.hero || !incoming.contact || !incoming.features) {
-      return err("Missing required fields: brand, hero, contact, features");
+      return err(event, "Missing required fields: brand, hero, contact, features");
     }
 
     // Fetch current config to increment version
@@ -122,12 +147,12 @@ export async function handler(event) {
           // Versioning is on — S3 keeps the previous version automatically
         })
       );
-      return ok({ ok: true, version: newConfig._version });
+      return ok(event, { ok: true, version: newConfig._version });
     } catch (e) {
       console.error("PUT config error:", e);
-      return err("Failed to write config", 500);
+      return err(event, "Failed to write config", 500);
     }
   }
 
-  return err(`Method not allowed: ${method}`, 405);
+  return err(event, `Method not allowed: ${method}`, 405);
 }

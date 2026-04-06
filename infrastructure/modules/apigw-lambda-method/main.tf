@@ -63,10 +63,13 @@ resource "aws_api_gateway_integration_response" "options_200" {
   http_method = aws_api_gateway_method.options.http_method
   status_code = aws_api_gateway_method_response.options_200.status_code
 
+  # Use '*' for the OPTIONS preflight. The CMS API uses Bearer tokens (not
+  # cookies) so CORS credentialed mode is not required. The Lambdas perform
+  # origin allowlist enforcement on the actual GET/PUT/POST responses.
   response_parameters = {
     "method.response.header.Access-Control-Allow-Headers" = "'Authorization,Content-Type'"
     "method.response.header.Access-Control-Allow-Methods" = "'GET,PUT,POST,OPTIONS'"
-    "method.response.header.Access-Control-Allow-Origin"  = "'https://admin.augustinehomeimprovements.com'"
+    "method.response.header.Access-Control-Allow-Origin"  = "'*'"
   }
 
   depends_on = [aws_api_gateway_integration.options]
