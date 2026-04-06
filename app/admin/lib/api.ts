@@ -5,13 +5,15 @@
  * Upload flow: getUploadUrl() → PUT directly to S3 presigned URL.
  */
 
-import { getAccessToken } from "./auth";
+import { getIdToken } from "./auth";
 import type { SiteConfig } from "./types";
 
 const API_URL = (process.env.NEXT_PUBLIC_CMS_API_URL ?? "").replace(/\/$/, "");
 
 async function authHeaders(): Promise<HeadersInit> {
-  const token = await getAccessToken();
+  // API Gateway COGNITO_USER_POOLS authorizer requires the Cognito ID token
+  // (carries `aud` = app client ID). Access tokens lack `aud` and cause 401.
+  const token = await getIdToken();
   if (!token) throw new Error("Not authenticated");
   return {
     Authorization: `Bearer ${token}`,
