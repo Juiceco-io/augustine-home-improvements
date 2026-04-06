@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, Mail, Facebook, Shield, Award, Star } from "lucide-react";
+import { Facebook, Shield, Award, Star } from "lucide-react";
+import { CmsPhoneLink, CmsEmailLink } from "./CmsContact";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -120,35 +121,10 @@ export default function Footer() {
             </h3>
             <ul className="space-y-4 mb-7">
               <li>
-                <a
-                  href="tel:+14844677925"
-                  className="flex items-center gap-3 text-sm text-gray-300 hover:text-white transition-colors duration-150"
-                >
-                  <Phone
-                    size={15}
-                    className="text-[color:var(--brand-primary)] flex-shrink-0"
-                    aria-hidden="true"
-                  />
-                  484-467-7925
-                </a>
+                <CmsPhoneLink className="flex items-center gap-3 text-sm text-gray-300 hover:text-white transition-colors duration-150 [&>svg]:text-[color:var(--brand-primary)]" />
               </li>
               <li>
-                <a
-                  href="mailto:info@augustinehomeimprovements.com"
-                  className="flex items-start gap-3 text-sm text-gray-300 hover:text-white transition-colors duration-150"
-                >
-                  <Mail
-                    size={15}
-                    className="text-[color:var(--brand-primary)] flex-shrink-0 mt-0.5"
-                    aria-hidden="true"
-                  />
-                  {/* wbr hints prevent ugly mid-letter breaks */}
-                  <span>
-                    info@augustinehome
-                    <wbr />
-                    improvements.com
-                  </span>
-                </a>
+                <CmsEmailLink className="flex items-start gap-3 text-sm text-gray-300 hover:text-white transition-colors duration-150 [&>svg]:text-[color:var(--brand-primary)]" />
               </li>
               <li>
                 <a
