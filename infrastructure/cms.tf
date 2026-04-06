@@ -508,11 +508,27 @@ resource "aws_iam_role_policy" "lambda_cms_config_s3" {
   role = aws_iam_role.lambda_cms_config.id
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [{
-      Effect   = "Allow"
-      Action   = ["s3:GetObject", "s3:PutObject"]
-      Resource = "${aws_s3_bucket.cms_config.arn}/config/site-config.json"
-    }]
+    Statement = [
+      {
+        # s3:ListBucket on the bucket is required so that GetObject on a
+        # missing key returns NoSuchKey (404) rather than AccessDenied (403).
+        # Without it the Lambda catches AccessDenied as a generic error and
+        # returns 500 instead of the intended 404 "not found" response.
+        Effect   = "Allow"
+        Action   = ["s3:ListBucket"]
+        Resource = aws_s3_bucket.cms_config.arn
+        Condition = {
+          StringLike = {
+            "s3:prefix" = ["config/site-config.json"]
+          }
+        }
+      },
+      {
+        Effect   = "Allow"
+        Action   = ["s3:GetObject", "s3:PutObject"]
+        Resource = "${aws_s3_bucket.cms_config.arn}/config/site-config.json"
+      }
+    ]
   })
 }
 
