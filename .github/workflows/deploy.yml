@@ -154,6 +154,19 @@ jobs:
             exit 0
           fi
 
+          # Pre-validate password against Cognito policy (min 12 chars, upper, lower, digit, symbol)
+          # to surface a clear error before making the API call.
+          PW_OK=true
+          [ ${#ADMIN_PASSWORD} -lt 12 ] && { echo "::error title=Admin Bootstrap::ADMIN_PASSWORD must be at least 12 characters."; PW_OK=false; }
+          echo "$ADMIN_PASSWORD" | grep -q '[A-Z]' || { echo "::error title=Admin Bootstrap::ADMIN_PASSWORD must contain at least one uppercase letter."; PW_OK=false; }
+          echo "$ADMIN_PASSWORD" | grep -q '[a-z]' || { echo "::error title=Admin Bootstrap::ADMIN_PASSWORD must contain at least one lowercase letter."; PW_OK=false; }
+          echo "$ADMIN_PASSWORD" | grep -q '[0-9]' || { echo "::error title=Admin Bootstrap::ADMIN_PASSWORD must contain at least one number."; PW_OK=false; }
+          echo "$ADMIN_PASSWORD" | grep -qP '[^A-Za-z0-9]' || { echo "::error title=Admin Bootstrap::ADMIN_PASSWORD must contain at least one symbol."; PW_OK=false; }
+          if [ "$PW_OK" = "false" ]; then
+            echo "::error title=Admin Bootstrap::Update the ADMIN_PASSWORD secret in Settings → Environments → dev → Secrets."
+            exit 1
+          fi
+
           POOL_ID=$(terraform output -raw cms_cognito_user_pool_id)
 
           # Re-assume the deployer role so we have Cognito permissions on the
