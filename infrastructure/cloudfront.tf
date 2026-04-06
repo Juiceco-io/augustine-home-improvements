@@ -46,7 +46,13 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     }
 
     content_security_policy {
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.augustinehomeimprovements.com; connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com; frame-ancestors 'none'"
+      # connect-src breakdown:
+      #   'self'                                         - same-origin XHR / fetch
+      #   https://cognito-idp.us-east-1.amazonaws.com   - Cognito auth (SRP, token refresh)
+      #   https://*.execute-api.us-east-1.amazonaws.com - CMS API Gateway (config / upload / media)
+      #   https://*.s3.amazonaws.com                    - S3 presigned PUT for image uploads
+      #   https://*.s3.us-east-1.amazonaws.com          - regional S3 variant used by presigned URLs
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.augustinehomeimprovements.com; connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com https://*.execute-api.us-east-1.amazonaws.com https://*.s3.amazonaws.com https://*.s3.us-east-1.amazonaws.com; frame-ancestors 'none'"
       override                = true
     }
   }
