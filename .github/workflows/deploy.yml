@@ -189,6 +189,48 @@ jobs:
             --permanent
           echo "::notice title=Admin Bootstrap::Permanent password set for $ADMIN_EMAIL — ready to log in."
 
+      # ── Seed initial site-config.json into S3 ─────────────────────────────
+      # The cms-config Lambda's GET /config reads config/site-config.json from
+      # the config bucket. If the object doesn't exist the Lambda returns 404,
+      # but ONLY if the IAM role has s3:ListBucket (otherwise S3 returns
+      # AccessDenied which the Lambda maps to 500). This step seeds the default
+      # config on first deploy so GET /config works immediately after standing
+      # up the stack. It is idempotent — it skips the upload when the object
+      # already exists (preserving any admin edits).
+      - name: Seed initial site-config.json into S3
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          DEPLOYER_ROLE: ${{ needs.set-environment.outputs.deployer_role }}
+        run: |
+          CONFIG_BUCKET=$(terraform output -raw cms_config_bucket)
+
+          # Re-assume the deployer role (current creds = state role in mgmt account)
+          CREDS=$(aws sts assume-role \
+            --role-arn "$DEPLOYER_ROLE" \
+            --role-session-name "config-seed" \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+            --output text)
+          export AWS_ACCESS_KEY_ID=$(echo "$CREDS" | awk '{print $1}')
+          export AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | awk '{print $2}')
+          export AWS_SESSION_TOKEN=$(echo "$CREDS" | awk '{print $3}')
+
+          # Only seed if the object does not already exist (preserve admin edits)
+          HTTP_STATUS=$(aws s3api head-object \
+            --bucket "$CONFIG_BUCKET" \
+            --key "config/site-config.json" \
+            --query 'ContentLength' \
+            --output text 2>/dev/null && echo "exists" || echo "missing")
+
+          if [ "$HTTP_STATUS" = "missing" ]; then
+            echo "[config-seed] config/site-config.json not found — uploading default config..."
+            aws s3 cp ../cms/config/site-config.json \
+              "s3://$CONFIG_BUCKET/config/site-config.json" \
+              --content-type application/json
+            echo "::notice title=Config Seed::Default site-config.json seeded into $CONFIG_BUCKET"
+          else
+            echo "[config-seed] config/site-config.json already exists — skipping seed (preserving admin edits)."
+          fi
+
       - name: Check SES domain verification status
         working-directory: ${{ env.TF_DIR }}
         run: |
