@@ -383,12 +383,16 @@ resource "aws_cognito_user_pool" "cms" {
   # Both must live inside verification_message_template when using SES (DEVELOPER sending);
   # the legacy top-level email_verification_subject / email_verification_message attributes
   # conflict with the block-level counterparts and are not permitted together.
+  #
+  # Only set the CONFIRM_WITH_CODE attributes (email_subject / email_message).
+  # The *_by_link variants require the {##...##} link placeholder (not {####}) and must
+  # only be set when default_email_option = "CONFIRM_WITH_LINK".  Including them with
+  # the wrong placeholder caused Deploy 31 to fail with:
+  #   InvalidParameterException: The message is invalid.
   verification_message_template {
-    default_email_option  = "CONFIRM_WITH_CODE"
-    email_subject         = "Augustine CMS — verify your email"
-    email_message         = "Your verification code is {####}"
-    email_subject_by_link = "Augustine CMS — reset your password"
-    email_message_by_link = "Your Augustine CMS password-reset code is {####}. It expires in 1 hour."
+    default_email_option = "CONFIRM_WITH_CODE"
+    email_subject        = "Augustine CMS — verify your email"
+    email_message        = "Your verification code is {####}"
   }
 
   # Don't allow self-signup — admin-only user pool
