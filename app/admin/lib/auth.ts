@@ -3,14 +3,20 @@
  *
  * Handles: sign-in, sign-out, token refresh, session persistence,
  *          forgot-password (request code + confirm new password).
- * Tokens: access token in memory, refresh token in localStorage.
+ * Tokens: ID token used for API Gateway authorization (the Cognito
+ *         COGNITO_USER_POOLS authorizer validates the ID token, not the
+ *         access token — access tokens lack the `aud` claim and are
+ *         rejected with 401). Refresh token persisted in localStorage.
  *
  * Usage:
  *   await signIn("brandon@...", "password")
- *   const token = await getAccessToken()   // auto-refreshes if expired
+ *   const token = await getIdToken()   // auto-refreshes if expired
  *   signOut()
  *   await forgotPasswordRequest("brandon@...")
  *   await forgotPasswordConfirm("brandon@...", "123456", "NewPass1!")
+ *
+ * NOTE: getAccessToken() is kept as an alias for getIdToken() so callers
+ * don't need to be updated; internally it always returns the ID token.
  */
 
 import {
@@ -38,6 +44,11 @@ let currentUser: CognitoUser | null = null;
 
 export interface AuthUser {
   email: string;
+  /** The Cognito ID token — use this for API Gateway Authorization headers. */
+  idToken: string;
+  /** @deprecated Alias for idToken. API GW COGNITO_USER_POOLS authorizers
+   *  require the ID token (which carries the `aud` claim). Access tokens
+   *  lack `aud` and are rejected with 401. */
   accessToken: string;
 }
 
@@ -56,9 +67,14 @@ export function signIn(email: string, password: string): Promise<AuthUser> {
     cognitoUser.authenticateUser(authDetails, {
       onSuccess(session: CognitoUserSession) {
         currentUser = cognitoUser;
+        const idToken = session.getIdToken().getJwtToken();
         resolve({
           email,
-          accessToken: session.getAccessToken().getJwtToken(),
+          idToken,
+          // Keep accessToken populated for backward compat, but point it at
+          // the ID token — API GW COGNITO_USER_POOLS authorizer requires the
+          // ID token (has `aud` claim). Access tokens lack `aud` → 401.
+          accessToken: idToken,
         });
       },
       onFailure(err) {
@@ -83,7 +99,12 @@ export function signOut(): void {
   }
 }
 
-export function getAccessToken(): Promise<string | null> {
+/**
+ * Returns the Cognito ID token for the current session (auto-refreshes if
+ * expired). Use this in Authorization headers — API Gateway's
+ * COGNITO_USER_POOLS authorizer validates the ID token, not the access token.
+ */
+export function getIdToken(): Promise<string | null> {
   return new Promise((resolve) => {
     const user = currentUser ?? userPool.getCurrentUser();
     if (!user) return resolve(null);
@@ -91,14 +112,52 @@ export function getAccessToken(): Promise<string | null> {
     user.getSession((err: Error | null, session: CognitoUserSession | null) => {
       if (err || !session?.isValid()) return resolve(null);
       currentUser = user;
-      resolve(session.getAccessToken().getJwtToken());
+      resolve(session.getIdToken().getJwtToken());
     });
   });
 }
 
+/**
+ * @deprecated Use getIdToken() instead. This alias exists so existing callers
+ * continue to work without changes; it returns the ID token.
+ */
+export const getAccessToken = getIdToken;
+
+/**
+ * Returns the email from the current session's ID token payload.
+ * Decoding the JWT is safe here because we trust the Cognito-issued token
+ * (signature validation happens on the API GW side).
+ * Falls back to getUsername() if the ID token isn't available yet.
+ */
 export function getCurrentUserEmail(): string | null {
+  // Try to extract email from the in-memory session first.
   const user = currentUser ?? userPool.getCurrentUser();
-  return user?.getUsername() ?? null;
+  if (!user) return null;
+
+  // Synchronously read the cached session from localStorage if available.
+  // amazon-cognito-identity-js stores the last session tokens in localStorage
+  // under CognitoIdentityServiceProvider.<clientId>.<username>.idToken
+  // but there's no sync accessor. Use getUsername() as fallback — for user
+  // pools with username_attributes=["email"] the stored value IS the email.
+  // For pools where Cognito normalizes the username to UUID we decode the
+  // token payload instead.
+  const username = user.getUsername();
+  // If it looks like a UUID (Cognito internal sub), try the token payload.
+  if (/^[0-9a-f-]{36}$/i.test(username)) {
+    try {
+      const pool = (user as unknown as { pool: { storage: Record<string, string> } }).pool;
+      const clientId = CLIENT_ID;
+      const idTokenKey = `CognitoIdentityServiceProvider.${clientId}.${username}.idToken`;
+      const raw = pool?.storage?.[idTokenKey] ?? (typeof localStorage !== "undefined" ? localStorage.getItem(idTokenKey) : null);
+      if (raw) {
+        const payload = JSON.parse(atob(raw.split(".")[1]));
+        return payload.email ?? username;
+      }
+    } catch {
+      // fall through
+    }
+  }
+  return username;
 }
 
 /**
