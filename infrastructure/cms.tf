@@ -739,6 +739,72 @@ module "cms_media_method" {
   region      = var.aws_region
 }
 
+# ─────────────────────────────────────────────
+# API Gateway — CORS headers on error/authorizer responses
+#
+# When the Cognito authorizer rejects a request (401) or the API returns
+# any 4xx/5xx, API Gateway generates the response itself — Lambda never
+# runs, so Lambda's corsHeaders() helper is never called. Without these
+# gateway_response blocks the browser sees a response with no
+# Access-Control-Allow-Origin header and blocks the request entirely,
+# making the 401 appear as a CORS error rather than an auth error.
+# ─────────────────────────────────────────────
+
+locals {
+  # All allowed origins concatenated for the gateway response header.
+  # API Gateway gateway_response values must be static strings — we pick
+  # a wildcard here because the authorizer-rejected request has no origin
+  # context anyway. The Lambda still reflects the exact origin for
+  # successful (2xx) responses.
+  cors_gateway_origin = "'*'"
+}
+
+resource "aws_api_gateway_gateway_response" "unauthorized" {
+  rest_api_id   = aws_api_gateway_rest_api.cms.id
+  response_type = "UNAUTHORIZED"
+  status_code   = "401"
+
+  response_parameters = {
+    "gatewayresponse.header.Access-Control-Allow-Origin"  = local.cors_gateway_origin
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'Authorization,Content-Type'"
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'GET,PUT,POST,OPTIONS'"
+  }
+
+  response_templates = {
+    "application/json" = "{\"message\": $context.error.messageString}"
+  }
+}
+
+resource "aws_api_gateway_gateway_response" "default_4xx" {
+  rest_api_id   = aws_api_gateway_rest_api.cms.id
+  response_type = "DEFAULT_4XX"
+
+  response_parameters = {
+    "gatewayresponse.header.Access-Control-Allow-Origin"  = local.cors_gateway_origin
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'Authorization,Content-Type'"
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'GET,PUT,POST,OPTIONS'"
+  }
+
+  response_templates = {
+    "application/json" = "{\"message\": $context.error.messageString}"
+  }
+}
+
+resource "aws_api_gateway_gateway_response" "default_5xx" {
+  rest_api_id   = aws_api_gateway_rest_api.cms.id
+  response_type = "DEFAULT_5XX"
+
+  response_parameters = {
+    "gatewayresponse.header.Access-Control-Allow-Origin"  = local.cors_gateway_origin
+    "gatewayresponse.header.Access-Control-Allow-Headers" = "'Authorization,Content-Type'"
+    "gatewayresponse.header.Access-Control-Allow-Methods" = "'GET,PUT,POST,OPTIONS'"
+  }
+
+  response_templates = {
+    "application/json" = "{\"message\": $context.error.messageString}"
+  }
+}
+
 # ── Deployment + Stage ──
 
 resource "aws_api_gateway_deployment" "cms" {
@@ -749,6 +815,12 @@ resource "aws_api_gateway_deployment" "cms" {
     config_hash = module.cms_config_method.trigger_hash
     upload_hash = module.cms_upload_method.trigger_hash
     media_hash  = module.cms_media_method.trigger_hash
+    # Also redeploy when gateway responses change (CORS on error responses)
+    gw_responses_hash = sha1(jsonencode([
+      aws_api_gateway_gateway_response.unauthorized,
+      aws_api_gateway_gateway_response.default_4xx,
+      aws_api_gateway_gateway_response.default_5xx,
+    ]))
   }
 
   lifecycle { create_before_destroy = true }
@@ -757,6 +829,9 @@ resource "aws_api_gateway_deployment" "cms" {
     module.cms_config_method,
     module.cms_upload_method,
     module.cms_media_method,
+    aws_api_gateway_gateway_response.unauthorized,
+    aws_api_gateway_gateway_response.default_4xx,
+    aws_api_gateway_gateway_response.default_5xx,
   ]
 }
 
