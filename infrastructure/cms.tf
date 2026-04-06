@@ -158,6 +158,8 @@ resource "aws_s3_bucket_cors_configuration" "cms_media" {
     allowed_methods = ["PUT"]
     allowed_origins = [
       "https://${local.admin_domain}",
+      # Dev: admin SPA is served from the site CloudFront default domain
+      "https://${aws_cloudfront_distribution.site.domain_name}",
       # Allow localhost for local admin development
       "http://localhost:5173",
       "http://localhost:3000",
@@ -592,13 +594,24 @@ data "archive_file" "cms_media_zip" {
 }
 
 locals {
+  # All origins the CMS API should accept.
+  # In dev, the admin SPA is served from the site CloudFront domain (no
+  # custom alias). In prod, it will move to admin.augustinehomeimprovements.com.
+  # Both are included here so a single deploy supports both environments.
+  cms_allowed_origins = join(",", [
+    "https://${local.admin_domain}",
+    "https://${aws_cloudfront_distribution.site.domain_name}",
+  ])
+
   cms_env = {
-    CONFIG_BUCKET  = aws_s3_bucket.cms_config.bucket
-    MEDIA_BUCKET   = aws_s3_bucket.cms_media.bucket
-    CONFIG_KEY     = "config/site-config.json"
-    UPLOADS_PREFIX = "uploads/"
-    ALLOWED_ORIGIN = "https://${local.admin_domain}"
-    CDN_BASE_URL   = local.use_cdn_domain ? "https://${local.cdn_domain}" : "https://${aws_cloudfront_distribution.cms_cdn.domain_name}"
+    CONFIG_BUCKET   = aws_s3_bucket.cms_config.bucket
+    MEDIA_BUCKET    = aws_s3_bucket.cms_media.bucket
+    CONFIG_KEY      = "config/site-config.json"
+    UPLOADS_PREFIX  = "uploads/"
+    # Comma-separated list — Lambda checks incoming Origin against this set
+    # and reflects the matching origin back (required for credentialed requests).
+    ALLOWED_ORIGINS = local.cms_allowed_origins
+    CDN_BASE_URL    = local.use_cdn_domain ? "https://${local.cdn_domain}" : "https://${aws_cloudfront_distribution.cms_cdn.domain_name}"
   }
 }
 

@@ -27,14 +27,33 @@ const s3 = new S3Client({});
 
 const BUCKET = process.env.MEDIA_BUCKET;
 const UPLOADS_PREFIX = process.env.UPLOADS_PREFIX ?? "uploads/";
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "*";
 const CDN_BASE_URL = (process.env.CDN_BASE_URL ?? "").replace(/\/$/, "");
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-  "Access-Control-Allow-Headers": "Authorization,Content-Type",
-  "Access-Control-Allow-Methods": "POST,OPTIONS",
-};
+// ALLOWED_ORIGINS is a comma-separated list of allowed origins.
+// Falls back to the legacy ALLOWED_ORIGIN single-value env var.
+const ALLOWED_ORIGINS = new Set(
+  (process.env.ALLOWED_ORIGINS ?? process.env.ALLOWED_ORIGIN ?? "*")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+);
+
+function resolveOrigin(event) {
+  const requestOrigin =
+    event.headers?.Origin ?? event.headers?.origin ?? "";
+  if (ALLOWED_ORIGINS.has("*") || ALLOWED_ORIGINS.has(requestOrigin)) {
+    return requestOrigin || "*";
+  }
+  return [...ALLOWED_ORIGINS][0] ?? "*";
+}
+
+function corsHeaders(event) {
+  return {
+    "Access-Control-Allow-Origin": resolveOrigin(event),
+    "Access-Control-Allow-Headers": "Authorization,Content-Type",
+    "Access-Control-Allow-Methods": "POST,OPTIONS",
+  };
+}
 
 const ALLOWED_CATEGORIES = ["logo", "hero", "gallery"];
 const ALLOWED_CONTENT_TYPES = [
@@ -44,18 +63,18 @@ const ALLOWED_CONTENT_TYPES = [
   "image/svg+xml",
 ];
 
-function ok(body) {
+function ok(event, body) {
   return {
     statusCode: 200,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...corsHeaders(event) },
     body: JSON.stringify(body),
   };
 }
 
-function err(message, status = 400) {
+function err(event, message, status = 400) {
   return {
     statusCode: status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...corsHeaders(event) },
     body: JSON.stringify({ error: message }),
   };
 }
@@ -64,30 +83,31 @@ export async function handler(event) {
   const method = event.httpMethod ?? event.requestContext?.http?.method ?? "POST";
 
   if (method === "OPTIONS") {
-    return { statusCode: 204, headers: CORS_HEADERS, body: "" };
+    return { statusCode: 204, headers: corsHeaders(event), body: "" };
   }
 
   if (method !== "POST") {
-    return err(`Method not allowed: ${method}`, 405);
+    return err(event, `Method not allowed: ${method}`, 405);
   }
 
   let body;
   try {
     body = JSON.parse(event.body ?? "{}");
   } catch {
-    return err("Invalid JSON body");
+    return err(event, "Invalid JSON body");
   }
 
   const { filename, category, contentType } = body;
 
   if (!filename || typeof filename !== "string") {
-    return err("Missing or invalid 'filename'");
+    return err(event, "Missing or invalid 'filename'");
   }
   if (!ALLOWED_CATEGORIES.includes(category)) {
-    return err(`Invalid category. Allowed: ${ALLOWED_CATEGORIES.join(", ")}`);
+    return err(event, `Invalid category. Allowed: ${ALLOWED_CATEGORIES.join(", ")}`);
   }
   if (!ALLOWED_CONTENT_TYPES.includes(contentType)) {
     return err(
+      event,
       `Invalid contentType. Allowed: ${ALLOWED_CONTENT_TYPES.join(", ")}`
     );
   }
@@ -108,9 +128,9 @@ export async function handler(event) {
     const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 900 });
     const cdnUrl = CDN_BASE_URL ? `${CDN_BASE_URL}/${key}` : null;
 
-    return ok({ uploadUrl, cdnUrl, key });
+    return ok(event, { uploadUrl, cdnUrl, key });
   } catch (e) {
     console.error("Presign error:", e);
-    return err("Failed to generate upload URL", 500);
+    return err(event, "Failed to generate upload URL", 500);
   }
 }

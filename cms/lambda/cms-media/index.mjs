@@ -22,29 +22,48 @@ const s3 = new S3Client({});
 
 const BUCKET = process.env.MEDIA_BUCKET;
 const UPLOADS_PREFIX = process.env.UPLOADS_PREFIX ?? "uploads/";
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "*";
 const CDN_BASE_URL = (process.env.CDN_BASE_URL ?? "").replace(/\/$/, "");
 
-const CORS_HEADERS = {
-  "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
-  "Access-Control-Allow-Headers": "Authorization,Content-Type",
-  "Access-Control-Allow-Methods": "GET,OPTIONS",
-};
+// ALLOWED_ORIGINS is a comma-separated list of allowed origins.
+// Falls back to the legacy ALLOWED_ORIGIN single-value env var.
+const ALLOWED_ORIGINS = new Set(
+  (process.env.ALLOWED_ORIGINS ?? process.env.ALLOWED_ORIGIN ?? "*")
+    .split(",")
+    .map((o) => o.trim())
+    .filter(Boolean)
+);
+
+function resolveOrigin(event) {
+  const requestOrigin =
+    event.headers?.Origin ?? event.headers?.origin ?? "";
+  if (ALLOWED_ORIGINS.has("*") || ALLOWED_ORIGINS.has(requestOrigin)) {
+    return requestOrigin || "*";
+  }
+  return [...ALLOWED_ORIGINS][0] ?? "*";
+}
+
+function corsHeaders(event) {
+  return {
+    "Access-Control-Allow-Origin": resolveOrigin(event),
+    "Access-Control-Allow-Headers": "Authorization,Content-Type",
+    "Access-Control-Allow-Methods": "GET,OPTIONS",
+  };
+}
 
 const ALLOWED_CATEGORIES = ["logo", "hero", "gallery"];
 
-function ok(body) {
+function ok(event, body) {
   return {
     statusCode: 200,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...corsHeaders(event) },
     body: JSON.stringify(body),
   };
 }
 
-function err(message, status = 400) {
+function err(event, message, status = 400) {
   return {
     statusCode: status,
-    headers: { "Content-Type": "application/json", ...CORS_HEADERS },
+    headers: { "Content-Type": "application/json", ...corsHeaders(event) },
     body: JSON.stringify({ error: message }),
   };
 }
@@ -53,11 +72,11 @@ export async function handler(event) {
   const method = event.httpMethod ?? event.requestContext?.http?.method ?? "GET";
 
   if (method === "OPTIONS") {
-    return { statusCode: 204, headers: CORS_HEADERS, body: "" };
+    return { statusCode: 204, headers: corsHeaders(event), body: "" };
   }
 
   if (method !== "GET") {
-    return err(`Method not allowed: ${method}`, 405);
+    return err(event, `Method not allowed: ${method}`, 405);
   }
 
   const category = event.queryStringParameters?.category ?? null;
@@ -66,7 +85,7 @@ export async function handler(event) {
   let prefix = UPLOADS_PREFIX;
   if (category) {
     if (!ALLOWED_CATEGORIES.includes(category)) {
-      return err(`Invalid category. Allowed: ${ALLOWED_CATEGORIES.join(", ")}`);
+      return err(event, `Invalid category. Allowed: ${ALLOWED_CATEGORIES.join(", ")}`);
     }
     prefix = `${UPLOADS_PREFIX}${category}/`;
   }
@@ -100,9 +119,9 @@ export async function handler(event) {
     // Sort by lastModified descending (newest first)
     items.sort((a, b) => (b.lastModified ?? "").localeCompare(a.lastModified ?? ""));
 
-    return ok({ items });
+    return ok(event, { items });
   } catch (e) {
     console.error("List media error:", e);
-    return err("Failed to list media", 500);
+    return err(event, "Failed to list media", 500);
   }
 }
