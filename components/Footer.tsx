@@ -1,7 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { Facebook, Shield, Award, Star } from "lucide-react";
-import { CmsPhoneLink, CmsEmailLink } from "./CmsContact";
+import { CmsPhoneLink, CmsEmailLink, CmsLogo } from "./CmsContact";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -35,13 +34,7 @@ export default function Footer() {
           {/* Brand column */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="mb-5 inline-block bg-white/95 rounded-lg px-3 py-2.5 shadow">
-              <Image
-                src="/images/augustine-logo.png"
-                alt="Augustine Home Improvements"
-                width={160}
-                height={149}
-                className="h-16 w-auto object-contain"
-              />
+              <CmsLogo className="h-16 w-auto object-contain" />
             </div>
             <p className="text-sm text-gray-300 leading-relaxed mb-6 max-w-xs">
               Veteran-owned home improvement contractor serving Chester County,

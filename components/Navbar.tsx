@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Phone, ChevronDown, Menu, X } from "lucide-react";
 import NavbarLogo from "./NavbarLogo";
+import { useCmsContact } from "./CmsContact";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -25,6 +26,8 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const { phone } = useCmsContact();
+  const tel = `tel:+1${phone.replace(/\D/g, "")}`;
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 1024);
@@ -105,15 +108,15 @@ export default function Navbar() {
             </Link>
           ))}
 
-          <a href="tel:+14844677925" className="flex items-center gap-2 btn-primary text-sm py-2.5 px-5">
+          <a href={tel} className="flex items-center gap-2 btn-primary text-sm py-2.5 px-5">
             <Phone size={15} aria-hidden="true" />
-            484-467-7925
+            {phone}
           </a>
         </nav>
 
         <div className="flex lg:hidden items-center gap-1">
           <a
-            href="tel:+14844677925"
+            href={tel}
             className="flex items-center gap-1.5 text-sm font-semibold py-2 px-2.5 rounded-lg hover:bg-brand-mist transition-colors"
             aria-label="Call Augustine Home Improvements"
           >
@@ -169,13 +172,9 @@ export default function Navbar() {
           ))}
 
           <div className="mt-3">
-            <a
-              href="tel:+14844677925"
-              className="btn-primary w-full justify-center"
-              onClick={() => setIsOpen(false)}
-            >
+            <a href={tel} className="btn-primary w-full justify-center" onClick={() => setIsOpen(false)}>
               <Phone size={15} aria-hidden="true" />
-              Call 484-467-7925
+              Call {phone}
             </a>
           </div>
         </nav>
