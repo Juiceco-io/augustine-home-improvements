@@ -10,6 +10,9 @@ import GalleryTab from "./GalleryTab";
 import ContactTab from "./ContactTab";
 import FeaturesTab from "./FeaturesTab";
 
+const PUBLIC_SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.augustinehomeimprovements.com";
+
 type Tab = "branding" | "hero" | "gallery" | "contact" | "features";
 
 interface Props {
@@ -76,7 +79,7 @@ export default function CMSDashboard({ onLogout }: Props) {
               </span>
             )}
             <a
-              href="https://www.augustinehomeimprovements.com"
+              href={PUBLIC_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
@@ -107,7 +110,7 @@ export default function CMSDashboard({ onLogout }: Props) {
               ? `Error: ${error}`
               : saving
                 ? "Saving…"
-                : `Saved at ${savedAt}. Changes appear on the site within ~60 seconds.`}
+                : `Saved at ${savedAt}. Changes appear on the live site for this environment within ~60 seconds.`}
           </div>
         )}
 
