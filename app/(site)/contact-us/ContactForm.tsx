@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { useSiteConfig } from "@/lib/useSiteConfig";
 
 type Status =
   | { type: "idle" }
@@ -36,6 +37,8 @@ const initialForm = {
 export default function ContactForm() {
   const [form, setForm] = useState(initialForm);
   const [status, setStatus] = useState<Status>({ type: "idle" });
+  const siteConfig = useSiteConfig();
+  const cmsPhone = siteConfig.contact.phone || "484-467-7925";
 
   const apiUrl = useMemo(
     () => process.env.NEXT_PUBLIC_CONTACT_API_URL?.trim() ?? "",
@@ -96,7 +99,7 @@ export default function ContactForm() {
         message:
           err instanceof Error
             ? err.message
-            : "Unable to send your message. Please call us at 484-467-7925.",
+            : `Unable to send your message. Please call us at ${cmsPhone}.`,
       });
     }
   };
@@ -127,10 +130,10 @@ export default function ContactForm() {
           Thanks for reaching out. A member of our team will contact you within
           the next business day. If you need immediate assistance, please call{" "}
           <a
-            href="tel:+14844677925"
+            href={`tel:+1${cmsPhone.replace(/\D/g, "")}`}
             className="text-brand-red font-semibold hover:underline"
           >
-            484-467-7925
+            {cmsPhone}
           </a>
           .
         </p>
