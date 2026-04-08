@@ -181,6 +181,30 @@ resource "aws_cloudfront_origin_access_control" "cms_cdn" {
   signing_protocol                  = "sigv4"
 }
 
+# Public site fetches config/media from this CDN using a different origin than
+# the main site CloudFront domain, so the CDN must emit CORS headers.
+resource "aws_cloudfront_response_headers_policy" "cms_cdn_cors" {
+  name = "${var.project}-${var.environment}-cms-cdn-cors"
+
+  cors_config {
+    access_control_allow_credentials = false
+
+    access_control_allow_headers {
+      items = ["*"]
+    }
+
+    access_control_allow_methods {
+      items = ["GET", "HEAD", "OPTIONS"]
+    }
+
+    access_control_allow_origins {
+      items = ["*"]
+    }
+
+    origin_override = true
+  }
+}
+
 # ─────────────────────────────────────────────
 # ACM cert for cdn. subdomain (prod only)
 # ─────────────────────────────────────────────
@@ -225,11 +249,12 @@ resource "aws_cloudfront_distribution" "cms_cdn" {
 
   # Default behavior → config bucket (serves /config/site-config.json)
   default_cache_behavior {
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "cms-config-s3"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
+    allowed_methods            = ["GET", "HEAD"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "cms-config-s3"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.cms_cdn_cors.id
 
     # Short TTL for config — changes appear within 60 seconds
     forwarded_values {
@@ -243,12 +268,13 @@ resource "aws_cloudfront_distribution" "cms_cdn" {
 
   # /uploads/* → media bucket, long-lived cache (images are immutable by URL)
   ordered_cache_behavior {
-    path_pattern           = "/uploads/*"
-    allowed_methods        = ["GET", "HEAD"]
-    cached_methods         = ["GET", "HEAD"]
-    target_origin_id       = "cms-media-s3"
-    viewer_protocol_policy = "redirect-to-https"
-    compress               = true
+    path_pattern               = "/uploads/*"
+    allowed_methods            = ["GET", "HEAD"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "cms-media-s3"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.cms_cdn_cors.id
 
     forwarded_values {
       query_string = false
@@ -463,9 +489,9 @@ resource "aws_cognito_user_pool_client" "cms_admin" {
   ]
 
   # Token validity
-  access_token_validity  = 1   # hour
-  id_token_validity      = 1   # hour
-  refresh_token_validity = 30  # days
+  access_token_validity  = 1  # hour
+  id_token_validity      = 1  # hour
+  refresh_token_validity = 30 # days
 
   token_validity_units {
     access_token  = "hours"
@@ -620,10 +646,10 @@ locals {
   ])
 
   cms_env = {
-    CONFIG_BUCKET   = aws_s3_bucket.cms_config.bucket
-    MEDIA_BUCKET    = aws_s3_bucket.cms_media.bucket
-    CONFIG_KEY      = "config/site-config.json"
-    UPLOADS_PREFIX  = "uploads/"
+    CONFIG_BUCKET  = aws_s3_bucket.cms_config.bucket
+    MEDIA_BUCKET   = aws_s3_bucket.cms_media.bucket
+    CONFIG_KEY     = "config/site-config.json"
+    UPLOADS_PREFIX = "uploads/"
     # Comma-separated list — Lambda checks incoming Origin against this set
     # and reflects the matching origin back (required for credentialed requests).
     ALLOWED_ORIGINS = local.cms_allowed_origins
@@ -704,15 +730,15 @@ resource "aws_api_gateway_resource" "config" {
 }
 
 module "cms_config_method" {
-  source      = "./modules/apigw-lambda-method"
-  rest_api_id = aws_api_gateway_rest_api.cms.id
-  resource_id = aws_api_gateway_resource.config.id
-  http_method = "ANY"
-  lambda_arn  = aws_lambda_function.cms_config.arn
-  lambda_name = aws_lambda_function.cms_config.function_name
-  authorizer_id   = aws_api_gateway_authorizer.cognito.id
-  account_id  = data.aws_caller_identity.current.account_id
-  region      = var.aws_region
+  source        = "./modules/apigw-lambda-method"
+  rest_api_id   = aws_api_gateway_rest_api.cms.id
+  resource_id   = aws_api_gateway_resource.config.id
+  http_method   = "ANY"
+  lambda_arn    = aws_lambda_function.cms_config.arn
+  lambda_name   = aws_lambda_function.cms_config.function_name
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+  account_id    = data.aws_caller_identity.current.account_id
+  region        = var.aws_region
 }
 
 # ── /upload resource ──
@@ -724,15 +750,15 @@ resource "aws_api_gateway_resource" "upload" {
 }
 
 module "cms_upload_method" {
-  source      = "./modules/apigw-lambda-method"
-  rest_api_id = aws_api_gateway_rest_api.cms.id
-  resource_id = aws_api_gateway_resource.upload.id
-  http_method = "ANY"
-  lambda_arn  = aws_lambda_function.cms_upload.arn
-  lambda_name = aws_lambda_function.cms_upload.function_name
-  authorizer_id   = aws_api_gateway_authorizer.cognito.id
-  account_id  = data.aws_caller_identity.current.account_id
-  region      = var.aws_region
+  source        = "./modules/apigw-lambda-method"
+  rest_api_id   = aws_api_gateway_rest_api.cms.id
+  resource_id   = aws_api_gateway_resource.upload.id
+  http_method   = "ANY"
+  lambda_arn    = aws_lambda_function.cms_upload.arn
+  lambda_name   = aws_lambda_function.cms_upload.function_name
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+  account_id    = data.aws_caller_identity.current.account_id
+  region        = var.aws_region
 }
 
 # ── /media resource ──
@@ -744,15 +770,15 @@ resource "aws_api_gateway_resource" "media" {
 }
 
 module "cms_media_method" {
-  source      = "./modules/apigw-lambda-method"
-  rest_api_id = aws_api_gateway_rest_api.cms.id
-  resource_id = aws_api_gateway_resource.media.id
-  http_method = "ANY"
-  lambda_arn  = aws_lambda_function.cms_media.arn
-  lambda_name = aws_lambda_function.cms_media.function_name
-  authorizer_id   = aws_api_gateway_authorizer.cognito.id
-  account_id  = data.aws_caller_identity.current.account_id
-  region      = var.aws_region
+  source        = "./modules/apigw-lambda-method"
+  rest_api_id   = aws_api_gateway_rest_api.cms.id
+  resource_id   = aws_api_gateway_resource.media.id
+  http_method   = "ANY"
+  lambda_arn    = aws_lambda_function.cms_media.arn
+  lambda_name   = aws_lambda_function.cms_media.function_name
+  authorizer_id = aws_api_gateway_authorizer.cognito.id
+  account_id    = data.aws_caller_identity.current.account_id
+  region        = var.aws_region
 }
 
 # ─────────────────────────────────────────────
