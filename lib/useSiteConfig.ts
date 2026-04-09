@@ -18,7 +18,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { type SiteConfig, defaultConfig } from "./siteConfig";
+import { type SiteConfig, defaultConfig, normalizeSiteConfig } from "./siteConfig";
 
 const CONFIG_URL = "/site-config.json";
 
@@ -36,7 +36,7 @@ async function fetchConfig(): Promise<SiteConfig> {
       next: undefined,
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = (await res.json()) as SiteConfig;
+    const data = normalizeSiteConfig((await res.json()) as Partial<SiteConfig>);
     cached = data;
     lastFetchedAt = now;
     return data;

@@ -4,16 +4,20 @@ import { useState, useEffect } from "react";
 import { getConfig, putConfig } from "../lib/api";
 import { getCurrentUserEmail } from "../lib/auth";
 import type { SiteConfig } from "../lib/types";
+import { normalizeSiteConfig } from "@/lib/siteConfig";
 import BrandingTab from "./BrandingTab";
 import HeroTab from "./HeroTab";
 import GalleryTab from "./GalleryTab";
 import ContactTab from "./ContactTab";
 import FeaturesTab from "./FeaturesTab";
+import HomepageTab from "./HomepageTab";
+import CompanyTab from "./CompanyTab";
+import ReviewsTab from "./ReviewsTab";
 
 const PUBLIC_SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.augustinehomeimprovements.com";
 
-type Tab = "branding" | "hero" | "gallery" | "contact" | "features";
+type Tab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features";
 
 interface Props {
   onLogout: () => void;
@@ -31,7 +35,7 @@ export default function CMSDashboard({ onLogout }: Props) {
 
   useEffect(() => {
     getConfig()
-      .then(setConfig)
+      .then((data) => setConfig(normalizeSiteConfig(data)))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -53,6 +57,9 @@ export default function CMSDashboard({ onLogout }: Props) {
   const tabs: { id: Tab; label: string }[] = [
     { id: "branding", label: "Branding" },
     { id: "hero", label: "Hero" },
+    { id: "homepage", label: "Homepage" },
+    { id: "company", label: "Company" },
+    { id: "reviews", label: "Reviews" },
     { id: "gallery", label: "Gallery" },
     { id: "contact", label: "Contact" },
     { id: "features", label: "Features" },
@@ -161,6 +168,27 @@ export default function CMSDashboard({ onLogout }: Props) {
               )}
               {activeTab === "hero" && (
                 <HeroTab
+                  config={config}
+                  onSave={handleSave}
+                  saving={saving}
+                />
+              )}
+              {activeTab === "homepage" && (
+                <HomepageTab
+                  config={config}
+                  onSave={handleSave}
+                  saving={saving}
+                />
+              )}
+              {activeTab === "company" && (
+                <CompanyTab
+                  config={config}
+                  onSave={handleSave}
+                  saving={saving}
+                />
+              )}
+              {activeTab === "reviews" && (
+                <ReviewsTab
                   config={config}
                   onSave={handleSave}
                   saving={saving}
