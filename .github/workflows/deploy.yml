@@ -285,6 +285,7 @@ jobs:
       NEXT_PUBLIC_COGNITO_USER_POOL_ID: ${{ needs.terraform-apply.outputs.cms_cognito_user_pool_id }}
       NEXT_PUBLIC_COGNITO_CLIENT_ID: ${{ needs.terraform-apply.outputs.cms_cognito_client_id }}
       NEXT_PUBLIC_CMS_API_URL: ${{ needs.terraform-apply.outputs.cms_api_url }}
+      NEXT_PUBLIC_CMS_CONFIG_URL: ${{ needs.terraform-apply.outputs.cms_config_url }}
       NEXT_PUBLIC_SITE_URL: ${{ needs.terraform-apply.outputs.cloudfront_domain_name }}
       # NEXT_PUBLIC_CONTACT_API_URL: not wired yet — fake-success UX handles it
 
