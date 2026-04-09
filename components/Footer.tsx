@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Facebook, Shield, Award, Star } from "lucide-react";
-import { CmsPhoneLink, CmsEmailLink, CmsLogo } from "./CmsContact";
+import { CmsPhoneLink, CmsEmailLink, CmsLogo, CmsServiceArea } from "./CmsContact";
 import { useSiteConfig } from "@/lib/useSiteConfig";
 
 const services = [
@@ -12,17 +12,6 @@ const services = [
   { href: "/basement-renovation/", label: "Basement Renovation" },
   { href: "/home-additions/", label: "Home Additions" },
   { href: "/home-renovations/", label: "Home Renovations" },
-];
-
-const serviceArea = [
-  "Chester County, PA",
-  "Phoenixville, PA",
-  "Malvern, PA",
-  "Downingtown, PA",
-  "Exton, PA",
-  "West Chester, PA",
-  "Coatesville, PA",
-  "Suburban Philadelphia",
 ];
 
 export default function Footer() {
@@ -87,18 +76,9 @@ export default function Footer() {
             <h3 className="text-white font-semibold text-xs uppercase tracking-widest mb-4 pb-3 border-b border-white/10">
               Service Area
             </h3>
-            <ul className="space-y-2">
-              {serviceArea.map((area) => (
-                <li key={area} className="flex items-center gap-2 text-sm text-gray-400">
-                  <span
-                    className="w-1 h-1 rounded-full flex-shrink-0"
-                    style={{ backgroundColor: "var(--brand-primary)" }}
-                    aria-hidden="true"
-                  />
-                  {area}
-                </li>
-              ))}
-            </ul>
+            <div className="text-sm text-gray-400 leading-relaxed">
+              <CmsServiceArea />
+            </div>
           </div>
 
           {/* Contact */}
