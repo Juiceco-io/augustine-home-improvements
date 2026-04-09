@@ -13,6 +13,7 @@ export default function AboutCta() {
   const config = useSiteConfig();
   const cta = config.homepage.bottomCta;
   const phone = config.contact.phone || "484-467-7925";
+  const primaryHref = cta.primaryHref || "/contact-us/";
   const tel = cta.secondaryHref || `tel:+1${phone.replace(/\D/g, "")}`;
 
   return (
@@ -29,7 +30,7 @@ export default function AboutCta() {
       <p className="text-white/80 mb-6 max-w-xl mx-auto">{cta.body}</p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
         <Link
-          href="/contact-us/"
+          href={primaryHref}
           className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center cta-link-white"
         >
           {cta.primaryLabel}
@@ -42,6 +43,9 @@ export default function AboutCta() {
           {cta.secondaryLabel || phone}
         </a>
       </div>
+      {cta.footnote && (
+        <p className="text-white/70 text-sm mt-4">{cta.footnote}</p>
+      )}
     </div>
   );
 }
