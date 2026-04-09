@@ -19,6 +19,7 @@ export default function ContactInfoPanel() {
     "Chester County, PA and surrounding communities including Phoenixville, Malvern, Downingtown, West Chester, and greater Philadelphia suburbs.";
 
   const tel = `tel:+1${phone.replace(/\D/g, "")}`;
+  const hours = config.company.hours;
 
   return (
     <div className="space-y-4">
@@ -54,7 +55,7 @@ export default function ContactInfoPanel() {
         </div>
       </div>
 
-      {/* Hours (static — not in CMS scope yet) */}
+      {/* Hours */}
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-lg bg-brand-red/10 flex items-center justify-center flex-shrink-0">
           <Clock size={18} className="text-brand-red" aria-hidden="true" />
@@ -62,9 +63,11 @@ export default function ContactInfoPanel() {
         <div>
           <div className="font-semibold text-brand-charcoal">Hours</div>
           <div className="text-gray-600 text-sm">
-            Mon–Fri: 8:00am – 6:00pm
+            {hours.weekdays}
             <br />
-            Saturday: 9:00am – 3:00pm
+            {hours.saturday}
+            <br />
+            {hours.sunday}
           </div>
         </div>
       </div>

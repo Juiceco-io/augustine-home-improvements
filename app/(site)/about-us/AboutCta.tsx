@@ -11,8 +11,9 @@ import { useSiteConfig } from "@/lib/useSiteConfig";
 
 export default function AboutCta() {
   const config = useSiteConfig();
+  const cta = config.homepage.bottomCta;
   const phone = config.contact.phone || "484-467-7925";
-  const tel = `tel:+1${phone.replace(/\D/g, "")}`;
+  const tel = cta.secondaryHref || `tel:+1${phone.replace(/\D/g, "")}`;
 
   return (
     <div
@@ -23,25 +24,22 @@ export default function AboutCta() {
       }}
     >
       <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-3">
-        Ready to Work with Us?
+        {cta.title}
       </h2>
-      <p className="text-white/80 mb-6 max-w-xl mx-auto">
-        Get a free, no-obligation estimate. We&apos;ll come to your home,
-        assess the project, and give you a clear, written quote.
-      </p>
+      <p className="text-white/80 mb-6 max-w-xl mx-auto">{cta.body}</p>
       <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
         <Link
           href="/contact-us/"
           className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center cta-link-white"
         >
-          Request a Free Estimate
+          {cta.primaryLabel}
         </Link>
         <a
           href={tel}
           className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto cta-link-white"
         >
           <Phone size={15} aria-hidden="true" />
-          {phone}
+          {cta.secondaryLabel || phone}
         </a>
       </div>
     </div>

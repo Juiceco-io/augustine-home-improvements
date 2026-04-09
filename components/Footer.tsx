@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Facebook, Shield, Award, Star } from "lucide-react";
 import { CmsPhoneLink, CmsEmailLink, CmsLogo } from "./CmsContact";
+import { useSiteConfig } from "@/lib/useSiteConfig";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -23,6 +26,9 @@ const serviceArea = [
 ];
 
 export default function Footer() {
+  const config = useSiteConfig();
+  const trustIcons = [Shield, Star, Award];
+
   return (
     <footer
       className="bg-brand-charcoal text-white"
@@ -37,35 +43,23 @@ export default function Footer() {
               <CmsLogo className="h-16 w-auto object-contain" />
             </div>
             <p className="text-sm text-gray-300 leading-relaxed mb-6 max-w-xs">
-              Veteran-owned home improvement contractor serving Chester County,
-              PA and suburban Philadelphia since 2020.
+              {config.company.footerBlurb}
             </p>
             {/* Trust badges */}
             <div className="flex flex-col gap-2.5">
-              <div className="flex items-center gap-2.5 text-xs font-medium text-gray-200">
-                <Shield
-                  size={13}
-                  className="text-[color:var(--brand-primary)] flex-shrink-0"
-                  aria-hidden="true"
-                />
-                Licensed &amp; Insured
-              </div>
-              <div className="flex items-center gap-2.5 text-xs font-medium text-gray-200">
-                <Star
-                  size={13}
-                  className="text-[color:var(--brand-primary)] flex-shrink-0"
-                  aria-hidden="true"
-                />
-                TrexPro Certified Installer
-              </div>
-              <div className="flex items-center gap-2.5 text-xs font-medium text-gray-200">
-                <Award
-                  size={13}
-                  className="text-[color:var(--brand-primary)] flex-shrink-0"
-                  aria-hidden="true"
-                />
-                Veteran-Owned &amp; Operated
-              </div>
+              {config.company.trustBadges.map((badge, index) => {
+                const Icon = trustIcons[index] ?? Shield;
+                return (
+                  <div key={`${badge}-${index}`} className="flex items-center gap-2.5 text-xs font-medium text-gray-200">
+                    <Icon
+                      size={13}
+                      className="text-[color:var(--brand-primary)] flex-shrink-0"
+                      aria-hidden="true"
+                    />
+                    {badge}
+                  </div>
+                );
+              })}
             </div>
           </div>
 
