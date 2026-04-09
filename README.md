@@ -70,7 +70,7 @@ A minimal AWS-first CMS lives at `/admin` (Next.js route: `app/admin/`). It is:
 | Config storage | S3 (`cms-config` bucket) |
 | Media storage | S3 (`cms-media` bucket) |
 | API | API Gateway + Lambda (3 endpoints: `/config`, `/upload`, `/media`) |
-| CDN | CloudFront (serves `site-config.json` + media to the public site) |
+| CDN | CloudFront (serves same-origin `/site-config.json` plus CMS media to the public site) |
 
 All infrastructure is managed by the same Terraform in `infrastructure/`.
 
@@ -83,7 +83,6 @@ All infrastructure is managed by the same Terraform in `infrastructure/`.
 | `NEXT_PUBLIC_COGNITO_USER_POOL_ID` | `cms_cognito_user_pool_id` | Cognito User Pool ID |
 | `NEXT_PUBLIC_COGNITO_CLIENT_ID` | `cms_cognito_client_id` | Cognito App Client ID (no secret) |
 | `NEXT_PUBLIC_CMS_API_URL` | `cms_api_url` | API Gateway base URL |
-| `NEXT_PUBLIC_CMS_CONFIG_URL` | `cms_config_url` | CDN URL to `site-config.json` |
 
 ### Required Secrets / One-time Setup
 
@@ -127,3 +126,8 @@ cp .env.example .env.local
 npm run dev
 # Visit http://localhost:3000/admin
 ```
+
+The public site now always reads its live CMS config from the same-origin path
+`/site-config.json`. In AWS, the main site CloudFront distribution serves that
+path from the CMS config bucket with a 60-second TTL. For local dev, the repo
+includes `public/site-config.json` as the default same-origin stub.

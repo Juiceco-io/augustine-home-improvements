@@ -1,11 +1,13 @@
 /**
  * Augustine CMS — client-side hook for fetching live site config.
  *
- * Fetches site-config.json from the CDN on mount and re-checks every 60s.
+ * Fetches site-config.json from the same site origin on mount and re-checks
+ * every 60s.
  * Falls back to `defaultConfig` if the request fails (CDN down, network error).
  *
- * The CDN CloudFront TTL for /config/* is set to 60 seconds, so changes
- * Brandon makes in the admin panel appear on the live site within ~1 minute.
+ * CloudFront serves /site-config.json from the CMS config bucket with a 60s
+ * TTL, so admin changes appear on the live site within ~1 minute without the
+ * browser needing a separate CMS config origin.
  *
  * Usage (client components only — add "use client" at top of consuming file):
  *
@@ -18,15 +20,13 @@
 import { useState, useEffect } from "react";
 import { type SiteConfig, defaultConfig } from "./siteConfig";
 
-const CONFIG_URL = process.env.NEXT_PUBLIC_CMS_CONFIG_URL ?? "";
+const CONFIG_URL = "/site-config.json";
 
 let cached: SiteConfig | null = null;
 let lastFetchedAt = 0;
 const DEDUPE_MS = 60_000;
 
 async function fetchConfig(): Promise<SiteConfig> {
-  if (!CONFIG_URL) return defaultConfig;
-
   const now = Date.now();
   if (cached && now - lastFetchedAt < DEDUPE_MS) return cached;
 

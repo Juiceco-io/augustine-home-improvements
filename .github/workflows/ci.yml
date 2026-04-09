@@ -68,5 +68,4 @@ jobs:
           NEXT_PUBLIC_CMS_API_URL: https://example.execute-api.us-east-1.amazonaws.com/dev
           NEXT_PUBLIC_COGNITO_USER_POOL_ID: us-east-1_placeholder
           NEXT_PUBLIC_COGNITO_CLIENT_ID: placeholder
-          NEXT_PUBLIC_CMS_CONFIG_URL: https://placeholder.cloudfront.net/config/site-config.json
         run: npm run build
