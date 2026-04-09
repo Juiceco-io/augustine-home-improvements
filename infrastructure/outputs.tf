@@ -43,13 +43,8 @@ output "cms_api_url" {
 }
 
 output "cms_cdn_domain" {
-  description = "CloudFront domain for CMS CDN (config + media). Use as NEXT_PUBLIC_CMS_CONFIG_URL base."
+  description = "CloudFront domain for CMS media CDN."
   value       = "https://${aws_cloudfront_distribution.cms_cdn.domain_name}"
-}
-
-output "cms_config_url" {
-  description = "Full URL to site-config.json on the CDN (set as NEXT_PUBLIC_CMS_CONFIG_URL)"
-  value       = "https://${aws_cloudfront_distribution.cms_cdn.domain_name}/config/site-config.json"
 }
 
 output "cms_cognito_user_pool_id" {

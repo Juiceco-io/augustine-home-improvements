@@ -76,6 +76,22 @@ data "aws_iam_policy_document" "cms_config_bucket" {
       values   = [aws_cloudfront_distribution.cms_cdn.arn]
     }
   }
+
+  statement {
+    sid    = "AllowSiteCloudFront"
+    effect = "Allow"
+    principals {
+      type        = "Service"
+      identifiers = ["cloudfront.amazonaws.com"]
+    }
+    actions   = ["s3:GetObject"]
+    resources = ["${aws_s3_bucket.cms_config.arn}/*"]
+    condition {
+      test     = "StringEquals"
+      variable = "AWS:SourceArn"
+      values   = [aws_cloudfront_distribution.site.arn]
+    }
+  }
 }
 
 # ─────────────────────────────────────────────

@@ -1,7 +1,8 @@
 /**
  * Augustine CMS — shared site config types and default config.
  *
- * The public site fetches a live `site-config.json` from the CDN at runtime.
+ * The public site fetches a live `/site-config.json` from the same site origin
+ * at runtime.
  * This file provides:
  *   1. TypeScript types for the config shape
  *   2. A `defaultConfig` constant used as fallback when the CDN is unavailable

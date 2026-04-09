@@ -14,6 +14,14 @@ resource "aws_cloudfront_origin_access_control" "site" {
   signing_protocol                  = "sigv4"
 }
 
+resource "aws_cloudfront_origin_access_control" "cms_config_for_site" {
+  name                              = "${var.project}-${var.environment}-cms-config-oac"
+  description                       = "OAC for same-origin CMS site config"
+  origin_access_control_origin_type = "s3"
+  signing_behavior                  = "always"
+  signing_protocol                  = "sigv4"
+}
+
 resource "aws_cloudfront_response_headers_policy" "security_headers" {
   name = "${var.project}-${var.environment}-security-headers"
 
@@ -108,6 +116,28 @@ resource "aws_cloudfront_distribution" "site" {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
     origin_id                = "S3-${local.bucket_name}"
     origin_access_control_id = aws_cloudfront_origin_access_control.site.id
+  }
+
+  origin {
+    domain_name              = aws_s3_bucket.cms_config.bucket_regional_domain_name
+    origin_id                = "S3-cms-config"
+    origin_path              = "/config"
+    origin_access_control_id = aws_cloudfront_origin_access_control.cms_config_for_site.id
+  }
+
+  ordered_cache_behavior {
+    path_pattern               = "/site-config.json"
+    allowed_methods            = ["GET", "HEAD"]
+    cached_methods             = ["GET", "HEAD"]
+    target_origin_id           = "S3-cms-config"
+    viewer_protocol_policy     = "redirect-to-https"
+    compress                   = true
+    cache_policy_id            = "658327ea-f89d-4fab-a63d-7e88639e58f6"
+    response_headers_policy_id = aws_cloudfront_response_headers_policy.security_headers.id
+
+    min_ttl     = 0
+    default_ttl = 60
+    max_ttl     = 60
   }
 
   default_cache_behavior {
