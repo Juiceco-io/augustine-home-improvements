@@ -15,6 +15,8 @@ import {
   Hammer,
   ChevronRight,
 } from 'lucide-react'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import ContactForm from '@/components/sections/ContactForm'
 
 export const metadata: Metadata = {
@@ -63,25 +65,10 @@ const services = [
   },
 ]
 
-const reviews = [
-  {
-    name: 'Matthew G.',
-    text: 'Augustine Home Improvement LLC did a great job with our home renovation. Our house was a full gut job and Brandon and his team did an excellent job all around. The work was timely, professional and done well. I highly recommend them for any of your home improvement needs!',
-    project: 'Full Home Gut Renovation ($200K+)',
-  },
-  {
-    name: 'Charmaine P.',
-    text: "From start to finish of our kitchen remodel, Brandon kept us informed of the time frame. His crews were courteous and efficient. Work area was cleaned after every day. His suggestions were eye opening and welcomed. We love our kitchen and look forward to other projects completed by Augustine Home Improvements.",
-    project: 'Kitchen Remodel',
-  },
-  {
-    name: 'Jeff Van de M.',
-    text: "Can't say enough about working with Brandon Augustine. On time, great work, great attitude from the entire team. Will be my first call for next project.",
-    project: 'Home Improvement Project',
-  },
-]
-
-export default function HomePage() {
+export default async function HomePage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const reviews = content.reviews.slice(0, 3)
   return (
     <>
       {/* HERO */}
@@ -288,9 +275,9 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {reviews.map((review, i) => (
+              {reviews.map((review) => (
               <article
-                key={i}
+                key={review.id}
                 className="bg-brand-cream rounded-2xl p-6 border border-brand-brick/15"
               >
                 <div className="flex gap-0.5 mb-3">

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { CheckCircle } from 'lucide-react'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import ServicePageHero from '@/components/sections/ServicePageHero'
 import InlineCta from '@/components/sections/InlineCta'
 import ContactForm from '@/components/sections/ContactForm'
@@ -11,22 +13,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/basement-renovation/' },
 }
 
-const included = [
-  'Framing and insulation',
-  'Drywall installation and finishing',
-  'Flooring (LVP, carpet, tile)',
-  'Custom bars and entertainment areas',
-  'Home office and bedroom builds',
-  'Egress window installation',
-  'Electrical, plumbing, and HVAC coordination',
-]
-
-export default function BasementRenovationPage() {
+export default async function BasementRenovationPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const page = content.servicePages['basement-renovation']
+  const included = page.included
   return (
     <>
       <ServicePageHero
-        title="Basement Renovation & Finishing in Chester County, PA"
-        subtitle="If your growing family no longer has the living space that everyone needs, we can help add space to your home by refinishing your basement."
+        title={page.title}
+        subtitle={page.subtitle}
         breadcrumb="Basement Renovation"
       />
       <section className="py-20 bg-white">

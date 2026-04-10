@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { CheckCircle } from 'lucide-react'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import ServicePageHero from '@/components/sections/ServicePageHero'
 import InlineCta from '@/components/sections/InlineCta'
 import ContactForm from '@/components/sections/ContactForm'
@@ -11,22 +13,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/bathroom-remodeling/' },
 }
 
-const included = [
-  'Walk-in showers and soaking tubs',
-  'Vanity and fixture replacement',
-  'Custom tile work (floors, walls, showers)',
-  'Accessibility upgrades (grab bars, walk-in options)',
-  'Lighting and ventilation improvements',
-  'Plumbing updates and re-piping',
-  'Full gut and rebuild available',
-]
-
-export default function BathroomRemodelingPage() {
+export default async function BathroomRemodelingPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const page = content.servicePages['bathroom-remodeling']
+  const included = page.included
   return (
     <>
       <ServicePageHero
-        title="Bathroom Remodeling in Chester County, PA"
-        subtitle="If you've had your home for years and your bathroom is looking less than stellar, the time may be right for a remodeling job. You deserve a luxurious one."
+        title={page.title}
+        subtitle={page.subtitle}
         breadcrumb="Bathroom Remodeling"
       />
       <section className="py-20 bg-white">

@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { CheckCircle } from 'lucide-react'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import ServicePageHero from '@/components/sections/ServicePageHero'
 import InlineCta from '@/components/sections/InlineCta'
 import ContactForm from '@/components/sections/ContactForm'
@@ -11,22 +13,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/home-renovations/' },
 }
 
-const included = [
-  'Full home gut jobs and strip-outs',
-  'Load-bearing wall removal (with engineering)',
-  'New flooring throughout',
-  'Full drywall replacement',
-  'Electrical and plumbing updates',
-  'Multi-bathroom and kitchen renovation',
-  'Painting — interior and exterior',
-]
-
-export default function HomeRenovationsPage() {
+export default async function HomeRenovationsPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const page = content.servicePages['home-renovations']
+  const included = page.included
   return (
     <>
       <ServicePageHero
-        title="Whole-Home Renovations in Chester County, PA"
-        subtitle="Large-scale renovations handled with precision. From full gut jobs to major multi-room remodels — Augustine Home Improvements manages every phase."
+        title={page.title}
+        subtitle={page.subtitle}
         breadcrumb="Home Renovations"
       />
       <section className="py-20 bg-white">

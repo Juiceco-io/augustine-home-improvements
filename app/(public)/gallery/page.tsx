@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Images } from 'lucide-react'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
+import GalleryGrid from '@/components/ui/GalleryGrid'
 import InlineCta from '@/components/sections/InlineCta'
 
 export const metadata: Metadata = {
@@ -10,18 +12,10 @@ export const metadata: Metadata = {
   alternates: { canonical: '/gallery/' },
 }
 
-// Gallery categories for filtering (content managed via admin CMS)
-const categories = [
-  'All',
-  'Decks',
-  'Kitchens',
-  'Bathrooms',
-  'Basements',
-  'Home Additions',
-  'Renovations',
-]
-
-export default function GalleryPage() {
+export default async function GalleryPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const galleryItems = content.gallery
   return (
     <>
       {/* Hero */}
@@ -48,38 +42,7 @@ export default function GalleryPage() {
 
       <section className="py-20 bg-white">
         <div className="container-xl">
-          {/* Category filter - static for now */}
-          <div className="flex flex-wrap gap-2 mb-10 justify-center">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                className={`px-4 py-2 rounded-full text-sm font-semibold border-2 transition-all ${
-                  cat === 'All'
-                    ? 'bg-brand-red text-white border-brand-red'
-                    : 'bg-white text-gray-700 border-gray-300 hover:border-brand-red hover:text-brand-red'
-                }`}
-                aria-pressed={cat === 'All'}
-              >
-                {cat}
-              </button>
-            ))}
-          </div>
-
-          {/* Empty state - photos managed via admin CMS */}
-          <div className="flex flex-col items-center justify-center py-24 text-center">
-            <div className="w-20 h-20 rounded-2xl bg-brand-red/10 flex items-center justify-center mb-6">
-              <Images size={36} className="text-brand-red/50" aria-hidden="true" />
-            </div>
-            <h2 className="font-serif text-2xl font-bold text-brand-charcoal mb-3">
-              Photos Coming Soon
-            </h2>
-            <p className="text-gray-500 max-w-md mb-6">
-              Project photos are uploaded and managed by the site owner. Check back soon to see Augustine Home Improvements&apos; latest completed projects.
-            </p>
-            <Link href="/contact-us/" className="btn-primary">
-              Request a Free Estimate
-            </Link>
-          </div>
+          <GalleryGrid items={galleryItems} />
         </div>
       </section>
 

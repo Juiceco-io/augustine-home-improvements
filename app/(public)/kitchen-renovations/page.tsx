@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { CheckCircle } from 'lucide-react'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import ServicePageHero from '@/components/sections/ServicePageHero'
 import InlineCta from '@/components/sections/InlineCta'
 import ContactForm from '@/components/sections/ContactForm'
@@ -11,22 +13,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/kitchen-renovations/' },
 }
 
-const included = [
-  'Custom cabinetry and hardware selection',
-  'Countertop installation (granite, quartz, laminate)',
-  'Appliance installation and plumbing fixtures',
-  'Tile backsplash and flooring',
-  'Lighting design and electrical updates',
-  'Pantry and storage optimization',
-  'Full design-to-build project management',
-]
-
-export default function KitchenRenovationsPage() {
+export default async function KitchenRenovationsPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const page = content.servicePages['kitchen-renovations']
+  const included = page.included
   return (
     <>
       <ServicePageHero
-        title="Kitchen Renovations in Chester County, PA"
-        subtitle="From modern appliances to custom cabinetry — our licensed pros design and build your ultimate kitchen to meet your needs and budget."
+        title={page.title}
+        subtitle={page.subtitle}
         breadcrumb="Kitchen Renovations"
       />
       <section className="py-20 bg-white">

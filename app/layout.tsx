@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import StickyCtaMobile from '@/components/ui/StickyCtaMobile'
 import GoogleAnalytics from '@/components/ui/GoogleAnalytics'
+import PreviewBanner from '@/components/ui/PreviewBanner'
 
 const dmSans = DM_Sans({
   subsets: ['latin'],
@@ -162,6 +163,7 @@ export default function RootLayout({
         <main id="main-content">{children}</main>
         <Footer />
         <StickyCtaMobile />
+        <PreviewBanner />
       </body>
     </html>
   )

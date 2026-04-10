@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation'
 import { getAdminSession } from '@/lib/auth'
+import { getDraftContent, hasPendingChanges } from '@/lib/content'
 import Link from 'next/link'
 import {
   LayoutDashboard,
@@ -10,7 +11,9 @@ import {
   LogOut,
   Phone,
   ExternalLink,
+  Eye,
 } from 'lucide-react'
+import PublishButton from './PublishButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -20,34 +23,36 @@ export default async function AdminDashboardPage() {
     redirect('/admin/login')
   }
 
+  const [content, pending] = await Promise.all([getDraftContent(), hasPendingChanges()])
+
   const adminModules = [
     {
       title: 'Page Content',
-      description: 'Edit text and copy for any page on the site.',
+      description: 'Edit titles, subtitles, and "What\'s Included" lists for all service pages.',
       icon: FileText,
       href: '/admin/content',
-      status: 'Coming soon',
-      disabled: true,
+      status: 'Available',
+      disabled: false,
     },
     {
       title: 'Gallery Photos',
       description: 'Upload, caption, and organize project photos.',
       icon: Images,
       href: '/admin/gallery',
-      status: 'Coming soon',
-      disabled: true,
+      status: 'Available',
+      disabled: false,
     },
     {
       title: 'Customer Reviews',
-      description: 'Add, edit, or hide customer testimonials.',
+      description: 'Add, edit, or remove customer testimonials.',
       icon: Star,
       href: '/admin/reviews',
-      status: 'Coming soon',
-      disabled: true,
+      status: 'Available',
+      disabled: false,
     },
     {
-      title: 'Refresh Site',
-      description: 'Trigger a site rebuild to publish content changes.',
+      title: 'Force Refresh',
+      description: 'Manually flush the ISR page cache without publishing new content.',
       icon: RefreshCw,
       href: '/admin/revalidate',
       status: 'Available',
@@ -101,12 +106,34 @@ export default async function AdminDashboardPage() {
           </p>
         </div>
 
+        {/* Publish + Preview bar */}
+        <div className="bg-white rounded-xl p-6 border border-gray-100 shadow-sm mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div>
+            <h2 className="font-semibold text-brand-charcoal">Publish to Live Site</h2>
+            <p className="text-sm text-gray-500 mt-0.5">
+              Preview your draft changes first, then publish when ready.
+            </p>
+          </div>
+          <div className="flex items-center gap-3 flex-wrap">
+            <a
+              href="/api/preview/enable?redirect=/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 bg-white border-2 border-brand-red text-brand-red px-4 py-2 rounded-lg text-sm font-semibold hover:bg-brand-red/5 transition-colors"
+            >
+              <Eye size={15} aria-hidden="true" />
+              Preview Site
+            </a>
+            <PublishButton hasPending={pending} />
+          </div>
+        </div>
+
         {/* Quick stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
             { label: 'Service Pages', value: '6' },
-            { label: 'Reviews', value: '3' },
-            { label: 'Gallery Photos', value: '0' },
+            { label: 'Reviews (draft)', value: String(content.reviews.length) },
+            { label: 'Gallery Photos', value: String(content.gallery.length) },
             { label: 'Contact Form', value: 'Active' },
           ].map(({ label, value }) => (
             <div key={label} className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm">
@@ -136,7 +163,7 @@ export default async function AdminDashboardPage() {
                   </div>
                 </div>
                 <span
-                  className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                  className={`text-xs font-semibold px-2 py-1 rounded-full flex-shrink-0 ${
                     status === 'Available'
                       ? 'bg-green-100 text-green-700'
                       : 'bg-gray-100 text-gray-500'
@@ -162,13 +189,18 @@ export default async function AdminDashboardPage() {
           <h3 className="font-semibold text-brand-charcoal mb-3">Site Contact Info</h3>
           <div className="flex items-center gap-2 text-sm text-gray-600">
             <Phone size={14} className="text-brand-red" aria-hidden="true" />
-            Phone displayed on site: <strong>484-467-7925</strong>
+            Phone displayed on site: <strong>{content.contactPage.phone}</strong>
           </div>
           <p className="mt-2 text-xs text-gray-500">
-            Initial super-user access is controlled in Cognito. Future admin user management should be handled through the admin UI backed by Cognito user operations.
+            To update the phone number or hours, edit them in{' '}
+            <Link href="/admin/content" className="text-brand-red hover:underline">
+              Page Content
+            </Link>
+            .
           </p>
         </div>
       </main>
     </div>
   )
 }
+

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { CheckCircle, Star, Phone } from 'lucide-react'
 import Link from 'next/link'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import ServicePageHero from '@/components/sections/ServicePageHero'
 import InlineCta from '@/components/sections/InlineCta'
 import ContactForm from '@/components/sections/ContactForm'
@@ -16,17 +18,11 @@ export const metadata: Metadata = {
   },
 }
 
-const included = [
-  'Full design consultation and layout planning',
-  'Trex composite or treated wood deck materials',
-  'Custom railings, stairs, and built-in seating',
-  'Pergolas and shade structures',
-  'Deck lighting integration',
-  'Proper permits and code compliance',
-  'Post-build cleanup and inspection',
-]
-
-export default function DeckInstallationPage() {
+export default async function DeckInstallationPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const page = content.servicePages['deck-installation']
+  const included = page.included
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'Service',
@@ -49,10 +45,10 @@ export default function DeckInstallationPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
       />
       <ServicePageHero
-        title="Custom Deck Installation in Chester County, PA"
-        subtitle="TrexPro certified deck builders creating beautiful, durable outdoor living spaces for homeowners across Chester County and suburban Philadelphia."
+        title={page.title}
+        subtitle={page.subtitle}
         breadcrumb="Deck Installation"
-        badge="TrexPro Certified"
+        badge={page.badge}
       />
 
       <section className="py-20 bg-white">
@@ -96,9 +92,9 @@ export default function DeckInstallationPage() {
                   ))}
                 </div>
                 <blockquote className="text-gray-700 text-sm italic leading-relaxed">
-                  &ldquo;Can&apos;t say enough about working with Brandon Augustine. On time, great work, great attitude from the entire team. Will be my first call for next project.&rdquo;
+                  &ldquo;{page.reviewQuote?.text ?? "Can't say enough about working with Brandon Augustine. On time, great work, great attitude from the entire team. Will be my first call for next project."}&rdquo;
                 </blockquote>
-                <div className="mt-3 font-bold text-brand-charcoal text-sm">— Jeff Van de M.</div>
+                <div className="mt-3 font-bold text-brand-charcoal text-sm">— {page.reviewQuote?.name ?? 'Jeff Van de M.'}</div>
               </div>
               <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100">
                 <h3 className="font-serif text-xl font-bold text-brand-charcoal mb-6">

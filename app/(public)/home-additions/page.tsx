@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
 import { CheckCircle } from 'lucide-react'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import ServicePageHero from '@/components/sections/ServicePageHero'
 import InlineCta from '@/components/sections/InlineCta'
 import ContactForm from '@/components/sections/ContactForm'
@@ -11,22 +13,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/home-additions/' },
 }
 
-const included = [
-  'Full structural engineering coordination',
-  'Foundation and framing',
-  'Roofline integration and weatherproofing',
-  'Electrical, plumbing, and HVAC extension',
-  'Interior finishing to match existing home',
-  'Permit acquisition and code compliance',
-  'Architectural design assistance',
-]
-
-export default function HomeAdditionsPage() {
+export default async function HomeAdditionsPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const page = content.servicePages['home-additions']
+  const included = page.included
   return (
     <>
       <ServicePageHero
-        title="Home Additions in Chester County, PA"
-        subtitle="Need more space? We design and build seamless structural additions that complement your existing home — beautifully integrated and built to last."
+        title={page.title}
+        subtitle={page.subtitle}
         breadcrumb="Home Additions"
       />
       <section className="py-20 bg-white">

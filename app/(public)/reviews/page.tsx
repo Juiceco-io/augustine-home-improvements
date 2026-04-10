@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { Star } from 'lucide-react'
 import Link from 'next/link'
+import { draftMode } from 'next/headers'
+import { getDraftContent, getPublishedContent } from '@/lib/content'
 import InlineCta from '@/components/sections/InlineCta'
 
 export const metadata: Metadata = {
@@ -10,31 +12,11 @@ export const metadata: Metadata = {
   alternates: { canonical: '/reviews/' },
 }
 
-const reviews = [
-  {
-    name: 'Matthew G.',
-    project: 'Full Home Renovation',
-    location: 'Chester County, PA',
-    rating: 5,
-    text: 'Augustine Home Improvement LLC did a great job with our home renovation. Our house was a full gut job and Brandon and his team did an excellent job all around. The work was timely, professional and done well. My house was a full gut job that cost us over $200K. It included taking down load bearing walls (with engineering approval), replacing all flooring, two total bathroom replacements, drywall and wood panel removal, and almost a full house of drywall replacement as well as extensive electrical and plumbing work. I highly recommend them for any of your home improvement needs!',
-  },
-  {
-    name: 'Charmaine P.',
-    project: 'Kitchen Remodel',
-    location: 'Chester County, PA',
-    rating: 5,
-    text: "From start to finish of our kitchen remodel, Brandon kept us informed of the time frame. His crews were courteous and efficient. Work area was cleaned after every day. His suggestions were eye opening and welcomed. We love our kitchen and look forward to other projects completed by Augustine Home Improvements.",
-  },
-  {
-    name: 'Jeff Van de M.',
-    project: 'Home Improvement Project',
-    location: 'Chester County, PA',
-    rating: 5,
-    text: "Can't say enough about working with Brandon Augustine. On time, great work, great attitude from the entire team. Will be my first call for next project.",
-  },
-]
+export default async function ReviewsPage() {
+  const { isEnabled } = await draftMode()
+  const content = isEnabled ? await getDraftContent() : await getPublishedContent()
+  const reviews = content.reviews
 
-export default function ReviewsPage() {
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -89,9 +71,9 @@ export default function ReviewsPage() {
       <section className="py-20 bg-white">
         <div className="container-xl">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-            {reviews.map((review, i) => (
+            {reviews.map((review) => (
               <article
-                key={i}
+                key={review.id}
                 className="bg-brand-cream rounded-2xl p-7 border border-brand-brick/15 flex flex-col"
               >
                 <div className="flex gap-0.5 mb-4">
