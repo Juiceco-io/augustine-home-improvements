@@ -48,6 +48,7 @@ export default function PreviewShell({
     try {
       await publishConfig();
       setPublishStatus({ ok: true });
+      localStorage.removeItem("cms-pending-changes");
     } catch (e) {
       setPublishStatus({
         error: e instanceof Error ? e.message : "Publish failed",

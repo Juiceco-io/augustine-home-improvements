@@ -17,6 +17,21 @@ import ReviewsTab from "./ReviewsTab";
 const PUBLIC_SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.augustinehomeimprovements.com";
 
+const PENDING_CHANGES_KEY = "cms-pending-changes";
+
+const TAB_LABELS: Record<string, string> = {
+  branding: "Branding",
+  hero: "Hero",
+  homepage: "Homepage",
+  company: "Company",
+  reviews: "Reviews",
+  gallery: "Gallery",
+  contact: "Contact",
+  features: "Features",
+};
+
+type PendingChange = { tab: string; label: string; time: string };
+
 type Tab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features";
 
 interface Props {
@@ -30,6 +45,14 @@ export default function CMSDashboard({ onLogout }: Props) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedAt, setSavedAt] = useState<string | null>(null);
+  const [pendingChanges, setPendingChanges] = useState<PendingChange[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      return JSON.parse(localStorage.getItem(PENDING_CHANGES_KEY) ?? "[]");
+    } catch {
+      return [];
+    }
+  });
 
   const email = getCurrentUserEmail();
 
@@ -46,7 +69,19 @@ export default function CMSDashboard({ onLogout }: Props) {
     try {
       await putConfig(updated);
       setConfig(updated);
-      setSavedAt(new Date().toLocaleTimeString());
+      const time = new Date().toLocaleTimeString();
+      setSavedAt(time);
+      const newEntry: PendingChange = {
+        tab: activeTab,
+        label: TAB_LABELS[activeTab] ?? activeTab,
+        time,
+      };
+      const updatedChanges = [
+        ...pendingChanges.filter((c) => c.tab !== activeTab),
+        newEntry,
+      ];
+      setPendingChanges(updatedChanges);
+      localStorage.setItem(PENDING_CHANGES_KEY, JSON.stringify(updatedChanges));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Save failed");
     } finally {
@@ -111,6 +146,30 @@ export default function CMSDashboard({ onLogout }: Props) {
       </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+        {/* Pending changes */}
+        {pendingChanges.length > 0 && (
+          <div className="mb-6 px-4 py-4 rounded-lg bg-amber-50 border border-amber-200">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-amber-900">
+                Pending Changes — {pendingChanges.length} section{pendingChanges.length !== 1 ? "s" : ""} saved, not yet published
+              </h3>
+              <span className="text-xs text-amber-600 hidden sm:block">Preview then Publish to go live</span>
+            </div>
+            <ul className="flex flex-wrap gap-2">
+              {pendingChanges.map((change) => (
+                <li
+                  key={change.tab}
+                  className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-md px-2.5 py-1"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                  <span className="text-xs font-medium text-amber-800">{change.label}</span>
+                  <span className="text-xs text-amber-400">· {change.time}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
         {/* Status bar */}
         {(error || savedAt || saving) && (
           <div
