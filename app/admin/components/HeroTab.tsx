@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { uploadFile } from "../lib/api";
 import type { SiteConfig } from "../lib/types";
 import ImageUploader from "./ImageUploader";
@@ -17,10 +17,21 @@ export default function HeroTab({ config, onSave, saving }: Props) {
   const [subheadline, setSubheadline] = useState(config.hero.subheadline);
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [previewFailed, setPreviewFailed] = useState(false);
+
+  useEffect(() => {
+    setImageUrl(config.hero.imageUrl);
+    setHeadline(config.hero.headline);
+    setSubheadline(config.hero.subheadline);
+    setPreviewFailed(false);
+  }, [config.hero.imageUrl, config.hero.headline, config.hero.subheadline]);
+
+  const normalizedImageUrl = useMemo(() => imageUrl.trim(), [imageUrl]);
 
   async function handleHeroUpload(file: File) {
     setUploading(true);
     setUploadError(null);
+    setPreviewFailed(false);
     try {
       const cdnUrl = await uploadFile(file, "hero");
       setImageUrl(cdnUrl);
@@ -34,7 +45,7 @@ export default function HeroTab({ config, onSave, saving }: Props) {
   async function handleSave() {
     await onSave({
       ...config,
-      hero: { imageUrl, headline, subheadline },
+      hero: { imageUrl: normalizedImageUrl, headline, subheadline },
     });
   }
 
@@ -81,17 +92,46 @@ export default function HeroTab({ config, onSave, saving }: Props) {
             (optional — leave blank for gradient)
           </span>
         </p>
-        {imageUrl && (
+
+        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+          Image URL
+        </label>
+        <input
+          type="url"
+          value={imageUrl}
+          onChange={(e) => {
+            setImageUrl(e.target.value);
+            setPreviewFailed(false);
+          }}
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 mb-3"
+          placeholder="https://..."
+          spellCheck={false}
+          autoCapitalize="off"
+          autoCorrect="off"
+        />
+
+        {normalizedImageUrl && (
           <div className="mb-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageUrl}
-              alt="Hero preview"
-              className="w-full h-32 object-cover rounded-lg"
-            />
-            <p className="text-xs text-gray-400 mt-1 break-all">{imageUrl}</p>
+            {!previewFailed ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={normalizedImageUrl}
+                alt="Hero preview"
+                className="w-full h-32 object-cover rounded-lg bg-gray-100"
+                onLoad={() => setPreviewFailed(false)}
+                onError={() => setPreviewFailed(true)}
+              />
+            ) : (
+              <div className="w-full h-32 rounded-lg border border-red-200 bg-red-50 text-red-700 text-sm flex items-center justify-center px-4 text-center">
+                Preview couldn’t load this image. Double-check the URL or upload the image again.
+              </div>
+            )}
+            <p className="text-xs text-gray-400 mt-1 break-all">{normalizedImageUrl}</p>
             <button
-              onClick={() => setImageUrl("")}
+              onClick={() => {
+                setImageUrl("");
+                setPreviewFailed(false);
+              }}
               className="text-xs text-red-500 hover:underline mt-1"
             >
               Remove image (use gradient)
