@@ -35,6 +35,15 @@ export default function HeroTab({ config, onSave, saving }: Props) {
     try {
       const cdnUrl = await uploadFile(file, "hero");
       setImageUrl(cdnUrl);
+
+      await onSave({
+        ...config,
+        hero: {
+          imageUrl: cdnUrl.trim(),
+          headline,
+          subheadline,
+        },
+      });
     } catch (e) {
       setUploadError(e instanceof Error ? e.message : "Upload failed");
     } finally {
@@ -54,6 +63,7 @@ export default function HeroTab({ config, onSave, saving }: Props) {
       <h2 className="text-xl font-bold text-gray-900 mb-1">Hero Section</h2>
       <p className="text-sm text-gray-500 mb-8">
         Update the headline, subheadline, and background image on the home page.
+        Uploaded hero images are published immediately; text edits still require Save Changes.
       </p>
 
       {/* Headline */}
