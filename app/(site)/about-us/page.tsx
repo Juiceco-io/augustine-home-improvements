@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ClientOnly from "@/components/ClientOnly";
 import AboutPageContent from "./AboutPageContent";
 
 export const metadata: Metadata = {
@@ -27,7 +28,9 @@ export default function AboutPage() {
           </ol>
         </nav>
 
-        <AboutPageContent />
+        <ClientOnly>
+          <AboutPageContent />
+        </ClientOnly>
       </div>
     </div>
   );

@@ -114,6 +114,39 @@ export default function RootLayout({
     <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
         <script
+          dangerouslySetInnerHTML={{
+            __html: `(() => {
+  const STORAGE_KEY = "augustine.site-config";
+  const CONFIG_URL = "/site-config.json";
+
+  const normalize = (value) => {
+    if (!value || typeof value !== "object") return null;
+    return value;
+  };
+
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = normalize(JSON.parse(stored));
+      if (parsed) window.__AUGUSTINE_SITE_CONFIG__ = parsed;
+    }
+  } catch {}
+
+  fetch(CONFIG_URL, { cache: "no-store" })
+    .then((response) => (response.ok ? response.json() : null))
+    .then((config) => {
+      const parsed = normalize(config);
+      if (!parsed) return;
+      window.__AUGUSTINE_SITE_CONFIG__ = parsed;
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      } catch {}
+    })
+    .catch(() => {});
+})();`,
+          }}
+        />
+        <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
