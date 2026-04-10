@@ -8,6 +8,7 @@ interface ServicePageProps {
   description: string;
   highlights: string[];
   breadcrumb: string;
+  basePath?: string;
 }
 
 export default function ServicePage({
@@ -16,6 +17,7 @@ export default function ServicePage({
   description,
   highlights,
   breadcrumb,
+  basePath = "",
 }: ServicePageProps) {
   return (
     <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
@@ -24,13 +26,13 @@ export default function ServicePage({
         <nav aria-label="Breadcrumb" className="mb-5 md:mb-6">
           <ol className="flex items-center gap-2 text-sm text-gray-500">
             <li>
-              <Link href="/" className="hover:text-brand-red transition-colors">
+              <Link href={`${basePath}/`} className="hover:text-brand-red transition-colors">
                 Home
               </Link>
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <Link href="/#services" className="hover:text-brand-red transition-colors">
+              <Link href={`${basePath}/#services`} className="hover:text-brand-red transition-colors">
                 Services
               </Link>
             </li>

@@ -14,7 +14,7 @@ const services = [
   { href: "/home-renovations/", label: "Home Renovations" },
 ];
 
-export default function Footer() {
+export default function Footer({ basePath = "" }: { basePath?: string }) {
   const config = useSiteConfig();
   const trustIcons = [Shield, Star, Award];
 
@@ -61,7 +61,7 @@ export default function Footer() {
               {services.map((s) => (
                 <li key={s.href}>
                   <Link
-                    href={s.href}
+                    href={`${basePath}${s.href}`}
                     className="text-sm text-gray-400 hover:text-white transition-colors duration-150"
                   >
                     {s.label}
@@ -110,7 +110,7 @@ export default function Footer() {
               </li>
             </ul>
             <Link
-              href="/contact-us/"
+              href={`${basePath}/contact-us/`}
               className="btn-primary text-sm py-2.5 px-5 w-full justify-center sm:w-auto lg:w-full"
             >
               Get a Free Estimate
@@ -126,13 +126,13 @@ export default function Footer() {
           </p>
           <nav className="flex items-center gap-5" aria-label="Footer legal links">
             <Link
-              href="/privacy-policy/"
+              href={`${basePath}/privacy-policy/`}
               className="hover:text-gray-300 transition-colors duration-150"
             >
               Privacy Policy
             </Link>
             <Link
-              href="/contact-us/"
+              href={`${basePath}/contact-us/`}
               className="hover:text-gray-300 transition-colors duration-150"
             >
               Contact

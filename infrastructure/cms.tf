@@ -556,21 +556,40 @@ resource "aws_iam_role_policy" "lambda_cms_config_s3" {
         # missing key returns NoSuchKey (404) rather than AccessDenied (403).
         # Without it the Lambda catches AccessDenied as a generic error and
         # returns 500 instead of the intended 404 "not found" response.
+        # Covers both the live config key and the draft key.
         Effect   = "Allow"
         Action   = ["s3:ListBucket"]
         Resource = aws_s3_bucket.cms_config.arn
         Condition = {
           StringLike = {
-            "s3:prefix" = ["config/site-config.json"]
+            "s3:prefix" = ["config/site-config.json", "config/draft-site-config.json"]
           }
         }
       },
       {
-        Effect   = "Allow"
-        Action   = ["s3:GetObject", "s3:PutObject"]
-        Resource = "${aws_s3_bucket.cms_config.arn}/config/site-config.json"
+        Effect = "Allow"
+        Action = ["s3:GetObject", "s3:PutObject"]
+        Resource = [
+          "${aws_s3_bucket.cms_config.arn}/config/site-config.json",
+          "${aws_s3_bucket.cms_config.arn}/config/draft-site-config.json",
+        ]
       }
     ]
+  })
+}
+
+# Allow the cms-config Lambda to create CloudFront cache invalidations on
+# the main site distribution when the admin publishes a draft.
+resource "aws_iam_role_policy" "lambda_cms_config_cloudfront" {
+  name = "cms-config-cloudfront-invalidation"
+  role = aws_iam_role.lambda_cms_config.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect   = "Allow"
+      Action   = ["cloudfront:CreateInvalidation"]
+      Resource = "arn:aws:cloudfront::${data.aws_caller_identity.current.account_id}:distribution/${aws_cloudfront_distribution.site.id}"
+    }]
   })
 }
 
@@ -662,14 +681,16 @@ locals {
   ])
 
   cms_env = {
-    CONFIG_BUCKET  = aws_s3_bucket.cms_config.bucket
-    MEDIA_BUCKET   = aws_s3_bucket.cms_media.bucket
-    CONFIG_KEY     = "config/site-config.json"
-    UPLOADS_PREFIX = "uploads/"
+    CONFIG_BUCKET              = aws_s3_bucket.cms_config.bucket
+    MEDIA_BUCKET               = aws_s3_bucket.cms_media.bucket
+    CONFIG_KEY                 = "config/site-config.json"
+    DRAFT_KEY                  = "config/draft-site-config.json"
+    UPLOADS_PREFIX             = "uploads/"
     # Comma-separated list — Lambda checks incoming Origin against this set
     # and reflects the matching origin back (required for credentialed requests).
-    ALLOWED_ORIGINS = local.cms_allowed_origins
-    CDN_BASE_URL    = local.use_cdn_domain ? "https://${local.cdn_domain}" : "https://${aws_cloudfront_distribution.cms_cdn.domain_name}"
+    ALLOWED_ORIGINS            = local.cms_allowed_origins
+    CDN_BASE_URL               = local.use_cdn_domain ? "https://${local.cdn_domain}" : "https://${aws_cloudfront_distribution.cms_cdn.domain_name}"
+    CLOUDFRONT_DISTRIBUTION_ID = aws_cloudfront_distribution.site.id
   }
 }
 

@@ -19,6 +19,7 @@
 
 import { useState, useEffect } from "react";
 import { type SiteConfig, defaultConfig, normalizeSiteConfig } from "./siteConfig";
+import { useSiteConfigContext } from "./SiteConfigContext";
 
 const CONFIG_URL = "/site-config.json";
 const STORAGE_KEY = "augustine.site-config";
@@ -90,9 +91,18 @@ async function fetchConfig(): Promise<SiteConfig> {
 }
 
 export function useSiteConfig(): SiteConfig {
-  const [config, setConfig] = useState<SiteConfig>(() => cached ?? getBootstrapConfig() ?? defaultConfig);
+  const contextConfig = useSiteConfigContext();
+
+  const [config, setConfig] = useState<SiteConfig>(() => contextConfig ?? cached ?? getBootstrapConfig() ?? defaultConfig);
 
   useEffect(() => {
+    // In preview mode the config is injected via SiteConfigProvider —
+    // skip CDN fetching and polling entirely.
+    if (contextConfig !== null) {
+      setConfig(contextConfig);
+      return;
+    }
+
     let cancelled = false;
     fetchConfig().then((data) => {
       if (!cancelled) setConfig(data);
@@ -109,7 +119,7 @@ export function useSiteConfig(): SiteConfig {
       cancelled = true;
       clearInterval(interval);
     };
-  }, []);
+  }, [contextConfig]);
 
   return config;
 }

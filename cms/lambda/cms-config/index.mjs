@@ -1,16 +1,20 @@
 /**
  * Lambda: cms-config
  *
- * GET  /config → returns the current site-config.json from S3
- * PUT  /config → validates + writes a new site-config.json to S3
+ * GET  /config → returns the current DRAFT config (falls back to live if no draft)
+ * PUT  /config → validates + writes to DRAFT only (does NOT go live)
+ * POST /config → publishes draft → live + CloudFront invalidation
  *
  * Protected by API Gateway Cognito authorizer.
- * IAM role grants s3:GetObject + s3:PutObject on the config bucket/key only.
+ * IAM role grants s3:GetObject + s3:PutObject on both live and draft keys,
+ * plus cloudfront:CreateInvalidation on the site distribution.
  *
  * Environment variables (set via Terraform):
- *   CONFIG_BUCKET  — S3 bucket name for config (e.g. augustine-config-prod-xxxx)
- *   CONFIG_KEY     — S3 key (e.g. config/site-config.json)
- *   ALLOWED_ORIGIN — CORS origin (e.g. https://admin.augustinehomeimprovements.com)
+ *   CONFIG_BUCKET              — S3 bucket name for config
+ *   CONFIG_KEY                 — S3 key for live config (e.g. config/site-config.json)
+ *   DRAFT_KEY                  — S3 key for draft config (e.g. config/draft-site-config.json)
+ *   CLOUDFRONT_DISTRIBUTION_ID — Site CloudFront distribution ID for cache invalidation
+ *   ALLOWED_ORIGIN / ALLOWED_ORIGINS — CORS origins
  */
 
 import {
@@ -18,11 +22,18 @@ import {
   GetObjectCommand,
   PutObjectCommand,
 } from "@aws-sdk/client-s3";
+import {
+  CloudFrontClient,
+  CreateInvalidationCommand,
+} from "@aws-sdk/client-cloudfront";
 
 const s3 = new S3Client({});
+const cf = new CloudFrontClient({});
 
 const BUCKET = process.env.CONFIG_BUCKET;
 const KEY = process.env.CONFIG_KEY ?? "config/site-config.json";
+const DRAFT_KEY = process.env.DRAFT_KEY ?? "config/draft-site-config.json";
+const CF_DISTRIBUTION_ID = process.env.CLOUDFRONT_DISTRIBUTION_ID;
 
 // ALLOWED_ORIGINS is a comma-separated list of allowed origins.
 // Falls back to the legacy ALLOWED_ORIGIN single-value env var.
@@ -52,7 +63,7 @@ function corsHeaders(event) {
   return {
     "Access-Control-Allow-Origin": resolveOrigin(event),
     "Access-Control-Allow-Headers": "Authorization,Content-Type",
-    "Access-Control-Allow-Methods": "GET,PUT,OPTIONS",
+    "Access-Control-Allow-Methods": "GET,PUT,POST,OPTIONS",
   };
 }
 
@@ -72,6 +83,17 @@ function err(event, message, status = 400) {
   };
 }
 
+/** Read a JSON object from S3. Returns null if the key does not exist. */
+async function readS3Json(key) {
+  try {
+    const res = await s3.send(new GetObjectCommand({ Bucket: BUCKET, Key: key }));
+    return JSON.parse(await res.Body.transformToString());
+  } catch (e) {
+    if (e.name === "NoSuchKey") return null;
+    throw e;
+  }
+}
+
 export async function handler(event) {
   const method = event.httpMethod ?? event.requestContext?.http?.method ?? "GET";
 
@@ -80,22 +102,23 @@ export async function handler(event) {
     return { statusCode: 204, headers: corsHeaders(event), body: "" };
   }
 
+  // GET /config — return draft config, falling back to live if no draft exists yet
   if (method === "GET") {
     try {
-      const res = await s3.send(
-        new GetObjectCommand({ Bucket: BUCKET, Key: KEY })
-      );
-      const body = await res.Body.transformToString();
-      return ok(event, JSON.parse(body));
+      const draft = await readS3Json(DRAFT_KEY);
+      if (draft) return ok(event, draft);
+
+      const live = await readS3Json(KEY);
+      if (live) return ok(event, live);
+
+      return err(event, "Config not found — upload initial site-config.json first", 404);
     } catch (e) {
-      if (e.name === "NoSuchKey") {
-        return err(event, "Config not found — upload initial site-config.json first", 404);
-      }
       console.error("GET config error:", e);
       return err(event, "Failed to read config", 500);
     }
   }
 
+  // PUT /config — save changes to DRAFT only (does not affect the live site)
   if (method === "PUT") {
     let incoming;
     try {
@@ -104,7 +127,6 @@ export async function handler(event) {
       return err(event, "Invalid JSON body");
     }
 
-    // Basic shape validation — catch obvious mistakes
     if (typeof incoming !== "object" || Array.isArray(incoming)) {
       return err(event, "Body must be a JSON object");
     }
@@ -112,45 +134,86 @@ export async function handler(event) {
       return err(event, "Missing required fields: brand, hero, contact, features");
     }
 
-    // Fetch current config to increment version
+    // Read version from existing draft, or fall back to live config
     let currentVersion = 0;
     try {
-      const res = await s3.send(
-        new GetObjectCommand({ Bucket: BUCKET, Key: KEY })
-      );
-      const current = JSON.parse(await res.Body.transformToString());
-      currentVersion = current._version ?? 0;
+      const current = (await readS3Json(DRAFT_KEY)) ?? (await readS3Json(KEY));
+      currentVersion = current?._version ?? 0;
     } catch {
       // First write — start at version 0
     }
 
-    // Get the caller's email from Cognito claims (injected by API GW Cognito authorizer)
     const claims =
       event.requestContext?.authorizer?.claims ??
       event.requestContext?.authorizer ?? {};
     const updatedBy = claims.email ?? claims.sub ?? "unknown";
 
-    const newConfig = {
+    const draft = {
       ...incoming,
       _version: currentVersion + 1,
       _updatedAt: new Date().toISOString(),
       _updatedBy: updatedBy,
+      _isDraft: true,
     };
 
     try {
       await s3.send(
         new PutObjectCommand({
           Bucket: BUCKET,
-          Key: KEY,
-          Body: JSON.stringify(newConfig, null, 2),
+          Key: DRAFT_KEY,
+          Body: JSON.stringify(draft, null, 2),
           ContentType: "application/json",
-          // Versioning is on — S3 keeps the previous version automatically
         })
       );
-      return ok(event, { ok: true, version: newConfig._version });
+      return ok(event, { ok: true, version: draft._version, draft: true });
     } catch (e) {
-      console.error("PUT config error:", e);
-      return err(event, "Failed to write config", 500);
+      console.error("PUT draft error:", e);
+      return err(event, "Failed to write draft", 500);
+    }
+  }
+
+  // POST /config — publish draft to live + invalidate CloudFront cache
+  if (method === "POST") {
+    try {
+      const draft = await readS3Json(DRAFT_KEY);
+      if (!draft) {
+        return err(event, "No draft to publish — save changes in the CMS first", 404);
+      }
+
+      // Strip the draft marker before publishing
+      const { _isDraft, ...liveConfig } = draft;
+
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: BUCKET,
+          Key: KEY,
+          Body: JSON.stringify(liveConfig, null, 2),
+          ContentType: "application/json",
+        })
+      );
+
+      // Invalidate CloudFront so the live site picks up changes immediately
+      if (CF_DISTRIBUTION_ID) {
+        try {
+          await cf.send(
+            new CreateInvalidationCommand({
+              DistributionId: CF_DISTRIBUTION_ID,
+              InvalidationBatch: {
+                CallerReference: `publish-${Date.now()}`,
+                Paths: { Quantity: 1, Items: ["/*"] },
+              },
+            })
+          );
+        } catch (cfErr) {
+          // Log but don't fail the publish — live config is already updated
+          console.error("CloudFront invalidation failed (non-fatal):", cfErr);
+        }
+      }
+
+      return ok(event, { ok: true, version: liveConfig._version });
+    } catch (e) {
+      console.error("POST publish error:", e);
+      return err(event, "Failed to publish", 500);
     }
   }
 

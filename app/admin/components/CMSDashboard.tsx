@@ -91,8 +91,15 @@ export default function CMSDashboard({ onLogout }: Props) {
               rel="noopener noreferrer"
               className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
             >
-              View Site ↗
+              View Live Site ↗
             </a>
+            <button
+              onClick={() => window.open("/admin/preview/", "_blank")}
+              className="text-sm font-medium text-white px-3 py-1.5 rounded-lg transition-colors"
+              style={{ background: "linear-gradient(135deg, #26463f, #4b776b)" }}
+            >
+              Preview Site →
+            </button>
             <button
               onClick={onLogout}
               className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
@@ -117,7 +124,7 @@ export default function CMSDashboard({ onLogout }: Props) {
               ? `Error: ${error}`
               : saving
                 ? "Saving…"
-                : `Saved at ${savedAt}. Changes appear on the live site for this environment within ~60 seconds.`}
+                : `Draft saved at ${savedAt}. Click 'Preview Site' to review, then Publish when ready.`}
           </div>
         )}
 

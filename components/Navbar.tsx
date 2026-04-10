@@ -22,7 +22,7 @@ const navLinks = [
   { href: "/contact-us/", label: "Contact" },
 ];
 
-export default function Navbar() {
+export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: string; topOffset?: number }) {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -54,10 +54,11 @@ export default function Navbar() {
         isSolid ? "navbar-solid py-3 lg:py-4" : "navbar-hero py-4 lg:pt-7"
       }`}
       role="banner"
+      style={topOffset ? { top: topOffset } : undefined}
     >
       <div className="container-xl flex items-center justify-between">
         <Link
-          href="/"
+          href={basePath || "/"}
           className="flex items-center group flex-shrink-0"
           aria-label="Augustine Home Improvements — Home"
         >
@@ -85,7 +86,7 @@ export default function Navbar() {
               {services.map((s) => (
                 <Link
                   key={s.href}
-                  href={s.href}
+                  href={`${basePath}${s.href}`}
                   className="block px-4 py-2.5 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream transition-colors"
                 >
                   {s.label}
@@ -97,7 +98,7 @@ export default function Navbar() {
           {navLinks.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={`${basePath}${link.href}`}
               className={`font-semibold text-sm transition-colors nav-link-underline ${
                 isSolid
                   ? "text-gray-700 hover:text-brand-primary"
@@ -150,7 +151,7 @@ export default function Navbar() {
           {services.map((s) => (
             <Link
               key={s.href}
-              href={s.href}
+              href={`${basePath}${s.href}`}
               onClick={() => setIsOpen(false)}
               className="block px-3 py-2.5 text-sm font-medium text-gray-700 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-lg transition-colors"
             >
@@ -163,7 +164,7 @@ export default function Navbar() {
           {navLinks.map((link) => (
             <Link
               key={link.href}
-              href={link.href}
+              href={`${basePath}${link.href}`}
               onClick={() => setIsOpen(false)}
               className="block px-3 py-2.5 text-sm font-semibold text-gray-800 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-lg transition-colors"
             >

@@ -115,3 +115,16 @@ export async function listMedia(
   const data = await res.json();
   return data.items ?? [];
 }
+
+/** Publish the current draft config to the live site and invalidate CloudFront cache. */
+export async function publishConfig(): Promise<{ ok: boolean; version: number }> {
+  const res = await fetch(`${API_URL}/config`, {
+    method: "POST",
+    headers: await authHeaders(),
+  });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error ?? `POST /config failed: ${res.status}`);
+  }
+  return res.json();
+}
