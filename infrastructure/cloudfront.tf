@@ -54,13 +54,18 @@ resource "aws_cloudfront_response_headers_policy" "security_headers" {
     }
 
     content_security_policy {
+      # img-src breakdown:
+      #   'self'                                         - same-origin site assets
+      #   data:                                          - inline/admin previews
+      #   https://cdn.augustinehomeimprovements.com      - prod CMS CDN alias
+      #   https://${aws_cloudfront_distribution.cms_cdn.domain_name} - dev/default CMS CDN hostname
       # connect-src breakdown:
       #   'self'                                         - same-origin XHR / fetch
       #   https://cognito-idp.us-east-1.amazonaws.com   - Cognito auth (SRP, token refresh)
       #   https://*.execute-api.us-east-1.amazonaws.com - CMS API Gateway (config / upload / media)
       #   https://*.s3.amazonaws.com                    - S3 presigned PUT for image uploads
       #   https://*.s3.us-east-1.amazonaws.com          - regional S3 variant used by presigned URLs
-      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.augustinehomeimprovements.com https://*.cloudfront.net; connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com https://*.execute-api.us-east-1.amazonaws.com https://*.s3.amazonaws.com https://*.s3.us-east-1.amazonaws.com; frame-ancestors 'none'"
+      content_security_policy = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https://cdn.augustinehomeimprovements.com https://${aws_cloudfront_distribution.cms_cdn.domain_name}; connect-src 'self' https://cognito-idp.us-east-1.amazonaws.com https://*.execute-api.us-east-1.amazonaws.com https://*.s3.amazonaws.com https://*.s3.us-east-1.amazonaws.com; frame-ancestors 'none'"
       override                = true
     }
   }
