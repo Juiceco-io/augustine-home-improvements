@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import ClientOnly from "@/components/ClientOnly";
 import ReviewsPageContent from "./ReviewsPageContent";
 
 export const metadata: Metadata = {
@@ -27,7 +28,9 @@ export default function ReviewsPage() {
           </ol>
         </nav>
 
-        <ReviewsPageContent />
+        <ClientOnly>
+          <ReviewsPageContent />
+        </ClientOnly>
       </div>
     </div>
   );

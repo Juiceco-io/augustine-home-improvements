@@ -21,10 +21,49 @@ import { useState, useEffect } from "react";
 import { type SiteConfig, defaultConfig, normalizeSiteConfig } from "./siteConfig";
 
 const CONFIG_URL = "/site-config.json";
+const STORAGE_KEY = "augustine.site-config";
+
+declare global {
+  interface Window {
+    __AUGUSTINE_SITE_CONFIG__?: Partial<SiteConfig>;
+  }
+}
 
 let cached: SiteConfig | null = null;
 let lastFetchedAt = 0;
 const DEDUPE_MS = 60_000;
+
+function getBootstrapConfig(): SiteConfig | null {
+  if (typeof window === "undefined") return null;
+
+  const bootstrap = window.__AUGUSTINE_SITE_CONFIG__;
+  if (bootstrap) {
+    const normalized = normalizeSiteConfig(bootstrap);
+    cached = normalized;
+    return normalized;
+  }
+
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const normalized = normalizeSiteConfig(JSON.parse(raw) as Partial<SiteConfig>);
+    cached = normalized;
+    return normalized;
+  } catch {
+    return null;
+  }
+}
+
+function persistConfig(config: SiteConfig) {
+  if (typeof window === "undefined") return;
+
+  window.__AUGUSTINE_SITE_CONFIG__ = config;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+  } catch {
+    // Ignore storage write failures.
+  }
+}
 
 async function fetchConfig(): Promise<SiteConfig> {
   const now = Date.now();
@@ -39,6 +78,7 @@ async function fetchConfig(): Promise<SiteConfig> {
     const data = normalizeSiteConfig((await res.json()) as Partial<SiteConfig>);
     cached = data;
     lastFetchedAt = now;
+    persistConfig(data);
     return data;
   } catch (err) {
     // Fail gracefully — site continues working with defaults
@@ -50,7 +90,7 @@ async function fetchConfig(): Promise<SiteConfig> {
 }
 
 export function useSiteConfig(): SiteConfig {
-  const [config, setConfig] = useState<SiteConfig>(cached ?? defaultConfig);
+  const [config, setConfig] = useState<SiteConfig>(() => cached ?? getBootstrapConfig() ?? defaultConfig);
 
   useEffect(() => {
     let cancelled = false;

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Shield, Star, Award } from "lucide-react";
+import ClientOnly from "@/components/ClientOnly";
 import ContactForm from "./ContactForm";
 import ContactInfoPanel from "./ContactInfoPanel";
 
@@ -40,7 +41,9 @@ export default function ContactPage() {
               you need immediate assistance, please call us.
             </p>
 
-            <ContactForm />
+            <ClientOnly>
+              <ContactForm />
+            </ClientOnly>
           </div>
 
           {/* Right: contact info */}
@@ -50,7 +53,9 @@ export default function ContactPage() {
                 Contact Information
               </h2>
               {/* CMS-driven phone, email, and service area */}
-              <ContactInfoPanel />
+              <ClientOnly>
+                <ContactInfoPanel />
+              </ClientOnly>
             </div>
 
             {/* Trust indicators */}

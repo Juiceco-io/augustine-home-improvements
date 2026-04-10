@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ClientOnly from "@/components/ClientOnly";
 import HomePageContent from "./HomePageContent";
 
 export const metadata: Metadata = {
@@ -11,5 +12,9 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
-  return <HomePageContent />;
+  return (
+    <ClientOnly>
+      <HomePageContent />
+    </ClientOnly>
+  );
 }

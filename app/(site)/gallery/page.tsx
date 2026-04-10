@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import ClientOnly from "@/components/ClientOnly";
 import GalleryGrid from "./GalleryGrid";
 import GalleryCta from "./GalleryCta";
 
@@ -31,11 +32,15 @@ export default function GalleryPage() {
 
       <section className="py-14 md:py-20 bg-white">
         <div className="container-xl">
-          <GalleryGrid />
+          <ClientOnly>
+            <GalleryGrid />
+          </ClientOnly>
         </div>
       </section>
 
-      <GalleryCta />
+      <ClientOnly>
+        <GalleryCta />
+      </ClientOnly>
     </>
   );
 }

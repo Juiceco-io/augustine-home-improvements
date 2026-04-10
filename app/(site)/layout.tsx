@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ClientOnly from "@/components/ClientOnly";
 
 export default function SiteLayout({
   children,
@@ -8,9 +9,13 @@ export default function SiteLayout({
 }) {
   return (
     <>
-      <Navbar />
+      <ClientOnly>
+        <Navbar />
+      </ClientOnly>
       <main className="flex-1">{children}</main>
-      <Footer />
+      <ClientOnly>
+        <Footer />
+      </ClientOnly>
     </>
   );
 }
