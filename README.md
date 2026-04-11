@@ -52,9 +52,13 @@ Terraform lives in `infrastructure/`. Uses the same S3/CloudFront pattern as com
 
 ### Contact Form
 
-The contact form uses a fake-success UX until `NEXT_PUBLIC_CONTACT_API_URL` is set. To wire it for real:
-- Add an API Gateway + Lambda in `infrastructure/` (see company-homepage's `contact_form.tf` for the pattern)
-- Set `NEXT_PUBLIC_CONTACT_API_URL` as a GitHub Actions environment variable
+The contact form sends submissions via a Lambda + API Gateway endpoint backed by SES.
+`NEXT_PUBLIC_CONTACT_API_URL` is automatically set from the `contact_api_url` Terraform output
+during the CI/CD pipeline — no manual configuration needed.
+
+- **From address:** `noreply@<ses_domain>` (must be within the SES-verified domain)
+- **To address:** controlled by the `contact_to_email` Terraform variable (default: `contact@augustinehomeimprovements.com`)
+- Override `contact_to_email` in `infrastructure/terraform.tfvars` or as a CI environment variable.
 
 ## CMS
 

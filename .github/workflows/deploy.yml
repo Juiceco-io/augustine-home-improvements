@@ -73,6 +73,7 @@ jobs:
       cms_cognito_user_pool_id: ${{ steps.tf-output.outputs.cms_cognito_user_pool_id }}
       cms_cognito_client_id: ${{ steps.tf-output.outputs.cms_cognito_client_id }}
       cms_api_url: ${{ steps.tf-output.outputs.cms_api_url }}
+      contact_api_url: ${{ steps.tf-output.outputs.contact_api_url }}
 
     steps:
       - name: Checkout
@@ -110,6 +111,9 @@ jobs:
           # The password is set by an explicit post-apply step (see below) that re-assumes
           # the deployer role so it has cognito-idp permissions on the dev account.
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
+          # CONTACT_TO_EMAIL: GitHub Actions variable (Settings → Environments → Variables)
+          # Must be a verified SES address while the account is in SES sandbox mode.
+          TF_VAR_contact_to_email: ${{ vars.CONTACT_TO_EMAIL }}
         run: |
           terraform plan \
             -var="environment=${{ needs.set-environment.outputs.environment }}" \
@@ -121,6 +125,7 @@ jobs:
         working-directory: ${{ env.TF_DIR }}
         env:
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
+          TF_VAR_contact_to_email: ${{ vars.CONTACT_TO_EMAIL }}
           # ADMIN_PASSWORD is only used by the explicit post-apply step below.
           # No longer passed to Terraform (null_resource local-exec was removed
           # because it ran under the state-role which has no Cognito permissions).
@@ -256,6 +261,7 @@ jobs:
           POOL_ID=$(terraform output -raw cms_cognito_user_pool_id)
           CLIENT_ID=$(terraform output -raw cms_cognito_client_id)
           API_URL=$(terraform output -raw cms_api_url)
+          CONTACT_API_URL=$(terraform output -raw contact_api_url)
           ADMIN_SEEDED=$(terraform output -raw cms_admin_user_created)
           echo "cloudfront_distribution_id=$CF_ID" >> "$GITHUB_OUTPUT"
           echo "s3_bucket_name=$BUCKET" >> "$GITHUB_OUTPUT"
@@ -263,8 +269,10 @@ jobs:
           echo "cms_cognito_user_pool_id=$POOL_ID" >> "$GITHUB_OUTPUT"
           echo "cms_cognito_client_id=$CLIENT_ID" >> "$GITHUB_OUTPUT"
           echo "cms_api_url=$API_URL" >> "$GITHUB_OUTPUT"
+          echo "contact_api_url=$CONTACT_API_URL" >> "$GITHUB_OUTPUT"
           echo "::notice title=CloudFront URL::$CF_DOMAIN"
           echo "::notice title=CMS API URL::$API_URL"
+          echo "::notice title=Contact API URL::$CONTACT_API_URL"
           if [ "$ADMIN_SEEDED" = "true" ]; then
             echo "::notice title=Admin User::Cognito admin user seeded. Set password with: aws cognito-idp admin-set-user-password --user-pool-id $POOL_ID --username <email> --password '<PASSWORD>' --permanent"
           fi
@@ -287,7 +295,7 @@ jobs:
       NEXT_PUBLIC_CMS_API_URL: ${{ needs.terraform-apply.outputs.cms_api_url }}
       NEXT_PUBLIC_CMS_CONFIG_URL: ${{ needs.terraform-apply.outputs.cms_config_url }}
       NEXT_PUBLIC_SITE_URL: ${{ needs.terraform-apply.outputs.cloudfront_domain_name }}
-      # NEXT_PUBLIC_CONTACT_API_URL: not wired yet — fake-success UX handles it
+      NEXT_PUBLIC_CONTACT_API_URL: ${{ needs.terraform-apply.outputs.contact_api_url }}
 
     steps:
       - name: Checkout

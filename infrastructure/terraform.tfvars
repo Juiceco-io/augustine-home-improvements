@@ -10,3 +10,7 @@ aws_region  = "us-east-1"
 # Once the domain is verified, request SES production access from the AWS Console.
 ses_domain         = "augustinehomeimprovements.com"
 cognito_from_email = "noreply@augustinehomeimprovements.com"
+
+# contact_to_email is NOT set here — it comes from the CONTACT_TO_EMAIL GitHub
+# Actions environment variable (Settings → Environments → Variables).
+# For local Terraform runs: export TF_VAR_contact_to_email="your@email.com"

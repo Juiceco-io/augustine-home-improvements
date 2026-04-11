@@ -60,4 +60,21 @@ variable "admin_email" {
   default     = ""
 }
 
+variable "contact_to_email" {
+  description = <<-EOT
+    Email address that receives contact form submissions.
+    Set as CONTACT_TO_EMAIL in GitHub Actions environment variables
+    (Settings → Environments → Variables).
+    While SES is in sandbox mode this address must be individually verified in SES.
+    Example: "mark@augustinehomeimprovements.com"
+  EOT
+  type    = string
+  default = ""
+
+  validation {
+    condition     = var.contact_to_email != ""
+    error_message = "contact_to_email must be set. Add CONTACT_TO_EMAIL as a GitHub Actions environment variable."
+  }
+}
+
 

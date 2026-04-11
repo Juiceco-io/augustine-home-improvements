@@ -42,6 +42,11 @@ output "cms_api_url" {
   value       = aws_api_gateway_stage.cms.invoke_url
 }
 
+output "contact_api_url" {
+  description = "Contact form API invoke URL (set as NEXT_PUBLIC_CONTACT_API_URL in Next.js build)"
+  value       = "${aws_api_gateway_stage.contact.invoke_url}/contact"
+}
+
 output "cms_cdn_domain" {
   description = "CloudFront domain for CMS media CDN."
   value       = "https://${aws_cloudfront_distribution.cms_cdn.domain_name}"
