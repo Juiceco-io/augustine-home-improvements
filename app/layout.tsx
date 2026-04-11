@@ -1,170 +1,159 @@
-import type { Metadata } from 'next'
-import { DM_Sans, Playfair_Display } from 'next/font/google'
-import './globals.css'
-import Header from '@/components/layout/Header'
-import Footer from '@/components/layout/Footer'
-import StickyCtaMobile from '@/components/ui/StickyCtaMobile'
-import GoogleAnalytics from '@/components/ui/GoogleAnalytics'
-import PreviewBanner from '@/components/ui/PreviewBanner'
+import type { Metadata } from "next";
+import { Inter, Playfair_Display } from "next/font/google";
+import "./globals.css";
 
-const dmSans = DM_Sans({
-  subsets: ['latin'],
-  variable: '--font-dm-sans',
-  display: 'swap',
-})
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 const playfair = Playfair_Display({
-  subsets: ['latin'],
-  variable: '--font-playfair',
-  display: 'swap',
-})
-
-const SITE_URL = 'https://www.augustinehomeimprovements.com'
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-playfair",
+});
 
 export const metadata: Metadata = {
-  metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Augustine Home Improvements | Chester County PA | 484-467-7925',
-    template: '%s | Augustine Home Improvements',
+    default:
+      "Augustine Home Improvements — Chester County PA Contractor",
+    template: "%s | Augustine Home Improvements",
   },
   description:
-    'Veteran-owned home improvement contractor serving Chester County PA & suburban Philadelphia. Decks, kitchens, bathrooms, basements & full renovations. Call 484-467-7925.',
+    "Veteran-owned home improvement contractor serving Chester County PA and suburban Philadelphia. Specializing in decks, kitchens, bathrooms, basements, and full home renovations.",
   keywords: [
-    'home improvements Chester County PA',
-    'contractor Chester County',
-    'deck installation Chester County',
-    'kitchen remodeling Chester County',
-    'bathroom remodeling Chester County PA',
-    'home renovations Phoenixville PA',
-    'TrexPro deck installer',
-    'veteran owned contractor Pennsylvania',
-    'suburban Philadelphia contractor',
+    "home improvements Chester County PA",
+    "contractor Chester County",
+    "deck installation Chester County",
+    "kitchen remodeling Chester County",
+    "bathroom remodeling Chester County PA",
+    "home renovations Phoenixville PA",
+    "TrexPro deck installer",
+    "veteran owned contractor Pennsylvania",
+    "suburban Philadelphia contractor",
   ],
-  authors: [{ name: 'Augustine Home Improvements LLC' }],
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true },
-  },
+  authors: [{ name: "Augustine Home Improvements LLC" }],
+  creator: "Augustine Home Improvements LLC",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "https://www.augustinehomeimprovements.com"),
   openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    siteName: 'Augustine Home Improvements',
-    url: SITE_URL,
+    type: "website",
+    locale: "en_US",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://www.augustinehomeimprovements.com",
+    title: "Augustine Home Improvements — Chester County PA Contractor",
+    description:
+      "Veteran-owned home improvement contractor serving Chester County PA. Decks, kitchens, bathrooms, basements, and full home renovations.",
+    siteName: "Augustine Home Improvements",
     images: [
       {
-        url: '/images/og-default.svg',
+        url: "/images/og-default.svg",
         width: 1200,
         height: 630,
-        alt: 'Augustine Home Improvements — Chester County PA',
+        alt: "Augustine Home Improvements — Chester County PA",
       },
     ],
   },
   twitter: {
-    card: 'summary_large_image',
+    card: "summary_large_image",
+    title: "Augustine Home Improvements — Chester County PA Contractor",
+    description:
+      "Veteran-owned home improvement contractor serving Chester County PA. Free estimates — call 484-467-7925.",
+    images: ["/images/og-default.svg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
   },
   alternates: {
-    canonical: SITE_URL,
+    canonical: process.env.NEXT_PUBLIC_APP_URL || "https://www.augustinehomeimprovements.com",
   },
-}
+  icons: {
+    icon: [{ url: "/images/logo.svg", type: "image/svg+xml" }],
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  name: "Augustine Home Improvements LLC",
+  url: "https://www.augustinehomeimprovements.com",
+  logo: "https://www.augustinehomeimprovements.com/images/logo.svg",
+  image: "https://www.augustinehomeimprovements.com/images/og-default.svg",
+  description:
+    "Veteran-owned home improvement contractor serving Chester County PA and suburban Philadelphia. Specializing in decks, kitchens, bathrooms, basements, and full home renovations.",
+  telephone: "+14844677925",
+  email: "info@augustinehomeimprovements.com",
+  foundingDate: "2020-03",
+  founder: { "@type": "Person", name: "Brandon Augustine" },
+  address: {
+    "@type": "PostalAddress",
+    addressLocality: "Chester County",
+    addressRegion: "PA",
+    addressCountry: "US",
+  },
+  areaServed: [
+    { "@type": "City", name: "Phoenixville, PA" },
+    { "@type": "City", name: "Malvern, PA" },
+    { "@type": "City", name: "Downingtown, PA" },
+    { "@type": "County", name: "Chester County, PA" },
+    { "@type": "City", name: "Philadelphia, PA" },
+  ],
+  sameAs: ["https://www.facebook.com/augustinehomeimprovements"],
+};
 
 export default function RootLayout({
   children,
-}: {
-  children: React.ReactNode
-}) {
-  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID
-
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <html lang="en" className={`${dmSans.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${inter.variable} ${playfair.variable}`}>
       <head>
-        {/* Preconnect to Google Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        {/* Favicon */}
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        {/* Schema: Organization */}
         <script
-          type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
-              '@context': 'https://schema.org',
-              '@type': 'HomeAndConstructionBusiness',
-              name: 'Augustine Home Improvements LLC',
-              url: SITE_URL,
-              logo: `${SITE_URL}/images/logo.svg`,
-              image: `${SITE_URL}/images/og-default.svg`,
-              description:
-                'Veteran-owned home improvement contractor serving Chester County PA and suburban Philadelphia. Specializing in decks, kitchens, bathrooms, basements, and full home renovations.',
-              telephone: '+14844677925',
-              email: 'info@augustinehomeimprovements.com',
-              foundingDate: '2020-03',
-              founder: {
-                '@type': 'Person',
-                name: 'Brandon Augustine',
-              },
-              address: {
-                '@type': 'PostalAddress',
-                addressLocality: 'Chester County',
-                addressRegion: 'PA',
-                addressCountry: 'US',
-              },
-              areaServed: [
-                { '@type': 'City', name: 'Phoenixville, PA' },
-                { '@type': 'City', name: 'Malvern, PA' },
-                { '@type': 'City', name: 'Downingtown, PA' },
-                { '@type': 'County', name: 'Chester County, PA' },
-                { '@type': 'City', name: 'Philadelphia, PA' },
-              ],
-              openingHoursSpecification: [
-                {
-                  '@type': 'OpeningHoursSpecification',
-                  dayOfWeek: [
-                    'Monday',
-                    'Tuesday',
-                    'Wednesday',
-                    'Thursday',
-                    'Friday',
-                  ],
-                  opens: '08:00',
-                  closes: '18:00',
-                },
-                {
-                  '@type': 'OpeningHoursSpecification',
-                  dayOfWeek: 'Saturday',
-                  opens: '09:00',
-                  closes: '15:00',
-                },
-              ],
-              paymentAccepted: ['Cash', 'Check'],
-              priceRange: '$$',
-              hasCredential: [
-                {
-                  '@type': 'EducationalOccupationalCredential',
-                  credentialCategory: 'TrexPro Certified Installer',
-                },
-              ],
-              sameAs: [
-                'https://www.facebook.com/augustinehomeimprovements',
-              ],
-              aggregateRating: {
-                '@type': 'AggregateRating',
-                ratingValue: '5',
-                reviewCount: '3',
-              },
-            }),
+            __html: `(() => {
+  const STORAGE_KEY = "augustine.site-config";
+  const CONFIG_URL = "/site-config.json";
+
+  const normalize = (value) => {
+    if (!value || typeof value !== "object") return null;
+    return value;
+  };
+
+  try {
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const parsed = normalize(JSON.parse(stored));
+      if (parsed) window.__AUGUSTINE_SITE_CONFIG__ = parsed;
+    }
+  } catch {}
+
+  fetch(CONFIG_URL, { cache: "no-store" })
+    .then((response) => (response.ok ? response.json() : null))
+    .then((config) => {
+      const parsed = normalize(config);
+      if (!parsed) return;
+      window.__AUGUSTINE_SITE_CONFIG__ = parsed;
+      try {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(parsed));
+      } catch {}
+    })
+    .catch(() => {});
+})();`,
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
-      <body>
-        {gaId && <GoogleAnalytics gaId={gaId} />}
-        <Header />
-        <main id="main-content">{children}</main>
-        <Footer />
-        <StickyCtaMobile />
-        <PreviewBanner />
+      <body className="bg-white text-brand-charcoal min-h-screen flex flex-col font-sans antialiased">
+        {children}
       </body>
     </html>
-  )
+  );
 }
