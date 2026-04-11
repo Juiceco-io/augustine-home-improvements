@@ -1,204 +1,138 @@
 # Augustine Home Improvements
 
-Public marketing website for **Augustine Home Improvements LLC** — a veteran-owned home improvement contractor serving Chester County, PA and suburban Philadelphia.
-
-**Live site:** [www.augustinehomeimprovements.com](https://www.augustinehomeimprovements.com)  
-**Phone:** [484-467-7925](tel:+14844677925)
-
----
+Static Next.js website for [Augustine Home Improvements](https://www.augustinehomeimprovements.com/) — a veteran-owned home improvement contractor serving Chester County PA.
 
 ## Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 15 (App Router, standalone) |
-| Styling | Tailwind CSS v4 |
-| Fonts | DM Sans + Playfair Display (Google Fonts) |
-| Hosting | AWS CloudFront + ECS Fargate (Next.js standalone) |
-| Contact Form Backend | AWS API Gateway + Lambda + SES |
-| Admin Auth | Amazon Cognito Hosted UI |
-| CI/CD | GitHub Actions → ECR + ECS |
-| SEO | next-sitemap, JSON-LD schema, per-page metadata |
+- **Next.js 15** with `output: "export"` (static site)
+- **Tailwind CSS** for styling
+- **AWS S3 + CloudFront** for hosting (app-owned Terraform)
+- **GitHub Actions** for CI/CD (branch → environment deploy)
 
----
+## Branch → Environment Model
 
-## Architecture
-
-```
-Browser
-  └─► CloudFront (CDN + HTTPS + security headers)
-        ├─► ALB → ECS Fargate  ← Next.js standalone container
-        │     (public pages cached at edge, admin panel, Cognito OAuth, ISR)
-        └─► API Gateway POST /contact
-              └─► Lambda (infra/lambda/contact-handler.js)
-                    └─► SES → info@augustinehomeimprovements.com
-```
-
-**Why not fully static (S3)?** The admin panel requires server-side execution
-(Cognito OAuth callback sets httpOnly cookies, middleware, ISR revalidation).
-Public pages are CloudFront-cached for static-like performance.
-Contact form is fully decoupled from the Next.js server via API Gateway + Lambda.
-
----
+| Branch | Environment | AWS Account |
+|--------|-------------|-------------|
+| `dev`  | dev         | 518692945749 |
+| `qa`   | qa          | 518692945749 |
+| `main` | prod        | TBD |
 
 ## Local Development
 
 ```bash
-# 1. Install dependencies
-npm install
-
-# 2. Copy env example and fill in values
 cp .env.example .env.local
-
-# 3. Run dev server
+npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
-
-**Dev mode — contact form:** If `NEXT_PUBLIC_CONTACT_API_URL` is not set, the form
-falls back to the local Next.js `/api/contact` route. That route uses `SES_FROM_EMAIL`
-and `CONTACT_RECIPIENT_EMAIL`; if those are also missing it logs submissions to the
-console without sending email.
-
-**Admin panel:** Access at `/admin/login`. Requires `COGNITO_DOMAIN`, `COGNITO_APP_CLIENT_ID`,
-and related env vars to be set.
-
----
-
-## Pages
-
-| Route | Description |
-|-------|-------------|
-| `/` | Homepage — hero, services, about, reviews, contact |
-| `/deck-installation/` | Deck installation service page |
-| `/kitchen-renovations/` | Kitchen renovations service page |
-| `/bathroom-remodeling/` | Bathroom remodeling service page |
-| `/basement-renovation/` | Basement renovation service page |
-| `/home-additions/` | Home additions service page |
-| `/home-renovations/` | Whole-home renovations service page |
-| `/gallery/` | Project photo gallery |
-| `/reviews/` | Customer testimonials |
-| `/about-us/` | About Brandon Augustine |
-| `/contact-us/` | Full contact form + info |
-| `/admin/login` | Admin panel login (requires server runtime) |
-| `/admin/dashboard` | Admin dashboard (requires server runtime) |
-
----
-
-## Environment Variables
-
-See [`.env.example`](.env.example) for a complete list.
-
-| Variable | Where set | Purpose |
-|----------|-----------|---------|
-| `OUTPUT_MODE` | Build env | Set to `export` to produce static `out/` for S3+CloudFront |
-| `NEXT_PUBLIC_CONTACT_API_URL` | Build env / var | API Gateway contact endpoint URL |
-| `NEXT_PUBLIC_APP_URL` | Build env / var | Public app URL for Cognito callback redirects |
-| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Build var | GA4 ID |
-| `SES_FROM_EMAIL` | Lambda env | SES-verified sender *(set on Lambda, not frontend build)* |
-| `CONTACT_RECIPIENT_EMAIL` | Lambda env | Destination email *(set on Lambda)* |
-| `COGNITO_DOMAIN` | Build secret | Cognito Hosted UI domain |
-| `COGNITO_USER_POOL_ID` | Build secret | Cognito User Pool ID |
-| `COGNITO_APP_CLIENT_ID` | Build secret | Cognito app client ID |
-| `COGNITO_SUPERUSER_EMAILS` | Build secret | Optional bootstrap allowlist |
-| `ADMIN_SESSION_SECRET` | Build secret | Session-signing secret |
-| `ISR_REVALIDATION_SECRET` | Build secret | Cache revalidation token |
-
----
-
-## Deployment
-
-### AWS ECS + CloudFront (production)
-
-The `main` branch auto-deploys via GitHub Actions (`.github/workflows/deploy.yml`):
-
-1. `npm run build` → produces `.next/standalone/` (Next.js standalone server)
-2. Docker image built from standalone output → pushed to ECR
-3. ECS service updated → CloudFront cache invalidated
-
-**Required GitHub secrets / vars** — see [infra/README.md](infra/README.md) for the full list.
-
-### Manual build
+## Build
 
 ```bash
-NEXT_PUBLIC_CONTACT_API_URL=https://YOUR_API_GW_URL/contact \
 npm run build
-# → .next/standalone/ is a self-contained Node.js server
+# Static output written to ./out/
 ```
 
----
+## CI/CD
 
-## Contact Form Backend (Lambda + SES)
+- **CI** (`ci.yml`): lint, typecheck, build — runs on push to `dev`, `qa`, `main`, and PRs
+- **Deploy** (`deploy.yml`): Terraform apply → S3 sync → CloudFront invalidation — runs on push to `dev`, `qa`, and `main`
 
-See [infra/README.md](infra/README.md) for full deploy instructions.
+## Infrastructure
 
-Quick summary:
-1. Verify `augustinehomeimprovements.com` in SES + request production access
-2. Deploy `infra/lambda/contact-handler.js` as a Lambda function (Node.js 20.x)
-3. Create an API Gateway HTTP API with route `POST /contact` → Lambda
-4. Set `CONTACT_API_URL` GitHub Actions variable to the API Gateway URL
+Terraform lives in `infrastructure/`. Uses the same S3/CloudFront pattern as company-homepage:
 
----
+- S3 bucket (private, OAC-only access)
+- CloudFront distribution with security headers
+- ACM certificate (only for prod with custom domain aliases)
 
-## Admin Panel (Amazon Cognito)
+### Prerequisites Before First Deploy
 
-Admin access uses **Amazon Cognito Hosted UI** and app-issued signed sessions.
+1. **Terraform state backend** — S3 bucket `augustine-terraform-state` + DynamoDB table `augustine-terraform-locks` must exist in dev account (518692945749). Create once, manually or via bootstrap.
+2. **IAM roles** — `github-actions-deployer` and `github-actions-terraform-state` roles in the dev account with OIDC trust for this repo.
+3. **GitHub environments** — Create `dev` and `qa` environments in GitHub repo settings (no extra protection rules needed for non-prod).
 
-> ⚠️ The admin panel (`/admin/*`) requires server-side execution (middleware + API routes).
-> It is **not available in static export mode**. For production, deploy the admin panel
-> separately in server mode or as a standalone Next.js container.
+### Contact Form
 
-Recommended Cognito setup:
-- Create a **User Pool** in `us-east-1`
-- Create a Hosted UI domain
-- Create an App Client with callback URLs:
-  - Local: `http://localhost:3000/api/admin/auth/callback`
-  - Prod: `https://www.augustinehomeimprovements.com/api/admin/auth/callback`
-- Create a Cognito group named `super_user`
-- Add the owner as the initial Cognito user and place in `super_user`
-- Optional: set `COGNITO_SUPERUSER_EMAILS` as bootstrap allowlist
+The contact form sends submissions via a Lambda + API Gateway endpoint backed by SES.
+`NEXT_PUBLIC_CONTACT_API_URL` is automatically set from the `contact_api_url` Terraform output
+during the CI/CD pipeline — no manual configuration needed.
 
----
+- **From address:** `noreply@<ses_domain>` (must be within the SES-verified domain)
+- **To address:** controlled by the `contact_to_email` Terraform variable (default: `contact@augustinehomeimprovements.com`)
+- Override `contact_to_email` in `infrastructure/terraform.tfvars` or as a CI environment variable.
 
-## SEO
+## CMS
 
-- Per-page metadata with `export const metadata`
-- JSON-LD `LocalBusiness` schema on homepage
-- JSON-LD `Service` schema on each service page
-- JSON-LD `Review` + `AggregateRating` on reviews page
-- `sitemap.xml` generated via `next-sitemap` at build time
-- `robots.txt` blocks `/admin/` and `/api/`
-- GA4 tracking via `NEXT_PUBLIC_GA_MEASUREMENT_ID`
+A minimal AWS-first CMS lives at `/admin` (Next.js route: `app/admin/`). It is:
+- **Client-only** — authentication and API calls happen in-browser (Cognito + API Gateway)
+- **Deployed as part of the same static Next.js export** — no separate build or hosting
 
----
+### Architecture
 
-## Brand
+| Component | AWS Service |
+|-----------|-------------|
+| Auth | Cognito User Pool + App Client (SPA, no client secret) |
+| Config storage | S3 (`cms-config` bucket) |
+| Media storage | S3 (`cms-media` bucket) |
+| API | API Gateway + Lambda (3 endpoints: `/config`, `/upload`, `/media`) |
+| CDN | CloudFront (serves same-origin `/site-config.json` plus CMS media to the public site) |
 
-- **Primary color:** `#671609` (brick red)
-- **Secondary:** `#8d1e0c` (dark brick)
-- **Accent:** `#b79a93` (light brick)
-- **Fonts:** Playfair Display (headings) + DM Sans (body)
-- **Facebook:** [@augustinehomeimprovements](https://www.facebook.com/augustinehomeimprovements)
+All infrastructure is managed by the same Terraform in `infrastructure/`.
 
----
+### Environment Variables
 
-## Remaining Blockers Before Launch
+**All CMS config values are public (not secrets).** They are injected at build time from Terraform outputs automatically in CI/CD — no manual GitHub environment variables required.
 
-| # | Item | Action Required |
-|---|------|----------------|
-| 1 | SES domain verification | Verify `augustinehomeimprovements.com` in SES + request prod access |
-| 2 | Lambda deploy | Package & deploy `infra/lambda/contact-handler.js` (see infra/README.md) |
-| 3 | API Gateway | Create HTTP API, route POST /contact → Lambda, get endpoint URL |
-| 4 | `CONTACT_API_URL` GitHub var | Set to API Gateway URL so build wires `NEXT_PUBLIC_CONTACT_API_URL` |
-| 5 | Cognito setup | Create User Pool, Hosted UI, App Client, `super_user` group, initial user |
-| 6 | ECR + ECS Fargate | Create ECR repo, ECS cluster/service/task-def; add Dockerfile |
-| 7 | CloudFront distribution | Point to ALB origin (ECS); configure caching behaviors |
-| 8 | OIDC role for CI | Create IAM role with ECR push + ECS deploy + CloudFront invalidation; link GitHub OIDC |
-| 9 | GitHub secrets | Set all secrets/vars listed in infra/README.md |
-| 10 | DNS cutover | Lower TTL before launch, point domain to CloudFront |
-| 11 | Real project photos | Upload via admin panel once gallery CMS is finished |
+| Variable | Terraform Output | Description |
+|----------|-----------------|-------------|
+| `NEXT_PUBLIC_COGNITO_USER_POOL_ID` | `cms_cognito_user_pool_id` | Cognito User Pool ID |
+| `NEXT_PUBLIC_COGNITO_CLIENT_ID` | `cms_cognito_client_id` | Cognito App Client ID (no secret) |
+| `NEXT_PUBLIC_CMS_API_URL` | `cms_api_url` | API Gateway base URL |
 
----
+### Required Secrets / One-time Setup
 
-*Built by Juiceco-io · Veteran-Owned Business · Chester County PA*
+The CMS has **no runtime secrets**. The only required setup beyond the standard infrastructure prerequisites:
+
+1. **First admin user** — Terraform creates the Cognito user automatically when the `ADMIN_EMAIL` GitHub Actions variable is set:
+
+   **Recommended (env-seeded, zero extra steps):**
+   - Go to **GitHub → Settings → Environments → dev (or prod)**
+   - Add a variable: `ADMIN_EMAIL = mark@example.com`
+   - Push to `dev` / merge to `main` — Terraform creates the user on next apply
+   - Then set the password once:
+     ```bash
+     POOL_ID=$(cd infrastructure && terraform output -raw cms_cognito_user_pool_id)
+     aws cognito-idp admin-set-user-password \
+       --user-pool-id "$POOL_ID" \
+       --username mark@example.com \
+       --password 'YourPassword123!' \
+       --permanent
+     ```
+
+   **Alternative (manual bootstrap script):**
+   ```bash
+   ./scripts/bootstrap-admin.sh --username mark@example.com
+   # Auto-detects the Cognito User Pool from Terraform outputs.
+   # Prompts for password interactively (or pass --password for non-interactive use).
+   ```
+   See [`docs/runbook-bootstrap-admin.md`](docs/runbook-bootstrap-admin.md) for full usage, options, and troubleshooting.
+
+2. **Initial site-config.json** — upload `cms/config/site-config.json` to the `cms-config` S3 bucket at `config/site-config.json`:
+   ```bash
+   BUCKET=$(cd infrastructure && terraform output -raw cms_config_bucket)
+   aws s3 cp cms/config/site-config.json s3://$BUCKET/config/site-config.json
+   ```
+
+### Local Dev (CMS Admin)
+
+```bash
+cp .env.example .env.local
+# Fill in values from: terraform output -json (run from infrastructure/)
+npm run dev
+# Visit http://localhost:3000/admin
+```
+
+The public site now always reads its live CMS config from the same-origin path
+`/site-config.json`. In AWS, the main site CloudFront distribution serves that
+path from the CMS config bucket with a 60-second TTL. For local dev, the repo
+includes `public/site-config.json` as the default same-origin stub.

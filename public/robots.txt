@@ -1,14 +1,4 @@
-# *
 User-agent: *
 Allow: /
 
-# *
-User-agent: *
-Disallow: /admin/
-Disallow: /api/
-
-# Host
-Host: https://www.augustinehomeimprovements.com
-
-# Sitemaps
 Sitemap: https://www.augustinehomeimprovements.com/sitemap.xml
