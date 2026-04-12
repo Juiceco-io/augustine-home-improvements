@@ -19,15 +19,15 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Homepage Content</h2>
-        <p className="text-sm text-gray-500">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Homepage Content</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Edit homepage stats, service cards, why-choose-us points, featured review
           preview, and both CTA blocks.
         </p>
       </div>
 
       <section>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Stats</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Stats</h3>
         <div className="space-y-3">
           {homepage.stats.map((stat, index) => (
             <div key={index} className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -42,7 +42,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                     ),
                   }))
                 }
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
                 placeholder="100+"
               />
               <input
@@ -56,7 +56,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                     ),
                   }))
                 }
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
                 placeholder="Projects Completed"
               />
             </div>
@@ -65,24 +65,24 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Services Section</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Services Section</h3>
         <div className="space-y-4">
           <input
             type="text"
             value={homepage.servicesHeading}
             onChange={(e) => setHomepage((prev) => ({ ...prev, servicesHeading: e.target.value }))}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
             placeholder="Our Services"
           />
           <textarea
             value={homepage.servicesSubheading}
             onChange={(e) => setHomepage((prev) => ({ ...prev, servicesSubheading: e.target.value }))}
             rows={3}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none"
           />
           <div className="space-y-4">
             {homepage.services.map((service, index) => (
-              <div key={index} className="border border-gray-200 rounded-xl p-4 space-y-3">
+              <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
                 <input
                   type="text"
                   value={service.title}
@@ -94,7 +94,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                       ),
                     }))
                   }
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
                   placeholder="Service title"
                 />
                 <input
@@ -108,7 +108,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                       ),
                     }))
                   }
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
                   placeholder="/deck-installation/"
                 />
                 <textarea
@@ -122,7 +122,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                     }))
                   }
                   rows={3}
-                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none"
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none"
                 />
               </div>
             ))}
@@ -131,16 +131,16 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold text-gray-900 mb-3">Why Choose Us</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-3">Why Choose Us</h3>
         <div className="space-y-4">
           <input
             type="text"
             value={homepage.whyChooseUsHeading}
             onChange={(e) => setHomepage((prev) => ({ ...prev, whyChooseUsHeading: e.target.value }))}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
           />
           {homepage.whyChooseUsItems.map((item, index) => (
-            <div key={index} className="border border-gray-200 rounded-xl p-4 space-y-3">
+            <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
               <input
                 type="text"
                 value={item.title}
@@ -152,7 +152,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                     ),
                   }))
                 }
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
               />
               <textarea
                 value={item.description}
@@ -165,7 +165,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                   }))
                 }
                 rows={3}
-                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none"
+                className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none"
               />
             </div>
           ))}
@@ -173,7 +173,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-900">Featured Reviews Preview</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Featured Reviews Preview</h3>
         <input
           type="text"
           value={homepage.featuredReviews.heading}
@@ -183,7 +183,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
               featuredReviews: { ...prev.featuredReviews, heading: e.target.value },
             }))
           }
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
         />
         <input
           type="text"
@@ -194,7 +194,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
               featuredReviews: { ...prev.featuredReviews, subheading: e.target.value },
             }))
           }
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
@@ -206,7 +206,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                 featuredReviews: { ...prev.featuredReviews, countLabel: e.target.value },
               }))
             }
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
             placeholder="verified reviews"
           />
           <input
@@ -223,7 +223,7 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
                 },
               }))
             }
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
           />
         </div>
       </section>
@@ -235,16 +235,16 @@ export default function HomepageTab({ config, onSave, saving }: Props) {
         const cta = homepage[key];
         return (
           <section key={key} className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900">{label}</h3>
-            <input type="text" value={cta.title} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], title: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
-            <textarea value={cta.body} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], body: e.target.value } }))} rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none" />
+            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">{label}</h3>
+            <input type="text" value={cta.title} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], title: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+            <textarea value={cta.body} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], body: e.target.value } }))} rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <input type="text" value={cta.primaryLabel} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], primaryLabel: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
-              <input type="text" value={cta.primaryHref} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], primaryHref: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
-              <input type="text" value={cta.secondaryLabel} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], secondaryLabel: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
-              <input type="text" value={cta.secondaryHref} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], secondaryHref: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
+              <input type="text" value={cta.primaryLabel} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], primaryLabel: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+              <input type="text" value={cta.primaryHref} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], primaryHref: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+              <input type="text" value={cta.secondaryLabel} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], secondaryLabel: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+              <input type="text" value={cta.secondaryHref} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], secondaryHref: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
             </div>
-            <input type="text" value={cta.footnote} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], footnote: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" placeholder="Optional footnote" />
+            <input type="text" value={cta.footnote} onChange={(e) => setHomepage((prev) => ({ ...prev, [key]: { ...prev[key], footnote: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" placeholder="Optional footnote" />
           </section>
         );
       })}

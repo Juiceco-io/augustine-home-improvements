@@ -65,18 +65,18 @@ export default function ImageUploader({
       {uploading ? (
         <div className="flex flex-col items-center gap-2">
           <div className="w-6 h-6 border-2 border-green-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-gray-500">Uploading…</p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Uploading…</p>
         </div>
       ) : (
         <div className="flex flex-col items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center text-gray-400 text-xl">
+          <div className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-400 dark:text-gray-500 text-xl">
             ↑
           </div>
-          <p className="text-sm text-gray-600 font-medium">
+          <p className="text-sm text-gray-600 dark:text-gray-300 font-medium">
             Drop image here or{" "}
             <span className="text-green-600">browse</span>
           </p>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-gray-400 dark:text-gray-500">
             {accept === "image/png,image/svg+xml,image/jpeg,image/webp"
               ? "PNG, SVG, JPG, WEBP"
               : "JPG, PNG, WEBP"}{" "}

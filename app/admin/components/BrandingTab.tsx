@@ -39,16 +39,16 @@ export default function BrandingTab({ config, onSave, saving }: Props) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-1">Branding</h2>
-      <p className="text-sm text-gray-500 mb-8">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Branding</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
         Update the company logo shown in the navbar.
       </p>
 
       {/* Current logo preview */}
       {logoUrl && (
         <div className="mb-6">
-          <p className="text-sm font-medium text-gray-700 mb-2">Current Logo</p>
-          <div className="inline-block bg-gray-100 rounded-lg p-4">
+          <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Current Logo</p>
+          <div className="inline-block bg-gray-100 dark:bg-gray-700 rounded-lg p-4">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={logoUrl}
@@ -56,13 +56,13 @@ export default function BrandingTab({ config, onSave, saving }: Props) {
               className="h-12 w-auto object-contain"
             />
           </div>
-          <p className="text-xs text-gray-400 mt-1 break-all">{logoUrl}</p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 break-all">{logoUrl}</p>
         </div>
       )}
 
       {/* Upload new logo */}
       <div className="mb-6">
-        <p className="text-sm font-medium text-gray-700 mb-2">Upload New Logo</p>
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload New Logo</p>
         <ImageUploader
           onFile={handleLogoUpload}
           accept="image/png,image/svg+xml,image/jpeg,image/webp"
@@ -75,14 +75,14 @@ export default function BrandingTab({ config, onSave, saving }: Props) {
 
       {/* Alt text */}
       <div className="mb-8">
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           Logo Alt Text
         </label>
         <input
           type="text"
           value={logoAlt}
           onChange={(e) => setLogoAlt(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           placeholder="Augustine Home Improvements"
         />
       </div>
