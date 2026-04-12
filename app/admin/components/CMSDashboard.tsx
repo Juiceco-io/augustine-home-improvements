@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, X, Loader2 } from "lucide-react";
 import { getConfig, putConfig } from "../lib/api";
 import { getCurrentUserEmail } from "../lib/auth";
 import type { SiteConfig } from "../lib/types";
@@ -31,9 +31,20 @@ const TAB_LABELS: Record<string, string> = {
   features: "Features",
 };
 
-type PendingChange = { tab: string; label: string; time: string };
+type PendingChange = { tab: string; label: string; time: string; snapshot?: unknown };
 
 type Tab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features";
+
+const TAB_TO_CONFIG_KEY: Record<Tab, keyof SiteConfig> = {
+  branding: "brand",
+  hero: "hero",
+  homepage: "homepage",
+  company: "company",
+  reviews: "reviews",
+  gallery: "gallery",
+  contact: "contact",
+  features: "features",
+};
 
 interface Props {
   onLogout: () => void;
@@ -56,6 +67,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
       return [];
     }
   });
+  const [discarding, setDiscarding] = useState<string | null>(null);
 
   const email = getCurrentUserEmail();
 
@@ -70,6 +82,12 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
     setSaving(true);
     setError(null);
     try {
+      // Capture the pre-save value for this tab so discard can revert it.
+      // If there's already a pending entry for this tab, preserve its original snapshot.
+      const key = TAB_TO_CONFIG_KEY[activeTab];
+      const existingEntry = pendingChanges.find((c) => c.tab === activeTab);
+      const snapshot = existingEntry?.snapshot ?? (config ? config[key] : undefined);
+
       await putConfig(updated);
       setConfig(updated);
       const time = new Date().toLocaleTimeString();
@@ -78,6 +96,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
         tab: activeTab,
         label: TAB_LABELS[activeTab] ?? activeTab,
         time,
+        snapshot,
       };
       const updatedChanges = [
         ...pendingChanges.filter((c) => c.tab !== activeTab),
@@ -89,6 +108,33 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
       setError(e instanceof Error ? e.message : "Save failed");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleDiscard(tab: Tab) {
+    if (!config) return;
+    const change = pendingChanges.find((c) => c.tab === tab);
+    if (!change?.snapshot) {
+      // No snapshot available (e.g. old entry before this feature) — just remove the indicator.
+      const updatedChanges = pendingChanges.filter((c) => c.tab !== tab);
+      setPendingChanges(updatedChanges);
+      localStorage.setItem(PENDING_CHANGES_KEY, JSON.stringify(updatedChanges));
+      return;
+    }
+    setDiscarding(tab);
+    setError(null);
+    try {
+      const key = TAB_TO_CONFIG_KEY[tab];
+      const reverted = { ...config, [key]: change.snapshot } as SiteConfig;
+      await putConfig(reverted);
+      setConfig(reverted);
+      const updatedChanges = pendingChanges.filter((c) => c.tab !== tab);
+      setPendingChanges(updatedChanges);
+      localStorage.setItem(PENDING_CHANGES_KEY, JSON.stringify(updatedChanges));
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Discard failed");
+    } finally {
+      setDiscarding(null);
     }
   }
 
@@ -170,11 +216,29 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
               {pendingChanges.map((change) => (
                 <li
                   key={change.tab}
-                  className="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-700/50 rounded-md px-2.5 py-1"
+                  className="flex items-center gap-0.5 bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-700/50 rounded-md overflow-hidden"
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-                  <span className="text-xs font-medium text-amber-800 dark:text-amber-300">{change.label}</span>
-                  <span className="text-xs text-amber-400 dark:text-amber-500">· {change.time}</span>
+                  <button
+                    onClick={() => setActiveTab(change.tab as Tab)}
+                    className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors cursor-pointer"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
+                    <span className="text-xs font-medium text-amber-800 dark:text-amber-300">{change.label}</span>
+                    <span className="text-xs text-amber-400 dark:text-amber-500">· {change.time}</span>
+                  </button>
+                  <button
+                    onClick={() => handleDiscard(change.tab as Tab)}
+                    disabled={discarding === change.tab}
+                    className="px-1.5 py-1 text-amber-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors disabled:opacity-50 border-l border-amber-100 dark:border-amber-800/40"
+                    title={`Discard ${change.label} changes`}
+                    aria-label={`Discard ${change.label} changes`}
+                  >
+                    {discarding === change.tab ? (
+                      <Loader2 size={12} className="animate-spin" />
+                    ) : (
+                      <X size={12} />
+                    )}
+                  </button>
                 </li>
               ))}
             </ul>

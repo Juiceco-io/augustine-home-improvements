@@ -255,6 +255,20 @@ main {
   pointer-events: auto;
 }
 
+/* Invisible bridge filling the gap between the button and dropdown panel so
+   the hover state isn't lost while the mouse travels downward */
+.nav-dropdown-parent {
+  position: relative;
+}
+.nav-dropdown-parent::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: -8px;
+  right: -8px;
+  height: 12px;
+}
+
 .nav-link-underline {
   position: relative;
 }
