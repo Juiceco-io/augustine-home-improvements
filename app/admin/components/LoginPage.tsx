@@ -139,7 +139,7 @@ export default function LoginPage({ onLogin }: Props) {
                 value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
                 className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-                placeholder="brandon@augustinehomeimprovements.com"
+                placeholder="Email"
                 required
                 autoFocus
                 autoComplete="email"
@@ -313,7 +313,7 @@ export default function LoginPage({ onLogin }: Props) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
-              placeholder="brandon@augustinehomeimprovements.com"
+              placeholder="Email"
               required
               autoComplete="email"
               autoFocus
