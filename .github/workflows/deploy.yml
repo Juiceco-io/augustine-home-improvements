@@ -2,7 +2,7 @@ name: Deploy
 
 on:
   push:
-    branches: [dev, main]
+    branches: [dev, qa, main]
 
 # Minimal permissions — only what each job needs
 permissions:
@@ -32,6 +32,7 @@ jobs:
         run: |
           case "${{ github.ref_name }}" in
             dev)  echo "environment=dev"  >> $GITHUB_OUTPUT ;;
+            qa)   echo "environment=qa"   >> $GITHUB_OUTPUT ;;
             main) echo "environment=prod" >> $GITHUB_OUTPUT ;;
             *)
               echo "Unknown branch: ${{ github.ref_name }}" >&2
@@ -43,7 +44,7 @@ jobs:
         id: aws-config
         run: |
           case "${{ github.ref_name }}" in
-            dev)
+            dev|qa)
               echo "account_id=518692945749" >> $GITHUB_OUTPUT
               echo "deployer_role=arn:aws:iam::518692945749:role/github-actions-deployer" >> $GITHUB_OUTPUT
               echo 'cloudfront_aliases_json=[]' >> $GITHUB_OUTPUT

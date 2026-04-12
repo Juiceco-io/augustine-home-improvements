@@ -14,6 +14,7 @@ Static Next.js website for [Augustine Home Improvements](https://www.augustineho
 | Branch | Environment | AWS Account |
 |--------|-------------|-------------|
 | `dev`  | dev         | 518692945749 |
+| `qa`   | qa          | 518692945749 |
 | `main` | prod        | TBD |
 
 ## Local Development
@@ -33,8 +34,8 @@ npm run build
 
 ## CI/CD
 
-- **CI** (`ci.yml`): lint, typecheck, build — runs on push to `dev` and PRs
-- **Deploy** (`deploy.yml`): Terraform apply → S3 sync → CloudFront invalidation — runs on push to `dev` and `main`
+- **CI** (`ci.yml`): lint, typecheck, build — runs on push to `dev`, `qa`, `main`, and PRs
+- **Deploy** (`deploy.yml`): Terraform apply → S3 sync → CloudFront invalidation — runs on push to `dev`, `qa`, and `main`
 
 ## Infrastructure
 
@@ -48,7 +49,7 @@ Terraform lives in `infrastructure/`. Uses the same S3/CloudFront pattern as com
 
 1. **Terraform state backend** — S3 bucket `augustine-terraform-state` + DynamoDB table `augustine-terraform-locks` must exist in dev account (518692945749). Create once, manually or via bootstrap.
 2. **IAM roles** — `github-actions-deployer` and `github-actions-terraform-state` roles in the dev account with OIDC trust for this repo.
-3. **GitHub environment** — Create `dev` environment in GitHub repo settings (no extra protection rules needed for dev).
+3. **GitHub environments** — Create `dev` and `qa` environments in GitHub repo settings (no extra protection rules needed for non-prod).
 
 ### Contact Form
 
