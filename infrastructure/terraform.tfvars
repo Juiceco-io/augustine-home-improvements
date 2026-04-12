@@ -10,7 +10,10 @@ aws_region  = "us-east-1"
 # Once the domain is verified, request SES production access from the AWS Console.
 ses_domain         = "augustinehomeimprovements.com"
 cognito_from_email = "noreply@augustinehomeimprovements.com"
-ses_email_enabled  = true  # SES domain is verified for dev; set false for new environments until DNS is confirmed
+# ses_email_enabled is NOT set here — it comes from the SES_EMAIL_ENABLED GitHub
+# Actions environment variable (Settings → Environments → Variables), mapped to
+# TF_VAR_ses_email_enabled in deploy.yml. Default is false (see variables.tf).
+# For local Terraform runs: export TF_VAR_ses_email_enabled=true
 
 # contact_to_email is NOT set here — it comes from the CONTACT_TO_EMAIL GitHub
 # Actions environment variable (Settings → Environments → Variables).
