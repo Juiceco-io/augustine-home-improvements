@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Sun, Moon, X, Loader2 } from "lucide-react";
 import { getConfig, putConfig } from "../lib/api";
 import { getCurrentUserEmail } from "../lib/auth";
@@ -31,7 +31,7 @@ const TAB_LABELS: Record<string, string> = {
   features: "Features",
 };
 
-type PendingChange = { tab: string; label: string; time: string };
+type PendingChange = { tab: string; label: string; time: string; snapshot?: unknown };
 
 type Tab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features";
 
@@ -68,17 +68,12 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
     }
   });
   const [discarding, setDiscarding] = useState<string | null>(null);
-  const initialConfigRef = useRef<SiteConfig | null>(null);
 
   const email = getCurrentUserEmail();
 
   useEffect(() => {
     getConfig()
-      .then((data) => {
-        const normalized = normalizeSiteConfig(data);
-        initialConfigRef.current = normalized;
-        setConfig(normalized);
-      })
+      .then((data) => setConfig(normalizeSiteConfig(data)))
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
   }, []);
@@ -87,6 +82,12 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
     setSaving(true);
     setError(null);
     try {
+      // Capture the pre-save value for this tab so discard can revert it.
+      // If there's already a pending entry for this tab, preserve its original snapshot.
+      const key = TAB_TO_CONFIG_KEY[activeTab];
+      const existingEntry = pendingChanges.find((c) => c.tab === activeTab);
+      const snapshot = existingEntry?.snapshot ?? (config ? config[key] : undefined);
+
       await putConfig(updated);
       setConfig(updated);
       const time = new Date().toLocaleTimeString();
@@ -95,6 +96,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
         tab: activeTab,
         label: TAB_LABELS[activeTab] ?? activeTab,
         time,
+        snapshot,
       };
       const updatedChanges = [
         ...pendingChanges.filter((c) => c.tab !== activeTab),
@@ -110,12 +112,20 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
   }
 
   async function handleDiscard(tab: Tab) {
-    if (!config || !initialConfigRef.current) return;
+    if (!config) return;
+    const change = pendingChanges.find((c) => c.tab === tab);
+    if (!change?.snapshot) {
+      // No snapshot available (e.g. old entry before this feature) — just remove the indicator.
+      const updatedChanges = pendingChanges.filter((c) => c.tab !== tab);
+      setPendingChanges(updatedChanges);
+      localStorage.setItem(PENDING_CHANGES_KEY, JSON.stringify(updatedChanges));
+      return;
+    }
     setDiscarding(tab);
     setError(null);
     try {
       const key = TAB_TO_CONFIG_KEY[tab];
-      const reverted = { ...config, [key]: initialConfigRef.current[key] } as SiteConfig;
+      const reverted = { ...config, [key]: change.snapshot } as SiteConfig;
       await putConfig(reverted);
       setConfig(reverted);
       const updatedChanges = pendingChanges.filter((c) => c.tab !== tab);
