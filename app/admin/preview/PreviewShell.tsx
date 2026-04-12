@@ -112,7 +112,7 @@ export default function PreviewShell({
           {/* Offset Navbar below the fixed preview banner */}
           <Navbar basePath="/admin/preview" topOffset={BANNER_HEIGHT} />
         </ClientOnly>
-        <main className="flex-1">{children}</main>
+        <main className="flex-1" style={{ paddingTop: BANNER_HEIGHT }}>{children}</main>
         <ClientOnly>
           <Footer basePath="/admin/preview" />
         </ClientOnly>
