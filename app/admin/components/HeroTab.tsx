@@ -60,50 +60,50 @@ export default function HeroTab({ config, onSave, saving }: Props) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-1">Hero Section</h2>
-      <p className="text-sm text-gray-500 mb-8">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Hero Section</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
         Update the headline, subheadline, and background image on the home page.
         Uploaded hero images are published immediately; text edits still require Save Changes.
       </p>
 
       {/* Headline */}
       <div className="mb-5">
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           Headline
         </label>
         <input
           type="text"
           value={headline}
           onChange={(e) => setHeadline(e.target.value)}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
           placeholder="Expert Home Improvements"
         />
       </div>
 
       {/* Subheadline */}
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           Subheadline
         </label>
         <textarea
           value={subheadline}
           onChange={(e) => setSubheadline(e.target.value)}
           rows={3}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"
           placeholder="Serving Chester County PA…"
         />
       </div>
 
       {/* Hero image */}
       <div className="mb-6">
-        <p className="text-sm font-medium text-gray-700 mb-2">
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Hero Background Image{" "}
-          <span className="text-gray-400 font-normal">
+          <span className="text-gray-400 dark:text-gray-500 font-normal">
             (optional — leave blank for gradient)
           </span>
         </p>
 
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
           Image URL
         </label>
         <input
@@ -113,7 +113,7 @@ export default function HeroTab({ config, onSave, saving }: Props) {
             setImageUrl(e.target.value);
             setPreviewFailed(false);
           }}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 mb-3"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 mb-3"
           placeholder="https://..."
           spellCheck={false}
           autoCapitalize="off"
@@ -127,7 +127,7 @@ export default function HeroTab({ config, onSave, saving }: Props) {
               <img
                 src={normalizedImageUrl}
                 alt="Hero preview"
-                className="w-full h-32 object-cover rounded-lg bg-gray-100"
+                className="w-full h-32 object-cover rounded-lg bg-gray-100 dark:bg-gray-700"
                 onLoad={() => setPreviewFailed(false)}
                 onError={() => setPreviewFailed(true)}
               />
@@ -136,7 +136,7 @@ export default function HeroTab({ config, onSave, saving }: Props) {
                 Preview couldn’t load this image. Double-check the URL or upload the image again.
               </div>
             )}
-            <p className="text-xs text-gray-400 mt-1 break-all">{normalizedImageUrl}</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 break-all">{normalizedImageUrl}</p>
             <button
               onClick={() => {
                 setImageUrl("");

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Sun, Moon } from "lucide-react";
 import { getConfig, putConfig } from "../lib/api";
 import { getCurrentUserEmail } from "../lib/auth";
 import type { SiteConfig } from "../lib/types";
@@ -36,9 +37,11 @@ type Tab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" 
 
 interface Props {
   onLogout: () => void;
+  isDark: boolean;
+  onToggleTheme: () => void;
 }
 
-export default function CMSDashboard({ onLogout }: Props) {
+export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>("branding");
   const [config, setConfig] = useState<SiteConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -101,9 +104,9 @@ export default function CMSDashboard({ onLogout }: Props) {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+      <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div
@@ -112,11 +115,11 @@ export default function CMSDashboard({ onLogout }: Props) {
             >
               <span className="text-white text-sm font-bold">A</span>
             </div>
-            <span className="font-semibold text-gray-900">Augustine CMS</span>
+            <span className="font-semibold text-gray-900 dark:text-white">Augustine CMS</span>
           </div>
           <div className="flex items-center gap-4">
             {email && (
-              <span className="text-sm text-gray-500 hidden sm:block">
+              <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
                 {email}
               </span>
             )}
@@ -124,7 +127,7 @@ export default function CMSDashboard({ onLogout }: Props) {
               href={PUBLIC_SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm text-gray-500 hover:text-gray-800 transition-colors"
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
             >
               View Live Site ↗
             </a>
@@ -136,8 +139,16 @@ export default function CMSDashboard({ onLogout }: Props) {
               Preview Site →
             </button>
             <button
+              onClick={onToggleTheme}
+              className="p-1.5 rounded-lg text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {isDark ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button
               onClick={onLogout}
-              className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+              className="text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
             >
               Logout
             </button>
@@ -148,22 +159,22 @@ export default function CMSDashboard({ onLogout }: Props) {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
         {/* Pending changes */}
         {pendingChanges.length > 0 && (
-          <div className="mb-6 px-4 py-4 rounded-lg bg-amber-50 border border-amber-200">
+          <div className="mb-6 px-4 py-4 rounded-lg bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-700/50">
             <div className="flex items-center justify-between mb-3">
-              <h3 className="text-sm font-semibold text-amber-900">
+              <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-300">
                 Pending Changes — {pendingChanges.length} section{pendingChanges.length !== 1 ? "s" : ""} saved, not yet published
               </h3>
-              <span className="text-xs text-amber-600 hidden sm:block">Preview then Publish to go live</span>
+              <span className="text-xs text-amber-600 dark:text-amber-400 hidden sm:block">Preview then Publish to go live</span>
             </div>
             <ul className="flex flex-wrap gap-2">
               {pendingChanges.map((change) => (
                 <li
                   key={change.tab}
-                  className="flex items-center gap-1.5 bg-white border border-amber-200 rounded-md px-2.5 py-1"
+                  className="flex items-center gap-1.5 bg-white dark:bg-gray-800 border border-amber-200 dark:border-amber-700/50 rounded-md px-2.5 py-1"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-amber-400 flex-shrink-0" />
-                  <span className="text-xs font-medium text-amber-800">{change.label}</span>
-                  <span className="text-xs text-amber-400">· {change.time}</span>
+                  <span className="text-xs font-medium text-amber-800 dark:text-amber-300">{change.label}</span>
+                  <span className="text-xs text-amber-400 dark:text-amber-500">· {change.time}</span>
                 </li>
               ))}
             </ul>
@@ -175,8 +186,8 @@ export default function CMSDashboard({ onLogout }: Props) {
           <div
             className={`mb-6 px-4 py-3 rounded-lg text-sm ${
               error
-                ? "bg-red-50 border border-red-200 text-red-700"
-                : "bg-green-50 border border-green-200 text-green-700"
+                ? "bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 text-red-700 dark:text-red-400"
+                : "bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700/50 text-green-700 dark:text-green-400"
             }`}
           >
             {error
@@ -189,7 +200,7 @@ export default function CMSDashboard({ onLogout }: Props) {
 
         {loading && (
           <div className="flex items-center justify-center py-20">
-            <p className="text-gray-400 text-sm">Loading config…</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">Loading config…</p>
           </div>
         )}
 
@@ -205,7 +216,7 @@ export default function CMSDashboard({ onLogout }: Props) {
                       className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                         activeTab === tab.id
                           ? "text-white"
-                          : "text-gray-600 hover:bg-gray-100"
+                          : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
                       }`}
                       style={
                         activeTab === tab.id
@@ -224,7 +235,7 @@ export default function CMSDashboard({ onLogout }: Props) {
             </nav>
 
             {/* Content panel */}
-            <div className="flex-1 bg-white rounded-2xl border border-gray-200 p-6 sm:p-8">
+            <div className="flex-1 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 p-6 sm:p-8">
               {activeTab === "branding" && (
                 <BrandingTab
                   config={config}
@@ -287,7 +298,7 @@ export default function CMSDashboard({ onLogout }: Props) {
 
         {/* Version info */}
         {config && (
-          <p className="text-xs text-gray-400 text-center mt-6">
+          <p className="text-xs text-gray-400 dark:text-gray-600 text-center mt-6">
             Config v{config._version} · Last saved by {config._updatedBy} at{" "}
             {new Date(config._updatedAt).toLocaleString()}
           </p>

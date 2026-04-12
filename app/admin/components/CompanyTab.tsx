@@ -19,26 +19,26 @@ export default function CompanyTab({ config, onSave, saving }: Props) {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 mb-1">Company Content</h2>
-        <p className="text-sm text-gray-500">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Company Content</h2>
+        <p className="text-sm text-gray-500 dark:text-gray-400">
           Manage About page copy, company profile details, hours, footer blurb,
           and trust/certification messaging.
         </p>
       </div>
 
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-900">About Page Copy</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">About Page Copy</h3>
         <input
           type="text"
           value={company.aboutHeading}
           onChange={(e) => setCompany((prev) => ({ ...prev, aboutHeading: e.target.value }))}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
         />
         <textarea
           value={company.aboutSubheading}
           onChange={(e) => setCompany((prev) => ({ ...prev, aboutSubheading: e.target.value }))}
           rows={3}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none"
         />
         {company.aboutBody.map((paragraph, index) => (
           <textarea
@@ -51,21 +51,21 @@ export default function CompanyTab({ config, onSave, saving }: Props) {
               }))
             }
             rows={4}
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none"
           />
         ))}
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-900">Values</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Values</h3>
         <input
           type="text"
           value={company.valuesHeading}
           onChange={(e) => setCompany((prev) => ({ ...prev, valuesHeading: e.target.value }))}
-          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+          className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
         />
         {company.values.map((value, index) => (
-          <div key={index} className="border border-gray-200 rounded-xl p-4 space-y-3">
+          <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-xl p-4 space-y-3">
             <input
               type="text"
               value={value.title}
@@ -77,7 +77,7 @@ export default function CompanyTab({ config, onSave, saving }: Props) {
                   ),
                 }))
               }
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
             />
             <textarea
               value={value.description}
@@ -90,22 +90,22 @@ export default function CompanyTab({ config, onSave, saving }: Props) {
                 }))
               }
               rows={3}
-              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none"
+              className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none"
             />
           </div>
         ))}
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-900">Hours</h3>
-        <input type="text" value={company.hours.weekdays} onChange={(e) => setCompany((prev) => ({ ...prev, hours: { ...prev.hours, weekdays: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
-        <input type="text" value={company.hours.saturday} onChange={(e) => setCompany((prev) => ({ ...prev, hours: { ...prev.hours, saturday: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
-        <input type="text" value={company.hours.sunday} onChange={(e) => setCompany((prev) => ({ ...prev, hours: { ...prev.hours, sunday: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm" />
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Hours</h3>
+        <input type="text" value={company.hours.weekdays} onChange={(e) => setCompany((prev) => ({ ...prev, hours: { ...prev.hours, weekdays: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+        <input type="text" value={company.hours.saturday} onChange={(e) => setCompany((prev) => ({ ...prev, hours: { ...prev.hours, saturday: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
+        <input type="text" value={company.hours.sunday} onChange={(e) => setCompany((prev) => ({ ...prev, hours: { ...prev.hours, sunday: e.target.value } }))} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm" />
       </section>
 
       <section className="space-y-4">
-        <h3 className="text-sm font-semibold text-gray-900">Footer + Trust Messaging</h3>
-        <textarea value={company.footerBlurb} onChange={(e) => setCompany((prev) => ({ ...prev, footerBlurb: e.target.value }))} rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm resize-none" />
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Footer + Trust Messaging</h3>
+        <textarea value={company.footerBlurb} onChange={(e) => setCompany((prev) => ({ ...prev, footerBlurb: e.target.value }))} rows={3} className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm resize-none" />
         {company.trustBadges.map((badge, index) => (
           <input
             key={index}
@@ -117,7 +117,7 @@ export default function CompanyTab({ config, onSave, saving }: Props) {
                 trustBadges: prev.trustBadges.map((item, i) => (i === index ? e.target.value : item)),
               }))
             }
-            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 text-sm"
+            className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm"
           />
         ))}
       </section>

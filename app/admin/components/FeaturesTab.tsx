@@ -49,8 +49,8 @@ export default function FeaturesTab({ config, onSave, saving }: Props) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-1">Feature Flags</h2>
-      <p className="text-sm text-gray-500 mb-8">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Feature Flags</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-8">
         Toggle site features on or off without touching the code.
       </p>
 
@@ -58,16 +58,16 @@ export default function FeaturesTab({ config, onSave, saving }: Props) {
         {FEATURE_TOGGLES.map(({ key, label, description }) => (
           <div
             key={key}
-            className="flex items-start justify-between gap-4 p-4 rounded-xl border border-gray-200 bg-white"
+            className="flex items-start justify-between gap-4 p-4 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900/30"
           >
             <div>
-              <p className="text-sm font-semibold text-gray-800">{label}</p>
-              <p className="text-xs text-gray-500 mt-0.5">{description}</p>
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">{label}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{description}</p>
             </div>
             <button
               onClick={() => toggle(key)}
-              className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                features[key] ? "bg-green-600" : "bg-gray-200"
+              className={`relative flex-shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 ${
+                features[key] ? "bg-green-600" : "bg-gray-200 dark:bg-gray-600"
               }`}
               role="switch"
               aria-checked={features[key]}

@@ -77,15 +77,15 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-1">Gallery</h2>
-      <p className="text-sm text-gray-500 mb-6">
+      <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">Gallery</h2>
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
         Upload project photos. Toggle active/inactive to show or hide on the
         site. Reorder using the arrows.
       </p>
 
       {/* Upload new photo */}
       <div className="mb-8">
-        <p className="text-sm font-medium text-gray-700 mb-2">Upload Photo</p>
+        <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Upload Photo</p>
         <ImageUploader
           onFile={handleUpload}
           accept="image/jpeg,image/png,image/webp"
@@ -98,7 +98,7 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
 
       {/* Gallery items */}
       {gallery.length === 0 && (
-        <p className="text-sm text-gray-400 text-center py-8">
+        <p className="text-sm text-gray-400 dark:text-gray-500 text-center py-8">
           No photos yet. Upload one above to get started.
         </p>
       )}
@@ -109,8 +109,8 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
             key={item.id}
             className={`border rounded-xl p-4 flex gap-4 ${
               item.active
-                ? "border-gray-200 bg-white"
-                : "border-gray-100 bg-gray-50"
+                ? "border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                : "border-gray-100 dark:border-gray-700/50 bg-gray-50 dark:bg-gray-900/30"
             }`}
           >
             {/* Thumbnail */}
@@ -132,7 +132,7 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
                   updateItem(item.id, { caption: e.target.value })
                 }
                 placeholder="Caption (e.g. Trex Composite Deck — Malvern, PA)"
-                className="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                className="w-full px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
               />
               <div className="flex items-center gap-3">
                 <select
@@ -140,7 +140,7 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
                   onChange={(e) =>
                     updateItem(item.id, { category: e.target.value })
                   }
-                  className="px-3 py-1.5 rounded-lg border border-gray-200 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="px-3 py-1.5 rounded-lg border border-gray-200 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>
@@ -149,7 +149,7 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
                   ))}
                 </select>
 
-                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={item.active}
@@ -168,7 +168,7 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
               <button
                 onClick={() => moveItem(item.id, "up")}
                 disabled={idx === 0}
-                className="p-1 rounded text-gray-400 hover:text-gray-700 disabled:opacity-30 text-xs"
+                className="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 text-xs"
                 title="Move up"
               >
                 ▲
@@ -176,7 +176,7 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
               <button
                 onClick={() => moveItem(item.id, "down")}
                 disabled={idx === gallery.length - 1}
-                className="p-1 rounded text-gray-400 hover:text-gray-700 disabled:opacity-30 text-xs"
+                className="p-1 rounded text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-30 text-xs"
                 title="Move down"
               >
                 ▼
