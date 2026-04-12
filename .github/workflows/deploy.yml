@@ -115,6 +115,10 @@ jobs:
           # CONTACT_TO_EMAIL: GitHub Actions variable (Settings → Environments → Variables)
           # Must be a verified SES address while the account is in SES sandbox mode.
           TF_VAR_contact_to_email: ${{ vars.CONTACT_TO_EMAIL }}
+          # GitHub uppercases all variable names, so we cannot store TF_VAR_ses_email_enabled
+          # directly. Instead we store SES_EMAIL_ENABLED and map it here with the correct
+          # lowercase suffix that Terraform requires for env-var variable injection.
+          TF_VAR_ses_email_enabled: ${{ vars.SES_EMAIL_ENABLED }}
         run: |
           terraform plan \
             -var="environment=${{ needs.set-environment.outputs.environment }}" \
@@ -127,6 +131,7 @@ jobs:
         env:
           TF_VAR_admin_email: ${{ vars.ADMIN_EMAIL }}
           TF_VAR_contact_to_email: ${{ vars.CONTACT_TO_EMAIL }}
+          TF_VAR_ses_email_enabled: ${{ vars.SES_EMAIL_ENABLED }}
           # ADMIN_PASSWORD is only used by the explicit post-apply step below.
           # No longer passed to Terraform (null_resource local-exec was removed
           # because it ran under the state-role which has no Cognito permissions).
