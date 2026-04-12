@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { Phone, ChevronDown, Menu, X } from "lucide-react";
 import NavbarLogo from "./NavbarLogo";
 import { useCmsContact } from "./CmsContact";
@@ -46,7 +47,9 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
     if (!isMobile) setIsOpen(false);
   }, [isMobile]);
 
-  const isSolid = isMobile || scrolled;
+  const pathname = usePathname();
+  const isHomepage = pathname === "/" || (basePath !== "" && pathname === basePath);
+  const isSolid = isMobile || scrolled || !isHomepage;
 
   return (
     <header
