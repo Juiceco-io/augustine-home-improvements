@@ -413,14 +413,17 @@ resource "aws_cognito_user_pool" "cms" {
   # Route transactional email (password-reset codes, verification) through SES
   # instead of Cognito's shared mailer (50/day cap, high spam rate).
   #
-  # ⚠️  Cognito will REJECT this block (and silently fall back to COGNITO_DEFAULT)
-  # if the SES domain identity is not yet verified.  Complete the one-time DNS
-  # setup documented above, then re-run the pipeline to pick up DEVELOPER mode.
-  email_configuration {
-    email_sending_account  = "DEVELOPER"
-    from_email_address     = var.cognito_from_email
-    source_arn             = aws_ses_domain_identity.cognito_from.arn
-    reply_to_email_address = var.cognito_from_email
+  # Requires ses_email_enabled = true AND the SES domain identity to be DNS-verified
+  # before the first apply.  Cognito hard-fails pool *creation* if the domain is not
+  # verified — set ses_email_enabled = false for new environments until DNS is done.
+  dynamic "email_configuration" {
+    for_each = var.ses_email_enabled ? [1] : []
+    content {
+      email_sending_account  = "DEVELOPER"
+      from_email_address     = var.cognito_from_email
+      source_arn             = aws_ses_domain_identity.cognito_from.arn
+      reply_to_email_address = var.cognito_from_email
+    }
   }
 
   # Email verification + password-reset templates
