@@ -193,16 +193,14 @@ export default function GalleryTab({ config, onSave, saving }: Props) {
         ))}
       </div>
 
-      {gallery.length > 0 && (
-        <button
-          onClick={handleSave}
-          disabled={saving || uploading}
-          className="mt-6 px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity"
-          style={{ background: "linear-gradient(135deg, #26463f, #4b776b)" }}
-        >
-          {saving ? "Saving…" : "Save Gallery"}
-        </button>
-      )}
+      <button
+        onClick={handleSave}
+        disabled={saving || uploading}
+        className="mt-6 px-6 py-2.5 rounded-lg text-sm font-semibold text-white disabled:opacity-60 transition-opacity"
+        style={{ background: "linear-gradient(135deg, #26463f, #4b776b)" }}
+      >
+        {saving ? "Saving…" : "Save Gallery"}
+      </button>
     </div>
   );
 }
