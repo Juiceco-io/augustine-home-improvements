@@ -50,6 +50,18 @@ variable "cognito_from_email" {
   default     = "noreply@augustinehomeimprovements.com"
 }
 
+variable "ses_email_enabled" {
+  description = <<-EOT
+    When true, Cognito sends transactional email via SES (DEVELOPER mode) instead
+    of Cognito's shared mailer.  Requires the SES domain identity (ses_domain) to
+    be verified in DNS before the first apply — Cognito hard-fails pool creation if
+    the domain is not verified.  Set to false for environments where SES DNS has
+    not yet been configured (e.g. qa before the one-time DNS setup is complete).
+  EOT
+  type    = bool
+  default = false
+}
+
 variable "admin_email" {
   description = <<-EOT
     Email address for the initial CMS admin user.
