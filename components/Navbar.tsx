@@ -60,7 +60,7 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
       style={topOffset ? { top: topOffset } : undefined}
     >
       <div className={`container-xl flex items-center justify-between ${
-        isSolid ? "py-3 lg:py-4" : "py-4 lg:pt-7"
+        isSolid ? "py-4 lg:py-4" : "py-5 lg:pt-7"
       }`}>
         <Link
           href={basePath || "/"}

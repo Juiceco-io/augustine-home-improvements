@@ -28,7 +28,7 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-10 md:gap-12">
           {/* Brand column */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="mb-5 inline-block bg-white/95 rounded-lg px-3 py-2.5 shadow">
+            <div className="mt-4 lg:mt-0 mb-5 inline-block bg-white/95 rounded-lg px-3 py-2.5 shadow">
               <CmsLogo className="h-16 w-auto object-contain" />
             </div>
             <p className="text-sm text-gray-300 leading-relaxed mb-6 max-w-xs">
