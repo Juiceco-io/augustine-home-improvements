@@ -23,7 +23,7 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
       className="bg-brand-charcoal text-white"
       style={{ borderTop: "3px solid var(--brand-primary)" }}
     >
-      <div className="container-xl py-14 md:py-20">
+      <div className="container-xl pt-16 pb-14 md:py-20">
         {/* Main grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-10 md:gap-12">
           {/* Brand column */}
@@ -119,7 +119,7 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+        <div className="mt-14 pt-6 pb-6 sm:pb-0 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <p>
             &copy; {new Date().getFullYear()} Augustine Home Improvements LLC.
             All rights reserved.

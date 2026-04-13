@@ -54,12 +54,14 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-40 transition-all duration-300 navbar-base ${
-        isSolid ? "navbar-solid py-3 lg:py-4" : "navbar-hero py-4 lg:pt-7"
+        isSolid ? "navbar-solid" : "navbar-hero"
       }`}
       role="banner"
       style={topOffset ? { top: topOffset } : undefined}
     >
-      <div className="container-xl flex items-center justify-between">
+      <div className={`container-xl flex items-center justify-between ${
+        isSolid ? "py-3 lg:py-4" : "py-4 lg:pt-7"
+      }`}>
         <Link
           href={basePath || "/"}
           className="flex items-center group flex-shrink-0"
