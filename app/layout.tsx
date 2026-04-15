@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import AnalyticsProvider from "@/components/AnalyticsProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -152,6 +153,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-white text-brand-charcoal min-h-screen flex flex-col font-sans antialiased">
+        <AnalyticsProvider />
         {children}
       </body>
     </html>
