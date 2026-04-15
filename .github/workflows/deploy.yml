@@ -310,6 +310,7 @@ jobs:
           CLIENT_ID=$(terraform output -raw cms_cognito_client_id)
           API_URL=$(terraform output -raw cms_api_url)
           CONTACT_API_URL=$(terraform output -raw contact_api_url)
+          ANALYTICS_API_URL=$(terraform output -raw analytics_api_ingest_url)
           ADMIN_SEEDED=$(terraform output -raw cms_admin_user_created)
           echo "cloudfront_distribution_id=$CF_ID" >> "$GITHUB_OUTPUT"
           echo "s3_bucket_name=$BUCKET" >> "$GITHUB_OUTPUT"
@@ -318,9 +319,11 @@ jobs:
           echo "cms_cognito_client_id=$CLIENT_ID" >> "$GITHUB_OUTPUT"
           echo "cms_api_url=$API_URL" >> "$GITHUB_OUTPUT"
           echo "contact_api_url=$CONTACT_API_URL" >> "$GITHUB_OUTPUT"
+          echo "analytics_api_ingest_url=$ANALYTICS_API_URL" >> "$GITHUB_OUTPUT"
           echo "::notice title=CloudFront URL::$CF_DOMAIN"
           echo "::notice title=CMS API URL::$API_URL"
           echo "::notice title=Contact API URL::$CONTACT_API_URL"
+          echo "::notice title=Analytics Ingest URL::$ANALYTICS_API_URL"
           if [ "$ADMIN_SEEDED" = "true" ]; then
             echo "::notice title=Admin User::Cognito admin user seeded. Set password with: aws cognito-idp admin-set-user-password --user-pool-id $POOL_ID --username <email> --password '<PASSWORD>' --permanent"
           fi
