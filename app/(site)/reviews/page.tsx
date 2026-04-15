@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function ReviewsPage() {
   return (
-    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
+    <div className="bg-white pt-28 md:pt-36 pb-16 md:pb-20">
       <div className="container-xl">
         <ClientOnly>
           <ReviewsPageContent />

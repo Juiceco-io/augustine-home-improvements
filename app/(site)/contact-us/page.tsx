@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
+    <div className="bg-white pt-28 md:pt-36 pb-16 md:pb-20">
       <div className="container-xl">
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Left: form */}
