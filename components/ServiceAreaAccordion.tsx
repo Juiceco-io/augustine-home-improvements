@@ -24,11 +24,11 @@ export default function ServiceAreaAccordion({
             key={`${county.name}-${county.state}`}
             className="border border-gray-200 rounded-xl overflow-hidden"
           >
-            <summary className="flex items-center justify-between px-5 py-4 cursor-pointer bg-orange-50 hover:bg-orange-100 transition-colors list-none select-none">
+            <summary className="flex items-center justify-between px-5 py-4 cursor-pointer bg-brand-mist hover:bg-[#daeee5] transition-colors list-none select-none">
               <span className="font-semibold text-gray-900">
                 {county.name} {county.state}
               </span>
-              <span className="text-orange-700 text-xl font-bold">+</span>
+              <span className="text-brand-primary text-xl font-bold">+</span>
             </summary>
             {county.towns.length > 0 && (
               <ul className="px-5 py-4 space-y-2">
@@ -36,7 +36,7 @@ export default function ServiceAreaAccordion({
                   <li key={town.slug}>
                     <a
                       href={`/${serviceSlug}/${town.slug}/`}
-                      className="text-blue-700 hover:underline text-sm"
+                      className="text-brand-primary hover:text-brand-primary-dark hover:underline text-sm"
                     >
                       {serviceTitle} {town.name} {county.state}
                     </a>
