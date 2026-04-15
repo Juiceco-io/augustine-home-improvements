@@ -41,16 +41,15 @@ function send(payload: object): void {
   if (!API_URL) return;
   const body = JSON.stringify(payload);
   try {
-    if (typeof navigator !== "undefined" && navigator.sendBeacon) {
-      navigator.sendBeacon(API_URL, new Blob([body], { type: "application/json" }));
-    } else {
-      fetch(API_URL, {
-        method: "POST",
-        body,
-        headers: { "Content-Type": "application/json" },
-        keepalive: true,
-      }).catch(() => {});
-    }
+    // Use fetch with keepalive (survives page unload) and credentials: 'omit'
+    // so it's compatible with Access-Control-Allow-Origin: * on the ingest endpoint.
+    fetch(API_URL, {
+      method: "POST",
+      body,
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      credentials: "omit",
+    }).catch(() => {});
   } catch {
     // Never surface analytics errors — tracking must not affect UX
   }
