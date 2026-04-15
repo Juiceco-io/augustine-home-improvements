@@ -117,6 +117,12 @@ resource "aws_cloudfront_distribution" "site" {
   comment             = "${var.project}-${var.environment}"
   aliases             = local.effective_aliases
 
+  logging_config {
+    bucket          = aws_s3_bucket.access_logs.bucket_domain_name
+    prefix          = "cloudfront/"
+    include_cookies = false
+  }
+
   origin {
     domain_name              = aws_s3_bucket.site.bucket_regional_domain_name
     origin_id                = "S3-${local.bucket_name}"

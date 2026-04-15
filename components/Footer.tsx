@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Facebook, Shield, Award, Star } from "lucide-react";
 import { CmsPhoneLink, CmsEmailLink, CmsLogo, CmsServiceArea } from "./CmsContact";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -112,6 +113,7 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
             <Link
               href={`${basePath}/contact-us/`}
               className="btn-primary text-sm py-2.5 px-5 w-full justify-center sm:w-auto lg:w-full"
+              onClick={() => trackEvent("CTA_CLICK", { label: "footer_estimate" })}
             >
               Get a Free Estimate
             </Link>

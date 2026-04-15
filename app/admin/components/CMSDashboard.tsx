@@ -14,6 +14,9 @@ import FeaturesTab from "./FeaturesTab";
 import HomepageTab from "./HomepageTab";
 import CompanyTab from "./CompanyTab";
 import ReviewsTab from "./ReviewsTab";
+import dynamic from "next/dynamic";
+
+const AnalyticsTab = dynamic(() => import("./AnalyticsTab"), { ssr: false });
 
 const PUBLIC_SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.augustinehomeimprovements.com";
@@ -21,21 +24,23 @@ const PUBLIC_SITE_URL =
 const PENDING_CHANGES_KEY = "cms-pending-changes";
 
 const TAB_LABELS: Record<string, string> = {
-  branding: "Branding",
-  hero: "Hero",
-  homepage: "Homepage",
-  company: "Company",
-  reviews: "Reviews",
-  gallery: "Gallery",
-  contact: "Contact",
-  features: "Features",
+  branding:  "Branding",
+  hero:      "Hero",
+  homepage:  "Homepage",
+  company:   "Company",
+  reviews:   "Reviews",
+  gallery:   "Gallery",
+  contact:   "Contact",
+  features:  "Features",
+  analytics: "Analytics",
 };
 
 type PendingChange = { tab: string; label: string; time: string; snapshot?: unknown };
 
-type Tab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features";
+type CMSTab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features";
+type Tab = CMSTab | "analytics";
 
-const TAB_TO_CONFIG_KEY: Record<Tab, keyof SiteConfig> = {
+const TAB_TO_CONFIG_KEY: Record<CMSTab, keyof SiteConfig> = {
   branding: "brand",
   hero: "hero",
   homepage: "homepage",
@@ -84,7 +89,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
     try {
       // Capture the pre-save value for this tab so discard can revert it.
       // If there's already a pending entry for this tab, preserve its original snapshot.
-      const key = TAB_TO_CONFIG_KEY[activeTab];
+      const key = TAB_TO_CONFIG_KEY[activeTab as CMSTab];
       const existingEntry = pendingChanges.find((c) => c.tab === activeTab);
       const snapshot = existingEntry?.snapshot ?? (config ? config[key] : undefined);
 
@@ -124,7 +129,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
     setDiscarding(tab);
     setError(null);
     try {
-      const key = TAB_TO_CONFIG_KEY[tab];
+      const key = TAB_TO_CONFIG_KEY[tab as CMSTab];
       const reverted = { ...config, [key]: change.snapshot } as SiteConfig;
       await putConfig(reverted);
       setConfig(reverted);
@@ -139,14 +144,15 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
   }
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: "branding", label: "Branding" },
-    { id: "hero", label: "Hero" },
-    { id: "homepage", label: "Homepage" },
-    { id: "company", label: "Company" },
-    { id: "reviews", label: "Reviews" },
-    { id: "gallery", label: "Gallery" },
-    { id: "contact", label: "Contact" },
-    { id: "features", label: "Features" },
+    { id: "branding",  label: "Branding" },
+    { id: "hero",      label: "Hero" },
+    { id: "homepage",  label: "Homepage" },
+    { id: "company",   label: "Company" },
+    { id: "reviews",   label: "Reviews" },
+    { id: "gallery",   label: "Gallery" },
+    { id: "contact",   label: "Contact" },
+    { id: "features",  label: "Features" },
+    { id: "analytics", label: "Analytics" },
   ];
 
   return (
@@ -356,6 +362,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
                   saving={saving}
                 />
               )}
+              {activeTab === "analytics" && <AnalyticsTab />}
             </div>
           </div>
         )}

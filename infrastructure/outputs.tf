@@ -130,3 +130,22 @@ output "cms_cognito_ses_role_arn" {
   description = "IAM role ARN that Cognito assumes to call SES (for reference/debugging)"
   value       = aws_iam_role.cognito_ses_sender.arn
 }
+
+# ─────────────────────────────────────────────
+# Analytics Outputs
+# ─────────────────────────────────────────────
+
+output "analytics_api_ingest_url" {
+  description = "Analytics event ingest URL — set as NEXT_PUBLIC_ANALYTICS_API_URL in Next.js build"
+  value       = "${aws_api_gateway_stage.cms.invoke_url}/analytics"
+}
+
+output "analytics_table_name" {
+  description = "DynamoDB table name for analytics events"
+  value       = aws_dynamodb_table.analytics.name
+}
+
+output "access_logs_bucket" {
+  description = "S3 bucket name for CloudFront access logs"
+  value       = aws_s3_bucket.access_logs.bucket
+}

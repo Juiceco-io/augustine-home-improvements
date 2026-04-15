@@ -903,6 +903,16 @@ resource "aws_api_gateway_deployment" "cms" {
       aws_api_gateway_gateway_response.default_4xx,
       aws_api_gateway_gateway_response.default_5xx,
     ]))
+    # Redeploy when analytics routes change
+    analytics_hash = sha1(jsonencode([
+      aws_api_gateway_method.analytics_post,
+      aws_api_gateway_integration.analytics_post,
+      aws_api_gateway_method.analytics_get,
+      aws_api_gateway_integration.analytics_get,
+      aws_api_gateway_method.analytics_options,
+      aws_api_gateway_integration.analytics_options,
+      aws_api_gateway_integration_response.analytics_options_200,
+    ]))
   }
 
   lifecycle { create_before_destroy = true }
@@ -914,6 +924,12 @@ resource "aws_api_gateway_deployment" "cms" {
     aws_api_gateway_gateway_response.unauthorized,
     aws_api_gateway_gateway_response.default_4xx,
     aws_api_gateway_gateway_response.default_5xx,
+    aws_api_gateway_method.analytics_post,
+    aws_api_gateway_integration.analytics_post,
+    aws_api_gateway_method.analytics_get,
+    aws_api_gateway_integration.analytics_get,
+    aws_api_gateway_method.analytics_options,
+    aws_api_gateway_integration.analytics_options,
   ]
 }
 

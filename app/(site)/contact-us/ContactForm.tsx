@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 type Status =
   | { type: "idle" }
@@ -92,6 +93,7 @@ export default function ContactForm() {
         throw new Error(data?.error ?? "Unable to send your message right now.");
       }
 
+      trackEvent("FORM_SUBMIT", { services: form.services.join(",") });
       setStatus({ type: "success" });
     } catch (err) {
       setStatus({
