@@ -71,6 +71,17 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
         </Link>
 
         <nav className="hidden lg:flex items-center gap-6" aria-label="Main navigation">
+          <Link
+            href={`${basePath || "/"}`}
+            className={`font-semibold text-sm transition-colors nav-link-underline ${
+              isSolid
+                ? "text-gray-700 hover:text-brand-primary"
+                : "text-white/90 hover:text-white"
+            }`}
+          >
+            Home
+          </Link>
+
           <div className="relative nav-dropdown-parent group">
             <button
               className={`flex items-center gap-1 font-semibold text-sm transition-colors py-2 nav-link-underline ${
@@ -150,6 +161,16 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
       >
         <div className="h-px bg-gradient-to-r from-transparent via-gray-200 to-transparent mx-4" />
         <nav className="container-xl pt-3 pb-5 flex flex-col gap-0.5" aria-label="Mobile navigation">
+          <Link
+            href={`${basePath || "/"}`}
+            onClick={() => setIsOpen(false)}
+            className="block px-3 py-2.5 text-sm font-semibold text-gray-800 hover:text-[color:var(--brand-primary)] hover:bg-brand-cream rounded-lg transition-colors"
+          >
+            Home
+          </Link>
+
+          <div className="h-px bg-gray-100 mx-1 my-2" />
+
           <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest px-3 pt-1 pb-1.5">
             Services
           </p>
