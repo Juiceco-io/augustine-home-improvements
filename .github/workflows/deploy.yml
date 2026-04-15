@@ -262,26 +262,38 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | awk '{print $2}')
           export AWS_SESSION_TOKEN=$(echo "$CREDS" | awk '{print $3}')
 
-          aws s3 cp "s3://$CONFIG_BUCKET/config/site-config.json" /tmp/cms-config.json 2>/dev/null || echo '{}' > /tmp/cms-config.json
+          REPO_CONFIG="../public/site-config.json"
 
-          node -e "
-            const fs = require('fs');
-            const cms = JSON.parse(fs.readFileSync('/tmp/cms-config.json', 'utf-8'));
-            const repo = JSON.parse(fs.readFileSync('../public/site-config.json', 'utf-8'));
-            if (!cms.serviceAreas || !cms.serviceAreas.length) {
-              cms.serviceAreas = repo.serviceAreas || [];
-              fs.writeFileSync('/tmp/cms-config-patched.json', JSON.stringify(cms, null, 2));
-              const total = cms.serviceAreas.reduce((s, c) => s + c.towns.length, 0);
-              console.log('Patching serviceAreas: ' + cms.serviceAreas.length + ' counties, ' + total + ' towns');
-              process.exit(0);
-            }
-            console.log('serviceAreas already present — skipping migration');
-            process.exit(1);
-          " && aws s3 cp /tmp/cms-config-patched.json \
-              "s3://$CONFIG_BUCKET/config/site-config.json" \
-              --content-type application/json \
-            && echo "::notice title=Service Areas::Migrated serviceAreas into CMS config" \
-            || echo "[service-areas-migrate] No migration needed."
+          patch_key() {
+            local S3_KEY="$1"
+            local LABEL="$2"
+            local TMP_IN="/tmp/cms-${LABEL}.json"
+            local TMP_OUT="/tmp/cms-${LABEL}-patched.json"
+
+            aws s3 cp "s3://$CONFIG_BUCKET/$S3_KEY" "$TMP_IN" 2>/dev/null || echo '{}' > "$TMP_IN"
+
+            node -e "
+              const fs = require('fs');
+              const cms = JSON.parse(fs.readFileSync('$TMP_IN', 'utf-8'));
+              const repo = JSON.parse(fs.readFileSync('$REPO_CONFIG', 'utf-8'));
+              if (!cms.serviceAreas || !cms.serviceAreas.length) {
+                cms.serviceAreas = repo.serviceAreas || [];
+                fs.writeFileSync('$TMP_OUT', JSON.stringify(cms, null, 2));
+                const total = cms.serviceAreas.reduce((s, c) => s + c.towns.length, 0);
+                console.log('Patching $LABEL: ' + cms.serviceAreas.length + ' counties, ' + total + ' towns');
+                process.exit(0);
+              }
+              console.log('$LABEL: serviceAreas already present — skipping');
+              process.exit(1);
+            " && aws s3 cp "$TMP_OUT" \
+                "s3://$CONFIG_BUCKET/$S3_KEY" \
+                --content-type application/json \
+              && echo "::notice title=Service Areas::Migrated serviceAreas into $LABEL" \
+              || echo "[service-areas-migrate] $LABEL — no migration needed."
+          }
+
+          patch_key "config/site-config.json"       "live"
+          patch_key "config/draft-site-config.json" "draft"
 
       - name: Check SES domain verification status
         working-directory: ${{ env.TF_DIR }}
