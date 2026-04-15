@@ -75,6 +75,7 @@ jobs:
       cms_cognito_client_id: ${{ steps.tf-output.outputs.cms_cognito_client_id }}
       cms_api_url: ${{ steps.tf-output.outputs.cms_api_url }}
       contact_api_url: ${{ steps.tf-output.outputs.contact_api_url }}
+      analytics_api_ingest_url: ${{ steps.tf-output.outputs.analytics_api_ingest_url }}
 
     steps:
       - name: Checkout
@@ -302,6 +303,7 @@ jobs:
       NEXT_PUBLIC_CMS_CONFIG_URL: ${{ needs.terraform-apply.outputs.cms_config_url }}
       NEXT_PUBLIC_SITE_URL: ${{ needs.terraform-apply.outputs.cloudfront_domain_name }}
       NEXT_PUBLIC_CONTACT_API_URL: ${{ needs.terraform-apply.outputs.contact_api_url }}
+      NEXT_PUBLIC_ANALYTICS_API_URL: ${{ needs.terraform-apply.outputs.analytics_api_ingest_url }}
 
     steps:
       - name: Checkout
