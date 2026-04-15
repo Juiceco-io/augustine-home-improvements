@@ -18,9 +18,26 @@ function toSlug(name: string, state: string): string {
 
 export default function ServiceAreasTab({ config, onSave, saving }: Props) {
   const [counties, setCounties] = useState<ServiceAreaCounty[]>(config.serviceAreas ?? []);
+  const [expanded, setExpanded] = useState<Set<number>>(new Set());
+
+  function toggleExpanded(ci: number) {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (next.has(ci)) {
+        next.delete(ci);
+      } else {
+        next.add(ci);
+      }
+      return next;
+    });
+  }
 
   function addCounty() {
-    setCounties((prev) => [...prev, { name: "", state: "PA", towns: [] }]);
+    setCounties((prev) => {
+      const next = [...prev, { name: "", state: "PA", towns: [] }];
+      setExpanded((e) => new Set([...e, next.length - 1]));
+      return next;
+    });
   }
 
   function removeCounty(ci: number) {
@@ -97,90 +114,117 @@ export default function ServiceAreasTab({ config, onSave, saving }: Props) {
         ).
       </p>
       <p className="text-sm text-amber-600 dark:text-amber-400 mb-8">
-        After publishing, a site rebuild is required for new town pages to go live.
+        After publishing, a site rebuild by the developer is required for new town pages to go live.
       </p>
 
-      <div className="space-y-6 mb-8">
-        {counties.map((county, ci) => (
-          <div
-            key={ci}
-            className="border border-gray-200 dark:border-gray-600 rounded-xl p-5"
-          >
-            {/* County header row */}
-            <div className="flex items-end gap-3 mb-4">
-              <div className="flex-1">
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                  County Name
-                </label>
-                <input
-                  type="text"
-                  value={county.name}
-                  onChange={(e) => updateCounty(ci, "name", e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                  placeholder="Chester County"
-                />
-              </div>
-              <div className="w-20">
-                <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
-                  State
-                </label>
-                <input
-                  type="text"
-                  value={county.state}
-                  onChange={(e) => updateCounty(ci, "state", e.target.value.toUpperCase())}
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 uppercase"
-                  placeholder="PA"
-                  maxLength={2}
-                />
-              </div>
-              <button
-                onClick={() => removeCounty(ci)}
-                className="pb-0.5 text-sm text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors"
-                title="Remove county"
-              >
-                Remove
-              </button>
-            </div>
-
-            {/* Town list */}
-            <div className="space-y-2 mb-3">
-              {county.towns.length === 0 && (
-                <p className="text-xs text-gray-400 dark:text-gray-500 italic">
-                  No towns yet — add one below.
-                </p>
-              )}
-              {county.towns.map((town, ti) => (
-                <div key={ti} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={town.name}
-                    onChange={(e) => updateTown(ci, ti, e.target.value)}
-                    className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
-                    placeholder="Atglen"
-                  />
-                  <span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-44 truncate shrink-0">
-                    /{toSlug(town.name || "town", county.state || "pa")}/
+      <div className="space-y-3 mb-8">
+        {counties.map((county, ci) => {
+          const isOpen = expanded.has(ci);
+          return (
+            <div
+              key={ci}
+              className="border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden"
+            >
+              {/* Collapsible header */}
+              <div className="flex items-center gap-2 px-4 py-3 bg-gray-50 dark:bg-gray-700/50">
+                <button
+                  onClick={() => toggleExpanded(ci)}
+                  className="flex items-center gap-2 flex-1 text-left"
+                  aria-expanded={isOpen}
+                >
+                  <span className="text-gray-400 dark:text-gray-500 text-xs w-4 text-center select-none">
+                    {isOpen ? "▾" : "▸"}
                   </span>
+                  <span className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                    {county.name || "Unnamed County"}{county.state ? ` ${county.state}` : ""}
+                  </span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    {county.towns.length} {county.towns.length === 1 ? "town" : "towns"}
+                  </span>
+                </button>
+                <button
+                  onClick={() => removeCounty(ci)}
+                  className="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors shrink-0"
+                  title="Remove county"
+                >
+                  Remove
+                </button>
+              </div>
+
+              {/* Expandable body */}
+              {isOpen && (
+                <div className="px-5 py-4">
+                  {/* County name + state inputs */}
+                  <div className="flex items-end gap-3 mb-4">
+                    <div className="flex-1">
+                      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        County Name
+                      </label>
+                      <input
+                        type="text"
+                        value={county.name}
+                        onChange={(e) => updateCounty(ci, "name", e.target.value)}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                        placeholder="Chester County"
+                      />
+                    </div>
+                    <div className="w-20">
+                      <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">
+                        State
+                      </label>
+                      <input
+                        type="text"
+                        value={county.state}
+                        onChange={(e) => updateCounty(ci, "state", e.target.value.toUpperCase())}
+                        className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 uppercase"
+                        placeholder="PA"
+                        maxLength={2}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Town list */}
+                  <div className="space-y-2 mb-3">
+                    {county.towns.length === 0 && (
+                      <p className="text-xs text-gray-400 dark:text-gray-500 italic">
+                        No towns yet — add one below.
+                      </p>
+                    )}
+                    {county.towns.map((town, ti) => (
+                      <div key={ti} className="flex items-center gap-2">
+                        <input
+                          type="text"
+                          value={town.name}
+                          onChange={(e) => updateTown(ci, ti, e.target.value)}
+                          className="flex-1 px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 text-sm focus:outline-none focus:ring-2 focus:ring-green-500"
+                          placeholder="Atglen"
+                        />
+                        <span className="text-xs text-gray-400 dark:text-gray-500 font-mono w-44 truncate shrink-0">
+                          /{toSlug(town.name || "town", county.state || "pa")}/
+                        </span>
+                        <button
+                          onClick={() => removeTown(ci, ti)}
+                          className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-sm shrink-0"
+                          title="Remove town"
+                          aria-label="Remove town"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
                   <button
-                    onClick={() => removeTown(ci, ti)}
-                    className="text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition-colors text-sm shrink-0"
-                    title="Remove town"
-                    aria-label="Remove town"
+                    onClick={() => addTown(ci)}
+                    className="text-sm text-green-700 dark:text-green-400 hover:underline"
                   >
-                    ✕
+                    + Add Town
                   </button>
                 </div>
-              ))}
+              )}
             </div>
-
-            <button
-              onClick={() => addTown(ci)}
-              className="text-sm text-green-700 dark:text-green-400 hover:underline"
-            >
-              + Add Town
-            </button>
-          </div>
-        ))}
+          );
+        })}
 
         {counties.length === 0 && (
           <p className="text-sm text-gray-400 dark:text-gray-500 italic">
