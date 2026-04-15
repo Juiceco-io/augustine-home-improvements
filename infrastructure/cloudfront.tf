@@ -192,4 +192,9 @@ resource "aws_cloudfront_distribution" "site" {
     ssl_support_method             = local.certificate_issued ? "sni-only" : null
     minimum_protocol_version       = local.certificate_issued ? "TLSv1.2_2021" : null
   }
+
+  # ACL grant must exist before CloudFront can validate the log bucket.
+  # No implicit dependency exists because logging_config only references
+  # the bucket domain name, not the ACL resource.
+  depends_on = [aws_s3_bucket_acl.access_logs]
 }

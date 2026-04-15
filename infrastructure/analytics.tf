@@ -87,6 +87,9 @@ resource "aws_s3_bucket_lifecycle_configuration" "access_logs" {
     id     = "expire-logs"
     status = "Enabled"
 
+    # Empty filter = apply to all objects in the bucket
+    filter {}
+
     transition {
       days          = 30
       storage_class = "STANDARD_IA"
