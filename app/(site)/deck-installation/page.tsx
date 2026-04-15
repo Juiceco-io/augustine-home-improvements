@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import ServicePage from "@/components/ServicePage";
+import ServiceAreaAccordion from "@/components/ServiceAreaAccordion";
+import { getStaticConfig } from "@/lib/getStaticConfig";
+import { content } from "./content";
 
 export const metadata: Metadata = {
   title: "Deck Installation | TrexPro Certified | Chester County PA",
@@ -11,22 +14,21 @@ export const metadata: Metadata = {
 };
 
 export default function DeckInstallationPage() {
+  const { serviceAreas } = getStaticConfig();
   return (
-    <ServicePage
-      breadcrumb="Deck Installation"
-      title="Deck Installation"
-      subtitle="TrexPro Certified deck builder serving Chester County PA."
-      description="Augustine Home Improvements is one of a select group of TrexPro Certified Installers in Chester County — meaning our deck installations meet Trex's highest standards and qualify for extended manufacturer warranties. Whether you're envisioning a simple pressure-treated deck or a multi-level composite outdoor living space, we design and build decks that complement your home and hold up for decades."
-      highlights={[
-        "Trex composite decking (TrexPro Certified Installer)",
-        "Pressure-treated and hardwood options",
-        "Custom railings, stairs, and built-in benches",
-        "Multi-level and wraparound deck designs",
-        "Pergolas and shade structures",
-        "Deck replacement and board-by-board repair",
-        "Permit acquisition and code-compliant construction",
-        "Cleanup and haul-away of old deck materials",
-      ]}
-    />
+    <>
+      <ServicePage
+        breadcrumb={content.breadcrumb}
+        title={content.title}
+        subtitle={content.subtitle}
+        description={content.description}
+        highlights={[...content.highlights]}
+      />
+      <ServiceAreaAccordion
+        serviceAreas={serviceAreas}
+        serviceSlug={content.serviceSlug}
+        serviceTitle={content.title}
+      />
+    </>
   );
 }

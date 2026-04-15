@@ -14,6 +14,7 @@ import FeaturesTab from "./FeaturesTab";
 import HomepageTab from "./HomepageTab";
 import CompanyTab from "./CompanyTab";
 import ReviewsTab from "./ReviewsTab";
+import ServiceAreasTab from "./ServiceAreasTab";
 import dynamic from "next/dynamic";
 
 const AnalyticsTab = dynamic(() => import("./AnalyticsTab"), { ssr: false });
@@ -37,7 +38,7 @@ const TAB_LABELS: Record<string, string> = {
 
 type PendingChange = { tab: string; label: string; time: string; snapshot?: unknown };
 
-type CMSTab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features";
+type CMSTab = "branding" | "hero" | "homepage" | "company" | "reviews" | "gallery" | "contact" | "features" | "serviceAreas";
 type Tab = CMSTab | "analytics";
 
 const TAB_TO_CONFIG_KEY: Record<CMSTab, keyof SiteConfig> = {
@@ -49,6 +50,7 @@ const TAB_TO_CONFIG_KEY: Record<CMSTab, keyof SiteConfig> = {
   gallery: "gallery",
   contact: "contact",
   features: "features",
+  serviceAreas: "serviceAreas",
 };
 
 interface Props {
@@ -150,9 +152,10 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
     { id: "company",   label: "Company" },
     { id: "reviews",   label: "Reviews" },
     { id: "gallery",   label: "Gallery" },
-    { id: "contact",   label: "Contact" },
-    { id: "features",  label: "Features" },
-    { id: "analytics", label: "Analytics" },
+    { id: "contact",      label: "Contact" },
+    { id: "features",     label: "Features" },
+    { id: "serviceAreas", label: "Service Areas" },
+    { id: "analytics",    label: "Analytics" },
   ];
 
   return (
@@ -357,6 +360,13 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
               )}
               {activeTab === "features" && (
                 <FeaturesTab
+                  config={config}
+                  onSave={handleSave}
+                  saving={saving}
+                />
+              )}
+              {activeTab === "serviceAreas" && (
+                <ServiceAreasTab
                   config={config}
                   onSave={handleSave}
                   saving={saving}
