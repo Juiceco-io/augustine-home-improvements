@@ -65,6 +65,17 @@ const CMS_TABS: { id: CMSTab; label: string }[] = [
   { id: "serviceAreas", label: "Service Areas" },
 ];
 
+const TAB_TO_CONFIG_KEY: Record<Tab, keyof SiteConfig> = {
+  branding: "brand",
+  hero: "hero",
+  homepage: "homepage",
+  company: "company",
+  reviews: "reviews",
+  gallery: "gallery",
+  contact: "contact",
+  features: "features",
+};
+
 interface Props {
   onLogout: () => void;
   isDark: boolean;
@@ -102,6 +113,8 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
     setSaving(true);
     setError(null);
     try {
+      // Capture the pre-save value for this tab so discard can revert it.
+      // If there's already a pending entry for this tab, preserve its original snapshot.
       const key = TAB_TO_CONFIG_KEY[activeTab];
       const existingEntry = pendingChanges.find((c) => c.tab === activeTab);
       const snapshot = existingEntry?.snapshot ?? (config ? config[key] : undefined);
