@@ -20,6 +20,15 @@ import { fetchAnalytics, type AnalyticsData } from "../lib/analyticsApi";
 
 type Range = "7d" | "30d" | "90d";
 
+// Human-readable descriptions for Core Web Vitals acronyms
+const VITAL_DESCRIPTIONS: Record<string, { full: string; desc: string }> = {
+  LCP:  { full: "Largest Contentful Paint",  desc: "How fast your page's main content loads. Think of it as when a visitor can actually see the page — lower is better." },
+  INP:  { full: "Interaction to Next Paint",  desc: "How quickly your page reacts when someone clicks a button or taps a link. A sluggish site feels broken to visitors — lower is better." },
+  CLS:  { full: "Cumulative Layout Shift",    desc: "How much things jump around the screen while the page loads — like a button moving right before you tap it. Closer to 0 is better." },
+  TTFB: { full: "Time to First Byte",         desc: "How long the server takes to start sending your page to a visitor's browser. Slow TTFB usually means a slow server — lower is better." },
+  FCP:  { full: "First Contentful Paint",     desc: "How long until a visitor sees the very first thing appear on screen (any text or image). Lower is better." },
+};
+
 // Google Core Web Vitals thresholds
 const VITAL_THRESHOLDS: Record<string, { good: number; needs: number; unit: string }> = {
   LCP:  { good: 2500,  needs: 4000,  unit: "ms" },
@@ -70,6 +79,21 @@ function KPICard({
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5">{sub}</p>
       )}
     </div>
+  );
+}
+
+function VitalTooltip({ metric }: { metric: string }) {
+  const info = VITAL_DESCRIPTIONS[metric];
+  if (!info) return <span>{metric}</span>;
+  return (
+    <span className="group relative inline-flex items-center gap-1">
+      <span>{metric}</span>
+      <span className="text-gray-400 dark:text-gray-500 cursor-help text-xs leading-none" aria-label={`About ${metric}`}>ⓘ</span>
+      <span className="pointer-events-none absolute left-0 top-full mt-1.5 z-20 w-56 rounded-lg bg-gray-900 dark:bg-gray-950 text-white text-xs px-3 py-2 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+        <span className="block font-semibold mb-0.5">{info.full}</span>
+        <span className="block text-gray-300">{info.desc}</span>
+      </span>
+    </span>
   );
 }
 
@@ -488,7 +512,7 @@ export default function AnalyticsTab() {
                           className="border-b border-gray-100 dark:border-gray-700 last:border-0"
                         >
                           <td className="px-4 py-3 font-medium text-gray-900 dark:text-white">
-                            {metric}
+                            <VitalTooltip metric={metric} />
                           </td>
                           <td className="px-4 py-3 text-right text-gray-700 dark:text-gray-300">
                             {display}
