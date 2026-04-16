@@ -65,17 +65,6 @@ const CMS_TABS: { id: CMSTab; label: string }[] = [
   { id: "serviceAreas", label: "Service Areas" },
 ];
 
-const TAB_TO_CONFIG_KEY: Record<Tab, keyof SiteConfig> = {
-  branding: "brand",
-  hero: "hero",
-  homepage: "homepage",
-  company: "company",
-  reviews: "reviews",
-  gallery: "gallery",
-  contact: "contact",
-  features: "features",
-};
-
 interface Props {
   onLogout: () => void;
   isDark: boolean;
