@@ -134,6 +134,24 @@ feature branches
 - **Budget alerts**: $50/mo dev, $500/mo prd (provisioned automatically)
 - **`api-service` apps**: must expose `GET /health` endpoint
 
+### Terraform state
+- **All apps share one central S3 backend** — never create a per-app state bucket.
+  - Bucket: `juiceco-terraform-state` · Region: `us-east-1`
+  - Lock table: `juiceco-terraform-locks` (DynamoDB) · Encrypt: `true`
+- **State key convention**: `augustine-home-improvements/<environment>/terraform.tfstate`
+- The `key` is injected at init time via `-backend-config="key=..."` in CI — **do not hardcode `key` or `role_arn` in the backend block**.
+- The backend block in `main.tf` should look like this:
+  ```hcl
+  backend "s3" {
+    bucket         = "juiceco-terraform-state"
+    region         = "us-east-1"
+    dynamodb_table = "juiceco-terraform-locks"
+    encrypt        = true
+    # key and role_arn are injected by CI via -backend-config
+  }
+  ```
+- Full backend docs: [`github-infra/terraform-state-backend/docs/BACKEND.md`](https://github.com/Juiceco-io/github-infra/blob/main/terraform-state-backend/docs/BACKEND.md)
+
 ### GitHub Actions / secrets
 - App-specific secrets (API keys, webhook tokens, etc.) are added via `gh secret set` after bootstrap — never committed to the repo or to `github-infra`
 - The `github-infra` reusable workflows must be allowed in this repo's Actions settings (Settings → Actions → General → Allow Juiceco-io/github-infra workflows)
