@@ -9,6 +9,7 @@
 
 import { Phone, Mail, Clock, MapPin } from "lucide-react";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 export default function ContactInfoPanel() {
   const config = useSiteConfig();
@@ -33,6 +34,7 @@ export default function ContactInfoPanel() {
           <a
             href={tel}
             className="text-gray-600 hover:text-brand-red transition-colors"
+            onClick={() => trackEvent("CTA_CLICK", { label: "contact_info_phone" })}
           >
             {phone}
           </a>

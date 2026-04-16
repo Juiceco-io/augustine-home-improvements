@@ -96,7 +96,7 @@ export default function LoginPage({ onLogin }: Props) {
       >
         <span className="text-white text-2xl font-bold">A</span>
       </div>
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Augustine CMS</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Augustine Admin</h1>
     </div>
   );
 

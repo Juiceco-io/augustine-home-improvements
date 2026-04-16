@@ -1,6 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { Phone, CheckCircle } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
+import { trackEvent } from "@/lib/analytics";
 
 interface ServicePageProps {
   title: string;
@@ -83,12 +86,14 @@ export default function ServicePage({
                 <Link
                   href="/contact-us/"
                   className="btn-primary w-full justify-center mb-3"
+                  onClick={() => trackEvent("CTA_CLICK", { label: "service_estimate" })}
                 >
                   Request Estimate
                 </Link>
                 <a
                   href="tel:+14844677925"
                   className="btn-outline w-full justify-center text-sm"
+                  onClick={() => trackEvent("CTA_CLICK", { label: "service_phone" })}
                 >
                   <Phone size={14} aria-hidden="true" />
                   484-467-7925

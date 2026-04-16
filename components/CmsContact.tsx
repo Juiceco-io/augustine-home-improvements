@@ -23,14 +23,15 @@ import { useSiteConfig } from "@/lib/useSiteConfig";
 
 interface Props {
   className?: string;
+  onClick?: () => void;
 }
 
-export function CmsPhoneLink({ className }: Props) {
+export function CmsPhoneLink({ className, onClick }: Props) {
   const config = useSiteConfig();
   const phone = config.contact.phone || "484-467-7925";
   const tel = `tel:+1${phone.replace(/\D/g, "")}`;
   return (
-    <a href={tel} className={className}>
+    <a href={tel} className={className} onClick={onClick}>
       <Phone size={15} aria-hidden="true" className="flex-shrink-0" />
       {phone}
     </a>

@@ -8,6 +8,7 @@
 import Link from "next/link";
 import { Phone } from "lucide-react";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 export default function AboutCta() {
   const config = useSiteConfig();
@@ -32,12 +33,14 @@ export default function AboutCta() {
         <Link
           href={primaryHref}
           className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center cta-link-white"
+          onClick={() => trackEvent("CTA_CLICK", { label: "about_estimate" })}
         >
           {cta.primaryLabel}
         </Link>
         <a
           href={tel}
           className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto cta-link-white"
+          onClick={() => trackEvent("CTA_CLICK", { label: "about_phone" })}
         >
           <Phone size={15} aria-hidden="true" />
           {cta.secondaryLabel || phone}

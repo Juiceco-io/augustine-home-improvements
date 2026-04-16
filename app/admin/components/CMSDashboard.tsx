@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import { Sun, Moon, X, Loader2, LayoutGrid, BarChart2 } from "lucide-react";
 import { getConfig, putConfig } from "../lib/api";
 import { getCurrentUserEmail } from "../lib/auth";
@@ -72,7 +73,9 @@ interface Props {
 }
 
 export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props) {
-  const [section, setSection] = useState<Section>("cms");
+  const pathname = usePathname();
+  const router = useRouter();
+  const section: Section = pathname.startsWith("/admin/analytics") ? "analytics" : "cms";
   const [activeTab, setActiveTab] = useState<CMSTab>("branding");
   const [config, setConfig] = useState<SiteConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -167,15 +170,18 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
       {/* Header */}
       <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <button
+            onClick={() => router.push("/admin")}
+            className="flex items-center gap-3 hover:opacity-80 transition-opacity"
+          >
             <div
               className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
               style={{ background: "linear-gradient(135deg, #26463f, #4b776b)" }}
             >
               <span className="text-white text-sm font-bold">A</span>
             </div>
-            <span className="font-semibold text-gray-900 dark:text-white">Augustine CMS</span>
-          </div>
+            <span className="font-semibold text-gray-900 dark:text-white">Augustine Admin</span>
+          </button>
           <div className="flex items-center gap-4">
             {email && (
               <span className="text-sm text-gray-500 dark:text-gray-400 hidden sm:block">
@@ -224,7 +230,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
               {navSections.map((s) => (
                 <li key={s.id}>
                   <button
-                    onClick={() => setSection(s.id)}
+                    onClick={() => router.push(s.id === "analytics" ? "/admin/analytics" : "/admin")}
                     className={`w-full text-left px-4 py-2.5 rounded-lg text-sm font-medium transition-colors flex items-center gap-2.5 ${
                       section === s.id
                         ? "text-white"
@@ -269,7 +275,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
                         >
                           <button
                             onClick={() => {
-                              setSection("cms");
+                              router.push("/admin");
                               setActiveTab(change.tab as CMSTab);
                             }}
                             className="flex items-center gap-1.5 px-2.5 py-1 hover:bg-amber-50 dark:hover:bg-amber-900/20 transition-colors cursor-pointer"

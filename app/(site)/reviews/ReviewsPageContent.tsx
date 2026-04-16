@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Star } from "lucide-react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 export default function ReviewsPageContent() {
   const config = useSiteConfig();
@@ -46,7 +47,7 @@ export default function ReviewsPageContent() {
         <div className="hero-gradient-animated rounded-2xl p-6 sm:p-8 md:p-10 text-center text-white" style={{ background: "linear-gradient(135deg, #26463f 0%, #365c52 45%, #4b776b 100%)" }}>
           <h2 className="font-serif text-xl sm:text-2xl font-bold mb-3">{config.reviews.ctaTitle}</h2>
           <p className="text-white/80 mb-6">{config.reviews.ctaBody}</p>
-          <Link href="/contact-us/" className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors inline-block cta-link-white">
+          <Link href="/contact-us/" className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors inline-block cta-link-white" onClick={() => trackEvent("CTA_CLICK", { label: "reviews_estimate" })}>
             {config.reviews.ctaLabel}
           </Link>
         </div>
