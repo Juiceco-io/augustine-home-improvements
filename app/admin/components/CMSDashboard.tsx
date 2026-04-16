@@ -75,7 +75,7 @@ interface Props {
 export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props) {
   const pathname = usePathname();
   const router = useRouter();
-  const section: Section = pathname === "/admin/analytics" ? "analytics" : "cms";
+  const section: Section = pathname.startsWith("/admin/analytics") ? "analytics" : "cms";
   const [activeTab, setActiveTab] = useState<CMSTab>("branding");
   const [config, setConfig] = useState<SiteConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -180,7 +180,7 @@ export default function CMSDashboard({ onLogout, isDark, onToggleTheme }: Props)
             >
               <span className="text-white text-sm font-bold">A</span>
             </div>
-            <span className="font-semibold text-gray-900 dark:text-white">Augustine CMS</span>
+            <span className="font-semibold text-gray-900 dark:text-white">Augustine Admin</span>
           </button>
           <div className="flex items-center gap-4">
             {email && (
