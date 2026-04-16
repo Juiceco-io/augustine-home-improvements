@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Shield, Star, Award } from "lucide-react";
 import ClientOnly from "@/components/ClientOnly";
 import ContactForm from "./ContactForm";
@@ -16,21 +15,8 @@ export const metadata: Metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
+    <div className="bg-white pt-28 md:pt-36 pb-16 md:pb-20">
       <div className="container-xl">
-        {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="mb-5 md:mb-6">
-          <ol className="flex items-center gap-2 text-sm text-gray-500">
-            <li>
-              <Link href="/" className="hover:text-brand-red transition-colors">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li className="text-brand-charcoal font-medium">Contact Us</li>
-          </ol>
-        </nav>
-
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Left: form */}
           <div className="lg:col-span-3">

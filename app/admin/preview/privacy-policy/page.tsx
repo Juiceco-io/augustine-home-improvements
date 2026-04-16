@@ -1,23 +1,9 @@
 "use client";
 
-import Link from "next/link";
-
 export default function PreviewPrivacyPolicyPage() {
   return (
     <div className="bg-white pt-20 md:pt-24 pb-16 md:pb-20">
       <div className="container-xl">
-        <nav aria-label="Breadcrumb" className="mb-6">
-          <ol className="flex items-center gap-2 text-sm text-gray-500">
-            <li>
-              <Link href="/admin/preview/" className="hover:text-brand-red transition-colors">
-                Home
-              </Link>
-            </li>
-            <li aria-hidden="true">/</li>
-            <li className="text-brand-charcoal font-medium">Privacy Policy</li>
-          </ol>
-        </nav>
-
         <div className="max-w-3xl">
           <h1 className="section-heading mb-8">Privacy Policy</h1>
 

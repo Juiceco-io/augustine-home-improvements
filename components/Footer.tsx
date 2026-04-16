@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Facebook, Shield, Award, Star } from "lucide-react";
 import { CmsPhoneLink, CmsEmailLink, CmsLogo, CmsServiceArea } from "./CmsContact";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -23,7 +24,7 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
       className="bg-brand-charcoal text-white"
       style={{ borderTop: "3px solid var(--brand-primary)" }}
     >
-      <div className="container-xl py-14 md:py-20">
+      <div className="container-xl pt-20 pb-14 md:py-20">
         {/* Main grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1.2fr] gap-10 md:gap-12">
           {/* Brand column */}
@@ -112,6 +113,7 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
             <Link
               href={`${basePath}/contact-us/`}
               className="btn-primary text-sm py-2.5 px-5 w-full justify-center sm:w-auto lg:w-full"
+              onClick={() => trackEvent("CTA_CLICK", { label: "footer_estimate" })}
             >
               Get a Free Estimate
             </Link>
@@ -119,7 +121,7 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-14 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
+        <div className="mt-14 pt-6 pb-6 sm:pb-0 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-500">
           <p>
             &copy; {new Date().getFullYear()} Augustine Home Improvements LLC.
             All rights reserved.

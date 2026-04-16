@@ -75,6 +75,7 @@ jobs:
       cms_cognito_client_id: ${{ steps.tf-output.outputs.cms_cognito_client_id }}
       cms_api_url: ${{ steps.tf-output.outputs.cms_api_url }}
       contact_api_url: ${{ steps.tf-output.outputs.contact_api_url }}
+      analytics_api_ingest_url: ${{ steps.tf-output.outputs.analytics_api_ingest_url }}
 
     steps:
       - name: Checkout
@@ -241,6 +242,59 @@ jobs:
             echo "[config-seed] config/site-config.json already exists — skipping seed (preserving admin edits)."
           fi
 
+      # ── Migrate serviceAreas into existing CMS config ────────────────────
+      # One-time: patches serviceAreas from public/site-config.json into the
+      # S3 CMS config if the field is missing or empty. No-op on all
+      # subsequent deploys once the CMS has towns populated.
+      - name: Migrate serviceAreas into CMS config
+        working-directory: ${{ env.TF_DIR }}
+        env:
+          DEPLOYER_ROLE: ${{ needs.set-environment.outputs.deployer_role }}
+        run: |
+          CONFIG_BUCKET=$(terraform output -raw cms_config_bucket)
+
+          CREDS=$(aws sts assume-role \
+            --role-arn "$DEPLOYER_ROLE" \
+            --role-session-name "service-areas-migrate" \
+            --query 'Credentials.[AccessKeyId,SecretAccessKey,SessionToken]' \
+            --output text)
+          export AWS_ACCESS_KEY_ID=$(echo "$CREDS" | awk '{print $1}')
+          export AWS_SECRET_ACCESS_KEY=$(echo "$CREDS" | awk '{print $2}')
+          export AWS_SESSION_TOKEN=$(echo "$CREDS" | awk '{print $3}')
+
+          REPO_CONFIG="../public/site-config.json"
+
+          patch_key() {
+            local S3_KEY="$1"
+            local LABEL="$2"
+            local TMP_IN="/tmp/cms-${LABEL}.json"
+            local TMP_OUT="/tmp/cms-${LABEL}-patched.json"
+
+            aws s3 cp "s3://$CONFIG_BUCKET/$S3_KEY" "$TMP_IN" 2>/dev/null || echo '{}' > "$TMP_IN"
+
+            node -e "
+              const fs = require('fs');
+              const cms = JSON.parse(fs.readFileSync('$TMP_IN', 'utf-8'));
+              const repo = JSON.parse(fs.readFileSync('$REPO_CONFIG', 'utf-8'));
+              if (!cms.serviceAreas || !cms.serviceAreas.length) {
+                cms.serviceAreas = repo.serviceAreas || [];
+                fs.writeFileSync('$TMP_OUT', JSON.stringify(cms, null, 2));
+                const total = cms.serviceAreas.reduce((s, c) => s + c.towns.length, 0);
+                console.log('Patching $LABEL: ' + cms.serviceAreas.length + ' counties, ' + total + ' towns');
+                process.exit(0);
+              }
+              console.log('$LABEL: serviceAreas already present — skipping');
+              process.exit(1);
+            " && aws s3 cp "$TMP_OUT" \
+                "s3://$CONFIG_BUCKET/$S3_KEY" \
+                --content-type application/json \
+              && echo "::notice title=Service Areas::Migrated serviceAreas into $LABEL" \
+              || echo "[service-areas-migrate] $LABEL — no migration needed."
+          }
+
+          patch_key "config/site-config.json"       "live"
+          patch_key "config/draft-site-config.json" "draft"
+
       - name: Check SES domain verification status
         working-directory: ${{ env.TF_DIR }}
         run: |
@@ -268,6 +322,7 @@ jobs:
           CLIENT_ID=$(terraform output -raw cms_cognito_client_id)
           API_URL=$(terraform output -raw cms_api_url)
           CONTACT_API_URL=$(terraform output -raw contact_api_url)
+          ANALYTICS_API_URL=$(terraform output -raw analytics_api_ingest_url)
           ADMIN_SEEDED=$(terraform output -raw cms_admin_user_created)
           echo "cloudfront_distribution_id=$CF_ID" >> "$GITHUB_OUTPUT"
           echo "s3_bucket_name=$BUCKET" >> "$GITHUB_OUTPUT"
@@ -276,9 +331,11 @@ jobs:
           echo "cms_cognito_client_id=$CLIENT_ID" >> "$GITHUB_OUTPUT"
           echo "cms_api_url=$API_URL" >> "$GITHUB_OUTPUT"
           echo "contact_api_url=$CONTACT_API_URL" >> "$GITHUB_OUTPUT"
+          echo "analytics_api_ingest_url=$ANALYTICS_API_URL" >> "$GITHUB_OUTPUT"
           echo "::notice title=CloudFront URL::$CF_DOMAIN"
           echo "::notice title=CMS API URL::$API_URL"
           echo "::notice title=Contact API URL::$CONTACT_API_URL"
+          echo "::notice title=Analytics Ingest URL::$ANALYTICS_API_URL"
           if [ "$ADMIN_SEEDED" = "true" ]; then
             echo "::notice title=Admin User::Cognito admin user seeded. Set password with: aws cognito-idp admin-set-user-password --user-pool-id $POOL_ID --username <email> --password '<PASSWORD>' --permanent"
           fi
@@ -302,6 +359,7 @@ jobs:
       NEXT_PUBLIC_CMS_CONFIG_URL: ${{ needs.terraform-apply.outputs.cms_config_url }}
       NEXT_PUBLIC_SITE_URL: ${{ needs.terraform-apply.outputs.cloudfront_domain_name }}
       NEXT_PUBLIC_CONTACT_API_URL: ${{ needs.terraform-apply.outputs.contact_api_url }}
+      NEXT_PUBLIC_ANALYTICS_API_URL: ${{ needs.terraform-apply.outputs.analytics_api_ingest_url }}
 
     steps:
       - name: Checkout
@@ -318,6 +376,15 @@ jobs:
 
       - name: Audit dependencies
         run: npm audit --audit-level=high
+
+      - name: Fetch live site-config.json for build
+        run: |
+          SITE_URL="https://${{ needs.terraform-apply.outputs.cloudfront_domain_name }}"
+          if curl -sf "$SITE_URL/site-config.json" -o public/site-config.json; then
+            echo "Fetched live site-config.json from $SITE_URL"
+          else
+            echo "::warning::Could not fetch live site-config.json — using repo fallback"
+          fi
 
       - name: Build static export
         run: npm run build

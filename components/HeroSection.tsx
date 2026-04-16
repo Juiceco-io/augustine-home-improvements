@@ -12,6 +12,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Phone, Award, Shield, Star, CheckCircle } from "lucide-react";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 export default function HeroSection() {
   const config = useSiteConfig();
@@ -96,12 +97,14 @@ export default function HeroSection() {
             <Link
               href="/contact-us/"
               className="btn-primary text-base py-3.5 px-7 justify-center sm:justify-start"
+              onClick={() => trackEvent("CTA_CLICK", { label: "hero_estimate" })}
             >
               Get a Free Estimate
             </Link>
             <a
               href={`tel:+1${config.contact.phone.replace(/\D/g, "")}`}
               className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3.5 px-7 rounded-lg transition-colors text-base cta-link-white"
+              onClick={() => trackEvent("CTA_CLICK", { label: "hero_phone" })}
             >
               <Phone size={16} aria-hidden="true" />
               {config.contact.phone}

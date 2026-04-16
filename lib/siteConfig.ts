@@ -72,6 +72,17 @@ export interface ReviewItem {
   featured: boolean;
 }
 
+export interface ServiceAreaTown {
+  name: string;
+  slug: string;
+}
+
+export interface ServiceAreaCounty {
+  name: string;
+  state: string;
+  towns: ServiceAreaTown[];
+}
+
 export interface SiteConfig {
   _version: number;
   _updatedAt: string;
@@ -134,6 +145,8 @@ export interface SiteConfig {
     showTrexProBadge: boolean;
     heroEnabled: boolean;
   };
+
+  serviceAreas: ServiceAreaCounty[];
 }
 
 export const defaultConfig: SiteConfig = {
@@ -347,6 +360,8 @@ export const defaultConfig: SiteConfig = {
     showTrexProBadge: true,
     heroEnabled: true,
   },
+
+  serviceAreas: [],
 };
 
 export function normalizeSiteConfig(config: Partial<SiteConfig> | null | undefined): SiteConfig {
@@ -411,5 +426,13 @@ export function normalizeSiteConfig(config: Partial<SiteConfig> | null | undefin
       : defaultConfig.gallery.map((item) => ({ ...item })),
     contact: { ...defaultConfig.contact, ...(incoming.contact ?? {}) },
     features: { ...defaultConfig.features, ...(incoming.features ?? {}) },
+    serviceAreas: incoming.serviceAreas?.length
+      ? incoming.serviceAreas.map((county) => ({
+          ...county,
+          towns: county.towns?.length
+            ? county.towns.map((town) => ({ ...town }))
+            : [],
+        }))
+      : [],
   };
 }

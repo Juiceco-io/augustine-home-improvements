@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import ServicePage from "@/components/ServicePage";
+import ServiceAreaAccordion from "@/components/ServiceAreaAccordion";
+import { getStaticConfig } from "@/lib/getStaticConfig";
+import { content } from "./content";
 
 export const metadata: Metadata = {
   title: "Bathroom Remodeling | Chester County PA | Augustine Home Improvements",
@@ -11,22 +14,21 @@ export const metadata: Metadata = {
 };
 
 export default function BathroomRemodelingPage() {
+  const { serviceAreas } = getStaticConfig();
   return (
-    <ServicePage
-      breadcrumb="Bathroom Remodeling"
-      title="Bathroom Remodeling"
-      subtitle="Transform your bathroom in Chester County PA — from cosmetic updates to full gut renovations."
-      description="A well-designed bathroom makes every morning better. Augustine Home Improvements handles bathroom remodels of all scopes — from updating fixtures and tile to completely reconfiguring the layout of a master bath. We work with you to design a space that's both functional and beautiful, and we handle all the trades so you don't have to coordinate a dozen different contractors."
-      highlights={[
-        "Complete gut renovations and layout changes",
-        "Custom tile showers and tub surrounds",
-        "Walk-in shower design and installation",
-        "Vanity, sink, and fixture installation",
-        "Heated floor installation",
-        "Bathtub-to-shower conversions",
-        "Accessible bathroom modifications",
-        "Plumbing and electrical rough-in coordination",
-      ]}
-    />
+    <>
+      <ServicePage
+        breadcrumb={content.breadcrumb}
+        title={content.title}
+        subtitle={content.subtitle}
+        description={content.description}
+        highlights={[...content.highlights]}
+      />
+      <ServiceAreaAccordion
+        serviceAreas={serviceAreas}
+        serviceSlug={content.serviceSlug}
+        serviceTitle={content.title}
+      />
+    </>
   );
 }

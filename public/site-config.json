@@ -13,27 +13,75 @@
   },
   "homepage": {
     "stats": [
-      { "value": "100+", "label": "Projects Completed" },
-      { "value": "5★", "label": "Average Rating" },
-      { "value": "4+", "label": "Years Experience" },
-      { "value": "Free", "label": "Estimates" }
+      {
+        "value": "100+",
+        "label": "Projects Completed"
+      },
+      {
+        "value": "5★",
+        "label": "Average Rating"
+      },
+      {
+        "value": "4+",
+        "label": "Years Experience"
+      },
+      {
+        "value": "Free",
+        "label": "Estimates"
+      }
     ],
     "servicesHeading": "Our Services",
     "servicesSubheading": "From a new deck to a full home renovation — we handle projects of every size with the same attention to detail.",
     "services": [
-      { "title": "Deck Installation", "description": "TrexPro Certified deck builder. Custom composite and wood decks designed for beauty and lasting durability.", "href": "/deck-installation/" },
-      { "title": "Kitchen Renovations", "description": "Full kitchen remodels from layout redesign to the finishing touches — cabinets, counters, and everything in between.", "href": "/kitchen-renovations/" },
-      { "title": "Bathroom Remodeling", "description": "Transform your bathroom into a personal retreat. Custom tile, fixtures, walk-in showers, and complete gut renovations.", "href": "/bathroom-remodeling/" },
-      { "title": "Basement Renovation", "description": "Turn your unfinished basement into livable space — home offices, rec rooms, gyms, and in-law suites.", "href": "/basement-renovation/" },
-      { "title": "Home Additions", "description": "Need more space? We build seamless additions that match your home's architecture and expand your living area.", "href": "/home-additions/" },
-      { "title": "Home Renovations", "description": "Whole-home transformations and multi-room remodels. One contractor, one point of contact, start to finish.", "href": "/home-renovations/" }
+      {
+        "title": "Deck Installation",
+        "description": "TrexPro Certified deck builder. Custom composite and wood decks designed for beauty and lasting durability.",
+        "href": "/deck-installation/"
+      },
+      {
+        "title": "Kitchen Renovations",
+        "description": "Full kitchen remodels from layout redesign to the finishing touches — cabinets, counters, and everything in between.",
+        "href": "/kitchen-renovations/"
+      },
+      {
+        "title": "Bathroom Remodeling",
+        "description": "Transform your bathroom into a personal retreat. Custom tile, fixtures, walk-in showers, and complete gut renovations.",
+        "href": "/bathroom-remodeling/"
+      },
+      {
+        "title": "Basement Renovation",
+        "description": "Turn your unfinished basement into livable space — home offices, rec rooms, gyms, and in-law suites.",
+        "href": "/basement-renovation/"
+      },
+      {
+        "title": "Home Additions",
+        "description": "Need more space? We build seamless additions that match your home's architecture and expand your living area.",
+        "href": "/home-additions/"
+      },
+      {
+        "title": "Home Renovations",
+        "description": "Whole-home transformations and multi-room remodels. One contractor, one point of contact, start to finish.",
+        "href": "/home-renovations/"
+      }
     ],
     "whyChooseUsHeading": "Why Chester County Homeowners Choose Augustine",
     "whyChooseUsItems": [
-      { "title": "Veteran-Owned & Operated", "description": "Founded by Brandon Augustine, a US veteran who brings discipline, attention to detail, and integrity to every project." },
-      { "title": "TrexPro Certified", "description": "One of the few certified Trex installers in Chester County — your deck comes with manufacturer-backed installation quality." },
-      { "title": "Licensed & Fully Insured", "description": "Your home is protected. We carry full liability coverage and workers' comp on every job." },
-      { "title": "Local, Not a Franchise", "description": "We live and work in this community. Our reputation here matters — and it shows in the care we take." }
+      {
+        "title": "Veteran-Owned & Operated",
+        "description": "Founded by Brandon Augustine, a US veteran who brings discipline, attention to detail, and integrity to every project."
+      },
+      {
+        "title": "TrexPro Certified",
+        "description": "One of the few certified Trex installers in Chester County — your deck comes with manufacturer-backed installation quality."
+      },
+      {
+        "title": "Licensed & Fully Insured",
+        "description": "Your home is protected. We carry full liability coverage and workers' comp on every job."
+      },
+      {
+        "title": "Local, Not a Franchise",
+        "description": "We live and work in this community. Our reputation here matters — and it shows in the care we take."
+      }
     ],
     "featuredReviews": {
       "heading": "What Our Customers Say",
@@ -71,10 +119,22 @@
     ],
     "valuesHeading": "Our Values",
     "values": [
-      { "title": "Integrity First", "description": "Honest estimates, no hidden fees, clear scope of work before we start." },
-      { "title": "Quality Craftsmanship", "description": "We take pride in every detail — from framing to finish work." },
-      { "title": "Veteran Standard", "description": "Military discipline means showing up on time, staying on schedule, and getting it right." },
-      { "title": "Community Focus", "description": "We live and work in Chester County. Our neighbors are our customers." }
+      {
+        "title": "Integrity First",
+        "description": "Honest estimates, no hidden fees, clear scope of work before we start."
+      },
+      {
+        "title": "Quality Craftsmanship",
+        "description": "We take pride in every detail — from framing to finish work."
+      },
+      {
+        "title": "Veteran Standard",
+        "description": "Military discipline means showing up on time, staying on schedule, and getting it right."
+      },
+      {
+        "title": "Community Focus",
+        "description": "We live and work in Chester County. Our neighbors are our customers."
+      }
     ],
     "hours": {
       "weekdays": "Mon–Fri: 8:00am – 6:00pm",
@@ -96,9 +156,30 @@
     "ctaBody": "Get a free estimate today — no obligation, no pressure.",
     "ctaLabel": "Request a Free Estimate",
     "items": [
-      { "name": "Sarah M.", "location": "Phoenixville, PA", "service": "Deck Installation", "text": "Brandon and his crew did an amazing job on our deck. Professional, clean, and finished ahead of schedule. The composite decking looks beautiful and we couldn't be happier. Highly recommend!", "rating": 5, "featured": true },
-      { "name": "Tom K.", "location": "Malvern, PA", "service": "Kitchen Renovation", "text": "We had our kitchen completely renovated. The quality of work is outstanding — new cabinets, countertops, and backsplash. Brandon was great to work with, very communicative and professional.", "rating": 5, "featured": true },
-      { "name": "Jennifer L.", "location": "Downingtown, PA", "service": "Basement Renovation", "text": "Augustine Home Improvements transformed our unfinished basement into a beautiful family room. Fair pricing, great communication throughout, and excellent craftsmanship. We love it!", "rating": 5, "featured": true }
+      {
+        "name": "Sarah M.",
+        "location": "Phoenixville, PA",
+        "service": "Deck Installation",
+        "text": "Brandon and his crew did an amazing job on our deck. Professional, clean, and finished ahead of schedule. The composite decking looks beautiful and we couldn't be happier. Highly recommend!",
+        "rating": 5,
+        "featured": true
+      },
+      {
+        "name": "Tom K.",
+        "location": "Malvern, PA",
+        "service": "Kitchen Renovation",
+        "text": "We had our kitchen completely renovated. The quality of work is outstanding — new cabinets, countertops, and backsplash. Brandon was great to work with, very communicative and professional.",
+        "rating": 5,
+        "featured": true
+      },
+      {
+        "name": "Jennifer L.",
+        "location": "Downingtown, PA",
+        "service": "Basement Renovation",
+        "text": "Augustine Home Improvements transformed our unfinished basement into a beautiful family room. Fair pricing, great communication throughout, and excellent craftsmanship. We love it!",
+        "rating": 5,
+        "featured": true
+      }
     ]
   },
   "gallery": [],
@@ -111,5 +192,1191 @@
     "showVeteranBadge": true,
     "showTrexProBadge": true,
     "heroEnabled": true
-  }
+  },
+  "serviceAreas": [
+    {
+      "name": "Bucks County",
+      "state": "PA",
+      "towns": [
+        {
+          "name": "Bedminster",
+          "slug": "bedminster-pa"
+        },
+        {
+          "name": "Bensalem",
+          "slug": "bensalem-pa"
+        },
+        {
+          "name": "Blooming Glen",
+          "slug": "blooming-glen-pa"
+        },
+        {
+          "name": "Bristol",
+          "slug": "bristol-pa"
+        },
+        {
+          "name": "Buckingham",
+          "slug": "buckingham-pa"
+        },
+        {
+          "name": "Carversville",
+          "slug": "carversville-pa"
+        },
+        {
+          "name": "Chalfont",
+          "slug": "chalfont-pa"
+        },
+        {
+          "name": "Churchville",
+          "slug": "churchville-pa"
+        },
+        {
+          "name": "Croydon",
+          "slug": "croydon-pa"
+        },
+        {
+          "name": "Danboro",
+          "slug": "danboro-pa"
+        },
+        {
+          "name": "Doylestown",
+          "slug": "doylestown-pa"
+        },
+        {
+          "name": "Dublin",
+          "slug": "dublin-pa"
+        },
+        {
+          "name": "Durham",
+          "slug": "durham-pa"
+        },
+        {
+          "name": "Erwinna",
+          "slug": "erwinna-pa"
+        },
+        {
+          "name": "Fairless Hills",
+          "slug": "fairless-hills-pa"
+        },
+        {
+          "name": "Fallsington",
+          "slug": "fallsington-pa"
+        },
+        {
+          "name": "Feasterville",
+          "slug": "feasterville-pa"
+        },
+        {
+          "name": "Ferndale",
+          "slug": "ferndale-pa"
+        },
+        {
+          "name": "Forest Grove",
+          "slug": "forest-grove-pa"
+        },
+        {
+          "name": "Fountainville",
+          "slug": "fountainville-pa"
+        },
+        {
+          "name": "Furlong",
+          "slug": "furlong-pa"
+        },
+        {
+          "name": "Hilltown",
+          "slug": "hilltown-pa"
+        },
+        {
+          "name": "Holicong",
+          "slug": "holicong-pa"
+        },
+        {
+          "name": "Holland",
+          "slug": "holland-pa"
+        },
+        {
+          "name": "Jamison",
+          "slug": "jamison-pa"
+        },
+        {
+          "name": "Kintnersville",
+          "slug": "kintnersville-pa"
+        },
+        {
+          "name": "Lahaska",
+          "slug": "lahaska-pa"
+        },
+        {
+          "name": "Langhorne",
+          "slug": "langhorne-pa"
+        },
+        {
+          "name": "Levittown",
+          "slug": "levittown-pa"
+        },
+        {
+          "name": "Line Lexington",
+          "slug": "line-lexington-pa"
+        },
+        {
+          "name": "Lower Makefield Township",
+          "slug": "lower-makefield-township-pa"
+        },
+        {
+          "name": "Lumberville",
+          "slug": "lumberville-pa"
+        },
+        {
+          "name": "Mechanicsville",
+          "slug": "mechanicsville-pa"
+        },
+        {
+          "name": "Middletown Township",
+          "slug": "middletown-township-pa"
+        },
+        {
+          "name": "Milford Square",
+          "slug": "milford-square-pa"
+        },
+        {
+          "name": "Morrisville",
+          "slug": "morrisville-pa"
+        },
+        {
+          "name": "New Britain",
+          "slug": "new-britain-pa"
+        },
+        {
+          "name": "New Hope",
+          "slug": "new-hope-pa"
+        },
+        {
+          "name": "Newtown",
+          "slug": "newtown-pa"
+        },
+        {
+          "name": "Ottsville",
+          "slug": "ottsville-pa"
+        },
+        {
+          "name": "Penns Park",
+          "slug": "penns-park-pa"
+        },
+        {
+          "name": "Perkasie",
+          "slug": "perkasie-pa"
+        },
+        {
+          "name": "Pineville",
+          "slug": "pineville-pa"
+        },
+        {
+          "name": "Pipersville",
+          "slug": "pipersville-pa"
+        },
+        {
+          "name": "Plumsteadville",
+          "slug": "plumsteadville-pa"
+        },
+        {
+          "name": "Point Pleasant",
+          "slug": "point-pleasant-pa"
+        },
+        {
+          "name": "Quakertown",
+          "slug": "quakertown-pa"
+        },
+        {
+          "name": "Revere",
+          "slug": "revere-pa"
+        },
+        {
+          "name": "Richboro",
+          "slug": "richboro-pa"
+        },
+        {
+          "name": "Richlandtown",
+          "slug": "richlandtown-pa"
+        },
+        {
+          "name": "Riegelsville",
+          "slug": "riegelsville-pa"
+        },
+        {
+          "name": "Rushland",
+          "slug": "rushland-pa"
+        },
+        {
+          "name": "Sellersville",
+          "slug": "sellersville-pa"
+        },
+        {
+          "name": "Silverdale",
+          "slug": "silverdale-pa"
+        },
+        {
+          "name": "Solebury",
+          "slug": "solebury-pa"
+        },
+        {
+          "name": "Southampton",
+          "slug": "southampton-pa"
+        },
+        {
+          "name": "Spinnerstown",
+          "slug": "spinnerstown-pa"
+        },
+        {
+          "name": "Springtown",
+          "slug": "springtown-pa"
+        },
+        {
+          "name": "Trevose",
+          "slug": "trevose-pa"
+        },
+        {
+          "name": "Trumbauersville",
+          "slug": "trumbauersville-pa"
+        },
+        {
+          "name": "Tullytown",
+          "slug": "tullytown-pa"
+        },
+        {
+          "name": "Upper Black Eddy",
+          "slug": "upper-black-eddy-pa"
+        },
+        {
+          "name": "Warminster",
+          "slug": "warminster-pa"
+        },
+        {
+          "name": "Warrington",
+          "slug": "warrington-pa"
+        },
+        {
+          "name": "Washington Crossing",
+          "slug": "washington-crossing-pa"
+        },
+        {
+          "name": "Woodside",
+          "slug": "woodside-pa"
+        },
+        {
+          "name": "Wrightstown",
+          "slug": "wrightstown-pa"
+        },
+        {
+          "name": "Wycombe",
+          "slug": "wycombe-pa"
+        },
+        {
+          "name": "Yardley",
+          "slug": "yardley-pa"
+        },
+        {
+          "name": "Zionhill",
+          "slug": "zionhill-pa"
+        }
+      ]
+    },
+    {
+      "name": "Chester County",
+      "state": "PA",
+      "towns": [
+        {
+          "name": "Atglen",
+          "slug": "atglen-pa"
+        },
+        {
+          "name": "Avondale",
+          "slug": "avondale-pa"
+        },
+        {
+          "name": "Berwyn",
+          "slug": "berwyn-pa"
+        },
+        {
+          "name": "Birchrunville",
+          "slug": "birchrunville-pa"
+        },
+        {
+          "name": "Birmingham Township",
+          "slug": "birmingham-township-pa"
+        },
+        {
+          "name": "Brandamore",
+          "slug": "brandamore-pa"
+        },
+        {
+          "name": "Bucktown",
+          "slug": "bucktown-pa"
+        },
+        {
+          "name": "Byers Station",
+          "slug": "byers-station-pa"
+        },
+        {
+          "name": "Caln Township",
+          "slug": "caln-township-pa"
+        },
+        {
+          "name": "Cedarville",
+          "slug": "cedarville-pa"
+        },
+        {
+          "name": "Charlestown",
+          "slug": "charlestown-pa"
+        },
+        {
+          "name": "Chatham",
+          "slug": "chatham-pa"
+        },
+        {
+          "name": "Chester Springs",
+          "slug": "chester-springs-pa"
+        },
+        {
+          "name": "Chesterbrook",
+          "slug": "chesterbrook-pa"
+        },
+        {
+          "name": "Chesterville",
+          "slug": "chesterville-pa"
+        },
+        {
+          "name": "Coatesville",
+          "slug": "coatesville-pa"
+        },
+        {
+          "name": "Cochranville",
+          "slug": "cochranville-pa"
+        },
+        {
+          "name": "Coventry",
+          "slug": "coventry-pa"
+        },
+        {
+          "name": "Coventryville",
+          "slug": "coventryville-pa"
+        },
+        {
+          "name": "Daylesford",
+          "slug": "daylesford-pa"
+        },
+        {
+          "name": "Devault",
+          "slug": "devault-pa"
+        },
+        {
+          "name": "Devon",
+          "slug": "devon-pa"
+        },
+        {
+          "name": "Downingtown",
+          "slug": "downingtown-pa"
+        },
+        {
+          "name": "Eagle",
+          "slug": "eagle-pa"
+        },
+        {
+          "name": "East Marlborough",
+          "slug": "east-marlborough-pa"
+        },
+        {
+          "name": "Elverson",
+          "slug": "elverson-pa"
+        },
+        {
+          "name": "Embreeville",
+          "slug": "embreeville-pa"
+        },
+        {
+          "name": "Exton",
+          "slug": "exton-pa"
+        },
+        {
+          "name": "Frazer",
+          "slug": "frazer-pa"
+        },
+        {
+          "name": "Glenloch",
+          "slug": "glenloch-pa"
+        },
+        {
+          "name": "Glenmoore",
+          "slug": "glenmoore-pa"
+        },
+        {
+          "name": "Honey Brook",
+          "slug": "honey-brook-pa"
+        },
+        {
+          "name": "Immaculata",
+          "slug": "immaculata-pa"
+        },
+        {
+          "name": "Jennersville",
+          "slug": "jennersville-pa"
+        },
+        {
+          "name": "Kelton",
+          "slug": "kelton-pa"
+        },
+        {
+          "name": "Kemblesville",
+          "slug": "kemblesville-pa"
+        },
+        {
+          "name": "Kennett Square",
+          "slug": "kennett-square-pa"
+        },
+        {
+          "name": "Kimberton",
+          "slug": "kimberton-pa"
+        },
+        {
+          "name": "Landenberg",
+          "slug": "landenberg-pa"
+        },
+        {
+          "name": "Lewisville",
+          "slug": "lewisville-pa"
+        },
+        {
+          "name": "Lincoln University",
+          "slug": "lincoln-university-pa"
+        },
+        {
+          "name": "Lionville",
+          "slug": "lionville-pa"
+        },
+        {
+          "name": "Lyndell",
+          "slug": "lyndell-pa"
+        },
+        {
+          "name": "Malvern",
+          "slug": "malvern-pa"
+        },
+        {
+          "name": "Marchwood",
+          "slug": "marchwood-pa"
+        },
+        {
+          "name": "Marshallton",
+          "slug": "marshallton-pa"
+        },
+        {
+          "name": "Mendenhall",
+          "slug": "mendenhall-pa"
+        },
+        {
+          "name": "Modena",
+          "slug": "modena-pa"
+        },
+        {
+          "name": "New London",
+          "slug": "new-london-pa"
+        },
+        {
+          "name": "Newlin Township",
+          "slug": "newlin-township-pa"
+        },
+        {
+          "name": "Nottingham",
+          "slug": "nottingham-pa"
+        },
+        {
+          "name": "Oxford",
+          "slug": "oxford-pa"
+        },
+        {
+          "name": "Paoli",
+          "slug": "paoli-pa"
+        },
+        {
+          "name": "Parker Ford",
+          "slug": "parker-ford-pa"
+        },
+        {
+          "name": "Parkesburg",
+          "slug": "parkesburg-pa"
+        },
+        {
+          "name": "Phoenixville",
+          "slug": "phoenixville-pa"
+        },
+        {
+          "name": "Pocopson",
+          "slug": "pocopson-pa"
+        },
+        {
+          "name": "Pomeroy",
+          "slug": "pomeroy-pa"
+        },
+        {
+          "name": "Sadsburyville",
+          "slug": "sadsburyville-pa"
+        },
+        {
+          "name": "Saint Peters",
+          "slug": "saint-peters-pa"
+        },
+        {
+          "name": "Southeastern",
+          "slug": "southeastern-pa"
+        },
+        {
+          "name": "Spring City",
+          "slug": "spring-city-pa"
+        },
+        {
+          "name": "Suplee",
+          "slug": "suplee-pa"
+        },
+        {
+          "name": "Thorndale",
+          "slug": "thorndale-pa"
+        },
+        {
+          "name": "Toughkenamon",
+          "slug": "toughkenamon-pa"
+        },
+        {
+          "name": "Tredyffrin",
+          "slug": "tredyffrin-pa"
+        },
+        {
+          "name": "Unionville",
+          "slug": "unionville-pa"
+        },
+        {
+          "name": "Uwchlan",
+          "slug": "uwchlan-pa"
+        },
+        {
+          "name": "Uwchland",
+          "slug": "uwchland-pa"
+        },
+        {
+          "name": "Valley Forge",
+          "slug": "valley-forge-pa"
+        },
+        {
+          "name": "Wagontown",
+          "slug": "wagontown-pa"
+        },
+        {
+          "name": "West Brandywine Township",
+          "slug": "west-brandywine-township-pa"
+        },
+        {
+          "name": "West Chester",
+          "slug": "west-chester-pa"
+        },
+        {
+          "name": "West Goshen",
+          "slug": "west-goshen-pa"
+        },
+        {
+          "name": "West Grove",
+          "slug": "west-grove-pa"
+        },
+        {
+          "name": "Westtown",
+          "slug": "westtown-pa"
+        }
+      ]
+    },
+    {
+      "name": "Delaware County",
+      "state": "PA",
+      "towns": [
+        {
+          "name": "Aldan",
+          "slug": "aldan-pa"
+        },
+        {
+          "name": "Ardmore",
+          "slug": "ardmore-pa"
+        },
+        {
+          "name": "Aston",
+          "slug": "aston-pa"
+        },
+        {
+          "name": "Boothwyn",
+          "slug": "boothwyn-pa"
+        },
+        {
+          "name": "Brookhaven",
+          "slug": "brookhaven-pa"
+        },
+        {
+          "name": "Broomall",
+          "slug": "broomall-pa"
+        },
+        {
+          "name": "Bryn Mawr",
+          "slug": "bryn-mawr-pa"
+        },
+        {
+          "name": "Chadds Ford",
+          "slug": "chadds-ford-pa"
+        },
+        {
+          "name": "Chester Heights",
+          "slug": "chester-heights-pa"
+        },
+        {
+          "name": "Chester",
+          "slug": "chester-pa"
+        },
+        {
+          "name": "Cheyney",
+          "slug": "cheyney-pa"
+        },
+        {
+          "name": "Chichester",
+          "slug": "chichester-pa"
+        },
+        {
+          "name": "Clifton Heights",
+          "slug": "clifton-heights-pa"
+        },
+        {
+          "name": "Collingdale",
+          "slug": "collingdale-pa"
+        },
+        {
+          "name": "Concordville",
+          "slug": "concordville-pa"
+        },
+        {
+          "name": "Crum Lynne",
+          "slug": "crum-lynne-pa"
+        },
+        {
+          "name": "Darby",
+          "slug": "darby-pa"
+        },
+        {
+          "name": "Drexel Hill",
+          "slug": "drexel-hill-pa"
+        },
+        {
+          "name": "Eddystone",
+          "slug": "eddystone-pa"
+        },
+        {
+          "name": "Edgemont",
+          "slug": "edgemont-pa"
+        },
+        {
+          "name": "Elwyn",
+          "slug": "elwyn-pa"
+        },
+        {
+          "name": "Essington",
+          "slug": "essington-pa"
+        },
+        {
+          "name": "Folcroft",
+          "slug": "folcroft-pa"
+        },
+        {
+          "name": "Folsom",
+          "slug": "folsom-pa"
+        },
+        {
+          "name": "Garnet Valley",
+          "slug": "garnet-valley-pa"
+        },
+        {
+          "name": "Glen Mills",
+          "slug": "glen-mills-pa"
+        },
+        {
+          "name": "Glen Riddle",
+          "slug": "glen-riddle-pa"
+        },
+        {
+          "name": "Glenolden",
+          "slug": "glenolden-pa"
+        },
+        {
+          "name": "Gradyville",
+          "slug": "gradyville-pa"
+        },
+        {
+          "name": "Haverford",
+          "slug": "haverford-pa"
+        },
+        {
+          "name": "Havertown",
+          "slug": "havertown-pa"
+        },
+        {
+          "name": "Holmes",
+          "slug": "holmes-pa"
+        },
+        {
+          "name": "Lansdowne",
+          "slug": "lansdowne-pa"
+        },
+        {
+          "name": "Lenni",
+          "slug": "lenni-pa"
+        },
+        {
+          "name": "Lester",
+          "slug": "lester-pa"
+        },
+        {
+          "name": "Manoa",
+          "slug": "manoa-pa"
+        },
+        {
+          "name": "Marcus Hook",
+          "slug": "marcus-hook-pa"
+        },
+        {
+          "name": "Media",
+          "slug": "media-pa"
+        },
+        {
+          "name": "Middletown",
+          "slug": "middletown-pa"
+        },
+        {
+          "name": "Milmont Park",
+          "slug": "milmont-park-pa"
+        },
+        {
+          "name": "Morton",
+          "slug": "morton-pa"
+        },
+        {
+          "name": "Newtown Square",
+          "slug": "newtown-square-pa"
+        },
+        {
+          "name": "Norwood",
+          "slug": "norwood-pa"
+        },
+        {
+          "name": "Painters Crossing",
+          "slug": "painters-crossing-pa"
+        },
+        {
+          "name": "Pennsbury Township",
+          "slug": "pennsbury-township-pa"
+        },
+        {
+          "name": "Primos",
+          "slug": "primos-pa"
+        },
+        {
+          "name": "Prospect Park",
+          "slug": "prospect-park-pa"
+        },
+        {
+          "name": "Radnor",
+          "slug": "radnor-pa"
+        },
+        {
+          "name": "Ridley Park",
+          "slug": "ridley-park-pa"
+        },
+        {
+          "name": "Ridley Township",
+          "slug": "ridley-township-pa"
+        },
+        {
+          "name": "Rose Valley",
+          "slug": "rose-valley-pa"
+        },
+        {
+          "name": "Rosemont",
+          "slug": "rosemont-pa"
+        },
+        {
+          "name": "Rutledge",
+          "slug": "rutledge-pa"
+        },
+        {
+          "name": "Secane",
+          "slug": "secane-pa"
+        },
+        {
+          "name": "Sharon Hill",
+          "slug": "sharon-hill-pa"
+        },
+        {
+          "name": "Springfield",
+          "slug": "springfield-pa"
+        },
+        {
+          "name": "St. Davids",
+          "slug": "st-davids-pa"
+        },
+        {
+          "name": "Strafford",
+          "slug": "strafford-pa"
+        },
+        {
+          "name": "Swarthmore",
+          "slug": "swarthmore-pa"
+        },
+        {
+          "name": "Thornton",
+          "slug": "thornton-pa"
+        },
+        {
+          "name": "Tinicum",
+          "slug": "tinicum-pa"
+        },
+        {
+          "name": "Upper Darby",
+          "slug": "upper-darby-pa"
+        },
+        {
+          "name": "Villanova",
+          "slug": "villanova-pa"
+        },
+        {
+          "name": "Wallingford",
+          "slug": "wallingford-pa"
+        },
+        {
+          "name": "Wawa",
+          "slug": "wawa-pa"
+        },
+        {
+          "name": "Wayne",
+          "slug": "wayne-pa"
+        },
+        {
+          "name": "Woodlyn",
+          "slug": "woodlyn-pa"
+        },
+        {
+          "name": "Yeadon",
+          "slug": "yeadon-pa"
+        }
+      ]
+    },
+    {
+      "name": "Montgomery County",
+      "state": "PA",
+      "towns": [
+        {
+          "name": "Abington",
+          "slug": "abington-pa"
+        },
+        {
+          "name": "Ambler",
+          "slug": "ambler-pa"
+        },
+        {
+          "name": "Audubon",
+          "slug": "audubon-pa"
+        },
+        {
+          "name": "Bala Cynwyd",
+          "slug": "bala-cynwyd-pa"
+        },
+        {
+          "name": "Blue Bell",
+          "slug": "blue-bell-pa"
+        },
+        {
+          "name": "Bridgeport",
+          "slug": "bridgeport-pa"
+        },
+        {
+          "name": "Bryn Athyn",
+          "slug": "bryn-athyn-pa"
+        },
+        {
+          "name": "Cedars",
+          "slug": "cedars-pa"
+        },
+        {
+          "name": "Cheltenham",
+          "slug": "cheltenham-pa"
+        },
+        {
+          "name": "Collegeville",
+          "slug": "collegeville-pa"
+        },
+        {
+          "name": "Colmar",
+          "slug": "colmar-pa"
+        },
+        {
+          "name": "Conshohocken",
+          "slug": "conshohocken-pa"
+        },
+        {
+          "name": "Creamery",
+          "slug": "creamery-pa"
+        },
+        {
+          "name": "Dresher",
+          "slug": "dresher-pa"
+        },
+        {
+          "name": "Eagleville",
+          "slug": "eagleville-pa"
+        },
+        {
+          "name": "Earlington",
+          "slug": "earlington-pa"
+        },
+        {
+          "name": "East Greenville",
+          "slug": "east-greenville-pa"
+        },
+        {
+          "name": "Elkins Park",
+          "slug": "elkins-park-pa"
+        },
+        {
+          "name": "Fairview Village",
+          "slug": "fairview-village-pa"
+        },
+        {
+          "name": "Flourtown",
+          "slug": "flourtown-pa"
+        },
+        {
+          "name": "Fort Washington",
+          "slug": "fort-washington-pa"
+        },
+        {
+          "name": "Franconia",
+          "slug": "franconia-pa"
+        },
+        {
+          "name": "Frederick",
+          "slug": "frederick-pa"
+        },
+        {
+          "name": "Gilbertsville",
+          "slug": "gilbertsville-pa"
+        },
+        {
+          "name": "Gladwyne",
+          "slug": "gladwyne-pa"
+        },
+        {
+          "name": "Glenside",
+          "slug": "glenside-pa"
+        },
+        {
+          "name": "Green Lane",
+          "slug": "green-lane-pa"
+        },
+        {
+          "name": "Gwynedd",
+          "slug": "gwynedd-pa"
+        },
+        {
+          "name": "Gwynedd Valley",
+          "slug": "gwynedd-valley-pa"
+        },
+        {
+          "name": "Harleysville",
+          "slug": "harleysville-pa"
+        },
+        {
+          "name": "Hatboro",
+          "slug": "hatboro-pa"
+        },
+        {
+          "name": "Hatfield",
+          "slug": "hatfield-pa"
+        },
+        {
+          "name": "Horsham",
+          "slug": "horsham-pa"
+        },
+        {
+          "name": "Huntingdon Valley",
+          "slug": "huntingdon-valley-pa"
+        },
+        {
+          "name": "Jenkintown",
+          "slug": "jenkintown-pa"
+        },
+        {
+          "name": "King Of Prussia",
+          "slug": "king-of-prussia-pa"
+        },
+        {
+          "name": "Kulpsville",
+          "slug": "kulpsville-pa"
+        },
+        {
+          "name": "Lafayette Hill",
+          "slug": "lafayette-hill-pa"
+        },
+        {
+          "name": "Lansdale",
+          "slug": "lansdale-pa"
+        },
+        {
+          "name": "Lederach",
+          "slug": "lederach-pa"
+        },
+        {
+          "name": "Mainland",
+          "slug": "mainland-pa"
+        },
+        {
+          "name": "Melrose",
+          "slug": "melrose-pa"
+        },
+        {
+          "name": "Merion Station",
+          "slug": "merion-station-pa"
+        },
+        {
+          "name": "Mont Clare",
+          "slug": "mont-clare-pa"
+        },
+        {
+          "name": "Montgomeryville",
+          "slug": "montgomeryville-pa"
+        },
+        {
+          "name": "Narberth",
+          "slug": "narberth-pa"
+        },
+        {
+          "name": "Norristown",
+          "slug": "norristown-pa"
+        },
+        {
+          "name": "North Wales",
+          "slug": "north-wales-pa"
+        },
+        {
+          "name": "Oaks",
+          "slug": "oaks-pa"
+        },
+        {
+          "name": "Oreland",
+          "slug": "oreland-pa"
+        },
+        {
+          "name": "Palm",
+          "slug": "palm-pa"
+        },
+        {
+          "name": "Pennsburg",
+          "slug": "pennsburg-pa"
+        },
+        {
+          "name": "Perkiomenville",
+          "slug": "perkiomenville-pa"
+        },
+        {
+          "name": "Plymouth Meeting",
+          "slug": "plymouth-meeting-pa"
+        },
+        {
+          "name": "Pottstown",
+          "slug": "pottstown-pa"
+        },
+        {
+          "name": "Red Hill",
+          "slug": "red-hill-pa"
+        },
+        {
+          "name": "Royersford",
+          "slug": "royersford-pa"
+        },
+        {
+          "name": "Salford",
+          "slug": "salford-pa"
+        },
+        {
+          "name": "Salfordville",
+          "slug": "salfordville-pa"
+        },
+        {
+          "name": "Sassamansville",
+          "slug": "sassamansville-pa"
+        },
+        {
+          "name": "Schwenksville",
+          "slug": "schwenksville-pa"
+        },
+        {
+          "name": "Skippack",
+          "slug": "skippack-pa"
+        },
+        {
+          "name": "Souderton",
+          "slug": "souderton-pa"
+        },
+        {
+          "name": "Spring House",
+          "slug": "spring-house-pa"
+        },
+        {
+          "name": "Spring Mount",
+          "slug": "spring-mount-pa"
+        },
+        {
+          "name": "Sumneytown",
+          "slug": "sumneytown-pa"
+        },
+        {
+          "name": "Telford",
+          "slug": "telford-pa"
+        },
+        {
+          "name": "Tylersport",
+          "slug": "tylersport-pa"
+        },
+        {
+          "name": "West Norriton",
+          "slug": "west-norriton-pa"
+        },
+        {
+          "name": "West Point",
+          "slug": "west-point-pa"
+        },
+        {
+          "name": "Willow Grove",
+          "slug": "willow-grove-pa"
+        },
+        {
+          "name": "Worcester",
+          "slug": "worcester-pa"
+        },
+        {
+          "name": "Woxall",
+          "slug": "woxall-pa"
+        },
+        {
+          "name": "Wyncote",
+          "slug": "wyncote-pa"
+        },
+        {
+          "name": "Wynnewood",
+          "slug": "wynnewood-pa"
+        },
+        {
+          "name": "Zieglerville",
+          "slug": "zieglerville-pa"
+        }
+      ]
+    }
+  ]
 }
