@@ -8,6 +8,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 export default function GalleryCta() {
   const config = useSiteConfig();
@@ -32,12 +33,13 @@ export default function GalleryCta() {
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <Link href="/contact-us/" className="btn-primary w-full sm:w-auto justify-center">
+            <Link href="/contact-us/" className="btn-primary w-full sm:w-auto justify-center" onClick={() => trackEvent("CTA_CLICK", { label: "gallery_estimate" })}>
               Start Your Project <ArrowRight size={18} />
             </Link>
             <a
               href={tel}
               className="btn-outline border-white text-white hover:bg-white hover:text-brand-charcoal w-full sm:w-auto justify-center cta-link-white"
+              onClick={() => trackEvent("CTA_CLICK", { label: "gallery_phone" })}
             >
               Call {phone}
             </a>

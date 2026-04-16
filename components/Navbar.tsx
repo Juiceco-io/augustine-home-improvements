@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Phone, ChevronDown, Menu, X } from "lucide-react";
 import NavbarLogo from "./NavbarLogo";
 import { useCmsContact } from "./CmsContact";
+import { trackEvent } from "@/lib/analytics";
 
 const services = [
   { href: "/deck-installation/", label: "Deck Installation" },
@@ -125,7 +126,7 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
             </Link>
           ))}
 
-          <a href={tel} className="flex items-center gap-2 btn-primary text-sm py-2.5 px-5">
+          <a href={tel} className="flex items-center gap-2 btn-primary text-sm py-2.5 px-5" onClick={() => trackEvent("CTA_CLICK", { label: "navbar_phone_desktop" })}>
             <Phone size={15} aria-hidden="true" />
             {phone}
           </a>
@@ -136,6 +137,7 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
             href={tel}
             className="flex items-center gap-1.5 text-sm font-semibold py-2 px-2.5 rounded-lg hover:bg-brand-mist transition-colors"
             aria-label="Call Augustine Home Improvements"
+            onClick={() => trackEvent("CTA_CLICK", { label: "navbar_phone_mobile" })}
           >
             <Phone size={16} className="text-brand-primary" aria-hidden="true" />
             <span className="text-brand-charcoal">Call</span>
@@ -199,7 +201,7 @@ export default function Navbar({ basePath = "", topOffset = 0 }: { basePath?: st
           ))}
 
           <div className="mt-3">
-            <a href={tel} className="btn-primary w-full justify-center" onClick={() => setIsOpen(false)}>
+            <a href={tel} className="btn-primary w-full justify-center" onClick={() => { setIsOpen(false); trackEvent("CTA_CLICK", { label: "navbar_phone_mobile_menu" }); }}>
               <Phone size={15} aria-hidden="true" />
               Call {phone}
             </a>

@@ -16,6 +16,7 @@ import {
 import ScrollReveal from "@/components/ScrollReveal";
 import HeroSection from "@/components/HeroSection";
 import { useSiteConfig } from "@/lib/useSiteConfig";
+import { trackEvent } from "@/lib/analytics";
 
 const serviceIcons = [Layers, ChefHat, Bath, ArrowDownToLine, Home, Hammer];
 
@@ -102,8 +103,8 @@ export default function HomePageContent() {
                 <h3 className="font-serif text-2xl font-bold text-brand-charcoal mb-2">{miniCta.title}</h3>
                 <p className="text-gray-600 mb-6">{miniCta.body}</p>
                 <div className="space-y-3">
-                  <Link href={miniCta.primaryHref} className="btn-primary w-full justify-center">{miniCta.primaryLabel}</Link>
-                  <a href={miniCta.secondaryHref} className="btn-outline w-full justify-center">
+                  <Link href={miniCta.primaryHref} className="btn-primary w-full justify-center" onClick={() => trackEvent("CTA_CLICK", { label: "homepage_mini_cta_estimate" })}>{miniCta.primaryLabel}</Link>
+                  <a href={miniCta.secondaryHref} className="btn-outline w-full justify-center" onClick={() => trackEvent("CTA_CLICK", { label: "homepage_mini_cta_phone" })}>
                     <Phone size={15} aria-hidden="true" />
                     {miniCta.secondaryLabel}
                   </a>
@@ -160,8 +161,8 @@ export default function HomePageContent() {
               <h2 className="font-serif text-2xl sm:text-3xl font-bold mb-3">{bottomCta.title}</h2>
               <p className="text-white/80 mb-6 max-w-2xl mx-auto">{bottomCta.body}</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <Link href={bottomCta.primaryHref} className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center cta-link-white">{bottomCta.primaryLabel}</Link>
-                <a href={bottomCta.secondaryHref} className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto cta-link-white">
+                <Link href={bottomCta.primaryHref} className="bg-white text-brand-red font-bold py-3 px-8 rounded-lg hover:bg-gray-100 transition-colors w-full sm:w-auto text-center cta-link-white" onClick={() => trackEvent("CTA_CLICK", { label: "homepage_bottom_cta_estimate" })}>{bottomCta.primaryLabel}</Link>
+                <a href={bottomCta.secondaryHref} className="flex items-center justify-center gap-2 bg-white/15 hover:bg-white/25 text-white font-semibold py-3 px-8 rounded-lg transition-colors w-full sm:w-auto cta-link-white" onClick={() => trackEvent("CTA_CLICK", { label: "homepage_bottom_cta_phone" })}>
                   <Phone size={15} aria-hidden="true" />
                   {bottomCta.secondaryLabel}
                 </a>

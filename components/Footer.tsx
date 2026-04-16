@@ -89,7 +89,10 @@ export default function Footer({ basePath = "" }: { basePath?: string }) {
             </h3>
             <ul className="space-y-4 mb-7">
               <li>
-                <CmsPhoneLink className="flex items-center gap-3 text-sm text-gray-300 hover:text-white transition-colors duration-150 [&>svg]:text-[color:var(--brand-primary)]" />
+                <CmsPhoneLink
+                  className="flex items-center gap-3 text-sm text-gray-300 hover:text-white transition-colors duration-150 [&>svg]:text-[color:var(--brand-primary)]"
+                  onClick={() => trackEvent("CTA_CLICK", { label: "footer_phone" })}
+                />
               </li>
               <li>
                 <CmsEmailLink className="flex items-start gap-3 text-sm text-gray-300 hover:text-white transition-colors duration-150 [&>svg]:text-[color:var(--brand-primary)]" />
