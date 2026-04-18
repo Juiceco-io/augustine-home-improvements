@@ -16,14 +16,14 @@ jobs:
         run: |
           ALLOWED_BRANCHES="dev"
           for branch in $ALLOWED_BRANCHES; do
-            if [ "$$HEAD_REF" = "$$branch" ]; then
-              echo "✅ Source branch '$$HEAD_REF' is allowed to promote to main."
+            if [ "$HEAD_REF" = "$branch" ]; then
+              echo "✅ Source branch '$HEAD_REF' is allowed to promote to main."
               exit 0
             fi
           done
           echo "❌ PRs to main must come from an allowed promotion branch."
-          echo "   Source branch: '$$HEAD_REF'"
-          echo "   Allowed: $$ALLOWED_BRANCHES"
+          echo "   Source branch: '$HEAD_REF'"
+          echo "   Allowed: $ALLOWED_BRANCHES"
           echo ""
           echo "   Merge your changes into one of the allowed branches first, then open a PR from there to main."
           exit 1
